@@ -92,7 +92,7 @@ export default function ControlledSelect({
             </FormLabel>
           ) : null}
           <Select
-            onValueChange={(value: any) => {
+            onValueChange={(value: string) => {
               field.onChange(value);
               if (onChange) onChange(value);
             }}

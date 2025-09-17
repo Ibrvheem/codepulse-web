@@ -40,7 +40,7 @@ export default function ControlledInput({
   type?: string;
   showEyeIcon?: boolean;
   readOnly?: boolean;
-  onKeyDown?: any;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   min?: number;
 }) {
