@@ -1,5 +1,5 @@
 import React from "react";
-import { WaitListForm } from "./waitlist-form";
+import { WaitListForm } from "./_components/waitlist-form";
 import { Command } from "lucide-react";
 
 export default function Page() {
