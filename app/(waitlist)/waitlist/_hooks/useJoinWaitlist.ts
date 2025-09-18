@@ -6,11 +6,9 @@ import { waitlistPayload } from "../types";
 import { joinWaitlist } from "../service";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export function useJoinWaitlist() {
   const [open, setOpen] = useState(false);
-  const { refresh } = useRouter();
   const form = useForm({
     resolver: zodResolver(waitlistPayload),
   });
