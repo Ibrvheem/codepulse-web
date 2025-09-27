@@ -1,8 +1,18 @@
+import { getAccessToken } from "./auth";
+
 const url = process.env.BASE_URL;
-const getAuthHeader = async () => {
-    return {
-        Authorization: `Bearer ${"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImkuYWxpeXUwMTlAZ21haWwuY29tIiwidXNlcklkIjoiY21mc3lhNnV4MDAwMGExMWJyNDJqeWxkZyIsImlhdCI6MTc1ODU5NjQ0NywiZXhwIjoxNzU4NTk2NDQ3fQ._zyQ3o_ol1ivF8HEE0BAuIkoONUjkSIiK-GTsEkY-6c"}`,
+const getAuthHeader = async (): Promise<Record<string, string>> => {
+    const token = await getAccessToken();
+    const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "Bypass-Tunnel-Reminder": "Bypass-Tunnel-Reminder",
     };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    return headers;
 };
 
 const handleResponse = async (response: Response) => {
@@ -22,11 +32,7 @@ export const api = {
         const headers = await getAuthHeader();
 
         const response = await fetch(`${url}/${endpoint}`, {
-            headers: {
-                ...headers,
-                "Content-Type": "application/json",
-                "Bypass-Tunnel-Reminder": "Bypass-Tunnel-Reminder",
-            },
+            headers,
             cache: "no-store",
             ...params,
         });
@@ -38,10 +44,7 @@ export const api = {
         console.log(`${url}/${endpoint}`);
         const response = await fetch(`${url}/${endpoint}`, {
             method: "POST",
-            headers: {
-                ...headers,
-                "Content-Type": "application/json",
-            },
+            headers,
             body: JSON.stringify(payload),
         });
         return handleResponse(response);
@@ -51,10 +54,7 @@ export const api = {
         const headers = await getAuthHeader();
         const response = await fetch(`${url}/${endpoint}`, {
             method: "PUT",
-            headers: {
-                ...headers,
-                "Content-Type": "application/json",
-            },
+            headers,
             body: JSON.stringify(payload),
         });
         return handleResponse(response);
@@ -64,10 +64,7 @@ export const api = {
         const headers = await getAuthHeader();
         const response = await fetch(`${url}/${endpoint}`, {
             method: "PATCH",
-            headers: {
-                ...headers,
-                "Content-Type": "application/json",
-            },
+            headers,
             body: JSON.stringify(payload),
         });
         return handleResponse(response);
@@ -77,21 +74,24 @@ export const api = {
         const headers = await getAuthHeader();
         const response = await fetch(`${url}/${endpoint}`, {
             method: "DELETE",
-            headers: {
-                ...headers,
-                "Content-Type": "application/json",
-            },
+            headers,
         });
         return handleResponse(response);
     },
 
     formData: async (endpoint: string, formData: FormData) => {
-        const headers = await getAuthHeader();
+        const token = await getAccessToken();
+        const headers: Record<string, string> = {
+            "Bypass-Tunnel-Reminder": "Bypass-Tunnel-Reminder",
+        };
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${url}/${endpoint}`, {
             method: "POST",
-            headers: {
-                ...headers,
-            },
+            headers,
             body: formData,
         });
         return handleResponse(response);
