@@ -4,9 +4,9 @@ import api from "@/lib/api"
 import { revalidateTag } from "next/cache";
 import { NewProjectData } from "./types";
 
-export async function getSummaries() {
+export async function getSummaries(id: string) {
     try {
-        const response = await api.get("summary");
+        const response = await api.get(`summary/${id}`);
         console.log(response);
         return response;
     } catch (error) {
@@ -18,6 +18,19 @@ export async function getSummaries() {
 export async function getProjects() {
     try {
         const response = await api.get("projects", {
+            next: {
+                tags: ["projects"],
+            }
+        });
+        return response;
+    } catch (error) {
+        console.error("Error fetching projects:", error);
+        return error;
+    }
+}
+export async function getProject(id: string) {
+    try {
+        const response = await api.get(`projects/${id}`, {
             next: {
                 tags: ["projects"],
             }

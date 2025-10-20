@@ -1,9 +1,13 @@
-import Tasks from "./_components/tasks";
-import { getSummaries } from "./service";
-import { WorkLogSummary } from "./types";
+import Tasks from "../_components/tasks";
+import { getSummaries } from "../service";
+import { WorkLogSummary } from "../types";
 
-export default async function DashboardPage() {
-  const summaries = (await getSummaries()) as WorkLogSummary[];
+export default async function SingleProjectPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const summaries = (await getSummaries(params.id)) as WorkLogSummary[];
 
   return (
     <div className="space-y-4">
