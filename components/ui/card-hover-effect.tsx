@@ -53,6 +53,13 @@ export const HoverEffect = ({
             <CardTitle className="text-black">{item.title}</CardTitle>
             <CardDescription className="text-black">
               {item.description}
+              <div className="">
+                <p className="">Personal Access Token</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-green-400">wrlg**************254</span>{" "}
+                  <span>+4 more</span>
+                </div>
+              </div>
             </CardDescription>
           </Card>
         </a>
@@ -104,7 +111,7 @@ export const CardDescription = ({
   return (
     <p
       className={cn(
-        "mt-8 text-zinc-400 tracking-wide leading-relaxed text-sm",
+        "text-zinc-400 tracking-wide leading-relaxed text-sm",
         className
       )}
     >

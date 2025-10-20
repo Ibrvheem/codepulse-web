@@ -27,6 +27,19 @@ export const WorkLogSummarySchema = z.object({
     rawLogs: z.array(RawLogSchema),
 });
 
+export const newProjectSchema = z.object({
+    name: z.string().min(1, "Project name is required"),
+    description: z.string().min(1, "Project description is required"),
+    repoUrl: z
+        .string()
+        .url("Please enter a valid URL")
+        .optional()
+        .or(z.literal("")),
+});
+
+export type NewProjectData = z.infer<typeof newProjectSchema>;
+
+
 export const SummariesResponseSchema = z.array(WorkLogSummarySchema);
 
 export type Task = z.infer<typeof TaskSchema>;

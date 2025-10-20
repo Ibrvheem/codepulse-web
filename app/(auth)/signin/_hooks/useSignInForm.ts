@@ -17,9 +17,6 @@ export function useSignInForm() {
 
             if (response.status === 200 && response.access_token) {
                 toast.success('Login Successful')
-
-                // Use window.location.href to trigger a full page navigation
-                // This ensures the middleware runs and sees the new auth cookies
                 window.location.href = '/dashboard';
 
                 return response
