@@ -1,9 +1,13 @@
 import { getProjects } from "./service";
-import NewProjectCard from "./_components/new-project-card";
-import { ProjectCard, ProjectItem } from "./_components/project-card";
+import { ProjectItem } from "./_components/project-card";
+import { DashboardHeader } from "./_components/dashboard-header";
+import { StatsOverview } from "./_components/stats-overview";
+import { ProjectsGrid } from "./_components/projects-grid";
+import { RecentActivity } from "./_components/recent-activity";
 
 export default async function Page() {
   const projects = await getProjects();
+
   const transformedProjects: ProjectItem[] =
     projects?.map((project: any) => ({
       id: project.id,
@@ -13,16 +17,41 @@ export default async function Page() {
       patKeys: project.patKeys,
     })) || [];
 
-  return (
-    <div className="bg-white">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 py-10">
-        {/* New Project Card */}
+  // Calculate dashboard statistics
+  const stats = {
+    totalProjects: projects?.length || 0,
+    activeProjects:
+      projects?.filter((p: any) => p._count.rawLogs > 0).length || 0,
+    totalLogs:
+      projects?.reduce((acc: number, p: any) => acc + p._count.rawLogs, 0) || 0,
+    totalSummaries:
+      projects?.reduce(
+        (acc: number, p: any) => acc + p._count.workLogSummaries,
+        0
+      ) || 0,
+  };
 
-        {/* Existing Projects */}
-        {transformedProjects.map((item: ProjectItem, idx: number) => (
-          <ProjectCard key={item.link || idx} item={item} />
-        ))}
-        <NewProjectCard />
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
+        <DashboardHeader projectCount={stats.totalProjects} />
+
+        <StatsOverview
+          totalProjects={stats.totalProjects}
+          activeProjects={stats.activeProjects}
+          totalLogs={stats.totalLogs}
+          totalSummaries={stats.totalSummaries}
+        />
+
+        <div className="mt-10">
+          <ProjectsGrid projects={transformedProjects} />
+        </div>
+
+        {stats.totalProjects > 0 && (
+          <div className="mt-12 max-w-md">
+            <RecentActivity projects={projects || []} />
+          </div>
+        )}
       </div>
     </div>
   );

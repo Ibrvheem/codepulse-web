@@ -2,7 +2,7 @@
 
 import api from "@/lib/api"
 import { revalidateTag } from "next/cache";
-import { NewProjectData } from "./types";
+import { GenerateKeyData, NewProjectData } from "./types";
 
 export async function getSummaries(id: string) {
     try {
@@ -32,7 +32,7 @@ export async function getProject(id: string) {
     try {
         const response = await api.get(`projects/${id}`, {
             next: {
-                tags: ["projects"],
+                tags: [`project-${id}`],
             }
         });
         return response;
@@ -46,6 +46,18 @@ export async function createProject(data: NewProjectData) {
     try {
         const response = await api.post("projects", data);
         revalidateTag("projects");
+        return response;
+    } catch (error) {
+        console.error("Error creating project:", error);
+        return error;
+    }
+}
+export async function generateKey(data: GenerateKeyData) {
+    try {
+        const response = await api.post("pat", data);
+        revalidateTag(`project-${data.projectId}`);
+        console.log(response, 'here')
+
         return response;
     } catch (error) {
         console.error("Error creating project:", error);

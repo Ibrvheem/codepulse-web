@@ -37,9 +37,14 @@ export const newProjectSchema = z.object({
         .or(z.literal("")),
 });
 
+export const generateKeySchema = z.object({
+    name: z.string().min(1, "API Key name is required"),
+    projectId: z.string().min(1, "Project ID is required"),
+});
+
 export type NewProjectData = z.infer<typeof newProjectSchema>;
 
-
+export type GenerateKeyData = z.infer<typeof generateKeySchema>;
 export const SummariesResponseSchema = z.array(WorkLogSummarySchema);
 
 export type Task = z.infer<typeof TaskSchema>;

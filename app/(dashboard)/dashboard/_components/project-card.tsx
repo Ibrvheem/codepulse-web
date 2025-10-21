@@ -1,7 +1,5 @@
 "use client";
-import { CardDescription, CardTitle } from "./custom-card";
-import { Button } from "@/components/ui/button";
-import { Key } from "lucide-react";
+import { Key, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export type ProjectItem = {
@@ -18,7 +16,6 @@ export type ProjectItem = {
 };
 
 export function ProjectCard({ item }: { item: ProjectItem }) {
-  console.log("Rendering ProjectCard for item:", item);
   const { push } = useRouter();
   const latestPatKey =
     item.patKeys && item.patKeys.length > 0
@@ -30,37 +27,29 @@ export function ProjectCard({ item }: { item: ProjectItem }) {
 
   return (
     <div
-      className="group block p-2 h-full w-full min-h-64"
       onClick={() => push(`/dashboard/${item.id}`)}
+      className="group cursor-pointer border border-gray-200 rounded-lg p-6 hover:border-gray-400 hover:shadow-sm transition-all bg-white"
     >
-      <div className="!flex !flex-col !justify-between border border-border rounded-2xl w-full !h-full p-8 relative overflow-hidden">
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <CardTitle className="!text-black">{item.title}</CardTitle>
-          </div>
+      <div className="flex flex-col h-full">
+        <div className="flex-1">
+          <h3 className="text-base font-medium text-gray-900 mb-1 group-hover:text-gray-700">
+            {item.title}
+          </h3>
+          <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+            {item.description || "No description"}
+          </p>
 
-          <CardDescription className="!text-black flex-1">
-            <div className="line-clamp-3 overflow-hidden">
-              {item.description || "No description provided."}
-            </div>
-          </CardDescription>
-          {/* PAT Key Display */}
           {latestPatKey && (
-            <div className="mb-2 p-2 bg-gray-50 rounded border-l-2 border-indigo-500">
-              <div className="flex items-center gap-2">
-                <Key className="w-3 h-3 text-indigo-600" />
-                <div className="font-mono text-xs text-gray-700 truncate">
-                  {latestPatKey.key}
-                </div>
-              </div>
+            <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded text-xs text-gray-600 font-mono border border-gray-200">
+              <Key className="w-3 h-3" />
+              <span>{latestPatKey.key}</span>
             </div>
           )}
         </div>
 
-        <div>
-          <Button className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
-            {latestPatKey ? "Generate New Key" : "Generate First Key"}
-          </Button>
+        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm">
+          <span className="text-gray-500">View project</span>
+          <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
         </div>
       </div>
     </div>

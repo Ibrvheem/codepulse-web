@@ -1,24 +1,42 @@
 "use client";
 
-import { Plus, Loader2 } from "lucide-react";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { Form } from "@/components/ui/form";
 import ControlledInput from "@/components/molecules/controlled-input";
 import ControlledTextarea from "@/components/molecules/controlled-textarea";
 import { useCreateProject } from "../_hooks/use-create-project";
 
-export default function NewProjectCard() {
-  const { form, isSubmitting, onSubmit } = useCreateProject();
+import { Plus } from "lucide-react";
+
+export function CreateProjectDialog() {
+  const { form, isSubmitting, onSubmit, open, setOpen } = useCreateProject();
 
   return (
-    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors bg-gray-50/50">
-      <div className="flex flex-col h-full">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="p-1.5 bg-gray-200 rounded">
-            <Plus className="w-4 h-4 text-gray-600" />
-          </div>
-          <h3 className="font-medium text-gray-900">New Project</h3>
-        </div>
-
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="w-4 h-4 mr-2" />
+          New Project
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Create New Project</DialogTitle>
+          <DialogDescription>
+            Add a new project to track your development work logs and generate
+            AI summaries.
+          </DialogDescription>
+        </DialogHeader>
         <Form {...form}>
           <div className="space-y-3 flex-1">
             <div>
@@ -55,22 +73,15 @@ export default function NewProjectCard() {
             </div>
           </div>
 
-          <button
+          <Button
             onClick={() => onSubmit()}
-            disabled={isSubmitting}
-            className="w-full mt-4 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
+            loading={isSubmitting}
+            className="w-full mt-4 bg-indigo-600 hover:bg-indigo-800 disabled:bg-indigo-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Project"
-            )}
-          </button>
+            Create Project
+          </Button>
         </Form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

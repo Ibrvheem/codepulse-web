@@ -5,9 +5,9 @@ import { WorkLogSummary } from "../types";
 export default async function SingleProjectPage({
   params,
 }: {
-  params: { id: string };
+  params: { summaryId: string };
 }) {
-  const summaries = (await getSummaries(params.id)) as WorkLogSummary[];
+  const summaries = (await getSummaries(params.summaryId)) as WorkLogSummary[];
 
   return (
     <div className="space-y-4">
