@@ -21,6 +21,7 @@ import {
   Settings,
   ExternalLink,
   Zap,
+  Trash,
 } from "lucide-react";
 import Link from "next/link";
 import { GenerateApiKeyPopover } from "./_components/generate-api-key-popover";
@@ -108,8 +109,12 @@ export default async function SingleProjectPage({
               </div>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="text-red-700 border-red-500 hover:border-red-700 hover:text-red-900">
+                <Trash className="w-4 h-4 mr-0" />
+                Delete
+              </Button>
               <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-2" />
+                <Settings className="w-4 h-4 mr-0" />
                 Settings
               </Button>
             </div>

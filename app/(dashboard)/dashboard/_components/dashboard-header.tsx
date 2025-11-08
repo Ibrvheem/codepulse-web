@@ -1,3 +1,5 @@
+"use client";
+
 import { CreateProjectDialog } from "./create-project-dialog";
 
 interface DashboardHeaderProps {
