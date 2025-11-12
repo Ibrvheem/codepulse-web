@@ -17,12 +17,12 @@ import {
   BarChart3,
   TrendingUp,
   Code2,
-  Settings,
   ExternalLink,
   Trash,
 } from "lucide-react";
 import Link from "next/link";
 import { GenerateApiKeyPopover } from "./_components/generate-api-key-popover";
+import { DeleteConfirmationDialog } from "../_components/delete-confirmation-dialog";
 
 type Project = {
   id: string;
@@ -106,18 +106,19 @@ export default async function SingleProjectPage({
               </div>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-red-700 border-red-500 hover:border-red-700 hover:text-red-900"
+              <DeleteConfirmationDialog
+                projectName={project.name}
+                projectId={project.id}
               >
-                <Trash className="w-4 h-4 mr-0" />
-                Delete
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-0" />
-                Settings
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-red-700 border-red-500 hover:border-red-700 hover:text-red-900"
+                >
+                  <Trash className="w-4 h-4 mr-0" />
+                  Delete
+                </Button>
+              </DeleteConfirmationDialog>
             </div>
           </div>
 
