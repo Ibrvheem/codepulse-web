@@ -13,14 +13,12 @@ import {
   Key,
   Calendar,
   FileText,
-  Plus,
   Clock,
   BarChart3,
   TrendingUp,
   Code2,
   Settings,
   ExternalLink,
-  Zap,
   Trash,
 } from "lucide-react";
 import Link from "next/link";

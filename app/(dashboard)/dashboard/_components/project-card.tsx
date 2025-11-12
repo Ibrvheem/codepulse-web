@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Key, ArrowRight, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DeleteConfirmationDialog } from "./delete-confirmation-dialog";
-import { useState } from "react";
 
 export type ProjectItem = {
   id: string;
