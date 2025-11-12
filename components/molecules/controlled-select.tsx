@@ -108,7 +108,7 @@ export default function ControlledSelect({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {values.map((val, i) => (
+              {values?.map((val, i) => (
                 <SelectItem value={val.value} key={val.value + i} className="">
                   {val.name}
                 </SelectItem>

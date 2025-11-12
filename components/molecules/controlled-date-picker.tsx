@@ -86,7 +86,7 @@ export default function ControlledDateTimePicker({
                 onSelect={(date) => {
                   if (!date) return;
 
-                  const [hours, minutes] = tempTime.split(":").map(Number);
+                  const [hours, minutes] = tempTime.split(":")?.map(Number);
                   const newDateTime = new Date(date);
                   newDateTime.setHours(hours);
                   newDateTime.setMinutes(minutes);
@@ -105,7 +105,7 @@ export default function ControlledDateTimePicker({
                   setTempTime(time);
 
                   if (field.value) {
-                    const [hours, minutes] = time.split(":").map(Number);
+                    const [hours, minutes] = time.split(":")?.map(Number);
                     const newDateTime = new Date(field.value);
                     newDateTime.setHours(hours);
                     newDateTime.setMinutes(minutes);

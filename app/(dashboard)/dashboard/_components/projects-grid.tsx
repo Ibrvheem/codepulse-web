@@ -36,7 +36,7 @@ export function ProjectsGrid({ projects }: ProjectsGridProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((item: ProjectItem) => (
+      {projects?.map((item: ProjectItem) => (
         <ProjectCard key={item.id} item={item} />
       ))}
     </div>

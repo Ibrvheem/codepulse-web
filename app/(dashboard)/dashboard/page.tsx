@@ -3,10 +3,9 @@ import { ProjectItem } from "./_components/project-card";
 import { DashboardHeader } from "./_components/dashboard-header";
 import { StatsOverview } from "./_components/stats-overview";
 import { ProjectsGrid } from "./_components/projects-grid";
-import { RecentActivity } from "./_components/recent-activity";
 
 export default async function Page() {
-  const projects = await getProjects();
+  const projects = (await getProjects()) ?? [];
 
   const transformedProjects: ProjectItem[] =
     projects?.map((project: any) => ({
@@ -34,20 +33,18 @@ export default async function Page() {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <DashboardHeader projectCount={stats.totalProjects} />
+        <DashboardHeader projectCount={stats?.totalProjects} />
 
         <StatsOverview
-          totalProjects={stats.totalProjects}
-          activeProjects={stats.activeProjects}
-          totalLogs={stats.totalLogs}
-          totalSummaries={stats.totalSummaries}
+          totalProjects={stats?.totalProjects}
+          activeProjects={stats?.activeProjects}
+          totalLogs={stats?.totalLogs}
+          totalSummaries={stats?.totalSummaries}
         />
 
         <div className="mt-10">
           <ProjectsGrid projects={transformedProjects} />
         </div>
-
-  
       </div>
     </div>
   );

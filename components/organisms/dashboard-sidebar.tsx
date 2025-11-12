@@ -1,16 +1,6 @@
 "use client";
 
 import * as React from "react";
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import {
   SidebarProvider,
   SidebarInset,
@@ -214,7 +204,7 @@ export const DashboardSidebar = ({
                   <DropdownMenuLabel className="text-xs text-muted-foreground">
                     Teams
                   </DropdownMenuLabel>
-                  {DATA.teams.map((team, index) => (
+                  {DATA.teams?.map((team, index) => (
                     <DropdownMenuItem
                       key={team.name}
                       onClick={() => setActiveTeam(team)}
@@ -248,7 +238,7 @@ export const DashboardSidebar = ({
           <SidebarGroup>
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <SidebarMenu>
-              {DATA.navMain.map((item) =>
+              {DATA.navMain?.map((item) =>
                 item.items && item.items.length > 0 ? (
                   <Collapsible
                     key={item.title}
@@ -334,7 +324,7 @@ export const DashboardSidebar = ({
           {/* <SidebarGroup className="group-data-[collapsible=icon]:hidden">
             <SidebarGroupLabel>Projects</SidebarGroupLabel>
             <SidebarMenu>
-              {DATA.projects.map((item) => (
+              {DATA.projects?.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>

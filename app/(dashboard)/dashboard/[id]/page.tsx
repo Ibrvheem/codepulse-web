@@ -59,8 +59,7 @@ export default async function SingleProjectPage({
 }: {
   params: { id: string };
 }) {
-  const project: Project = await getProject(params.id);
-  console.log(project);
+  const project: Project = (await getProject(params.id)) ?? [];
 
   if (!project) {
     return (
@@ -109,7 +108,11 @@ export default async function SingleProjectPage({
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="text-red-700 border-red-500 hover:border-red-700 hover:text-red-900">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-red-700 border-red-500 hover:border-red-700 hover:text-red-900"
+              >
                 <Trash className="w-4 h-4 mr-0" />
                 Delete
               </Button>
@@ -214,7 +217,7 @@ export default async function SingleProjectPage({
               </div>
             ) : (
               <div className="space-y-3">
-                {project.workLogSummaries.map((summary) => (
+                {project?.workLogSummaries?.map((summary) => (
                   <WorkLogSummaryCard key={summary.id} summary={summary} />
                 ))}
               </div>
@@ -277,7 +280,7 @@ export default async function SingleProjectPage({
                     <p className="text-xs">No API keys yet</p>
                   </div>
                 ) : (
-                  project.patKeys.map((key) => (
+                  project?.patKeys?.map((key) => (
                     <div
                       key={key.id}
                       className="p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"

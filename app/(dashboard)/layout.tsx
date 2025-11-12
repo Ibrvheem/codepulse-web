@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { DashboardSidebar } from "@/components/organisms/dashboard-sidebar";
 import { redirect } from "next/navigation";
 import React from "react";
