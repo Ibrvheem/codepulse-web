@@ -17,20 +17,45 @@ import { AlertTriangle } from "lucide-react";
 import ControlledInput from "@/components/molecules/controlled-input";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
+import api from "@/lib/api";
+import { deleteProject } from "../service";
+import { toast } from "sonner";
+import { usePathname, useRouter } from "next/navigation";
 
 interface DeleteConfirmationDialogProps {
   children: React.ReactNode;
   projectName: string;
-  onConfirm: () => void | Promise<void>;
-  isDeleting?: boolean;
+  projectId: string;
 }
 
 export function DeleteConfirmationDialog({
   children,
   projectName,
+  projectId,
 }: DeleteConfirmationDialogProps) {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const pathname = usePathname();
+  const { replace } = useRouter();
   const form = useForm({});
+  async function handleDelete() {
+    setLoading(true);
+    try {
+      const response = await deleteProject(projectId);
+      if (pathname === "/dashboard") {
+        replace("/dashboard");
+      }
+      setOpen(false);
+      toast.success("Project deleted successfully");
+
+      return response;
+    } catch (error) {
+      toast.error("Failed to delete project");
+      return error;
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -85,7 +110,11 @@ export function DeleteConfirmationDialog({
           <Button
             type="button"
             variant="destructive"
-            disabled={form.watch("projectname") !== projectName}
+            loading={loading}
+            disabled={form.watch("projectname") !== projectName || loading}
+            onClick={() => {
+              handleDelete();
+            }}
           >
             Delete Project
           </Button>
