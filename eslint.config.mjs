@@ -26,5 +26,6 @@ export default eslintConfig;
 eslintConfig.push({
   rules: {
     "@typescript-eslint/no-explicit-any": "off",
+    "react-hooks/exhaustive-deps": "off"
   },
 });

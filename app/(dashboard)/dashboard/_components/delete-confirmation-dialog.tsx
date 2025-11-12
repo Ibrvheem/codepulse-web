@@ -17,7 +17,6 @@ import { AlertTriangle } from "lucide-react";
 import ControlledInput from "@/components/molecules/controlled-input";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import api from "@/lib/api";
 import { deleteProject } from "../service";
 import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";

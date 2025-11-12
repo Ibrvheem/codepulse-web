@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   SidebarProvider,
   SidebarInset,
-  SidebarTrigger,
   Sidebar,
   SidebarHeader,
   SidebarContent,

@@ -18,7 +18,6 @@ export default function Tasks({ tasks }: { tasks: TaskType[] }) {
         {tasks?.map((t) => (
           <Task
             removeElement={removeElement}
-            id={t.id}
             key={t.id}
             time={t.time_minutes_estimate}
           >
@@ -38,12 +37,10 @@ export default function Tasks({ tasks }: { tasks: TaskType[] }) {
 
 export const Task = ({
   removeElement,
-  id,
   children,
   time,
 }: {
   removeElement: () => void;
-  id: string;
   children: ReactNode;
   time: number;
 }) => {
