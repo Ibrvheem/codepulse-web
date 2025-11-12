@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { DashboardSidebar } from "@/components/organisms/dashboard-sidebar";
+import { clearAuthTokens, getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -14,5 +15,11 @@ export default async function DashboardLayout({
     redirect("/waitlist");
   }
 
-  return <DashboardSidebar>{children}</DashboardSidebar>;
+  const user = await getCurrentUser();
+  if (!user) {
+    await clearAuthTokens();
+    redirect("/login");
+  }
+
+  return <DashboardSidebar user={user}>{children}</DashboardSidebar>;
 }

@@ -50,14 +50,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { User as UserType } from "@/lib/auth";
 
 const DATA = {
-  user: {
-    name: "Skyleen",
-    email: "skyleen@example.com",
-    avatar:
-      "https://pbs.twimg.com/profile_images/1909615404789506048/MTqvRsjo_400x400.jpg",
-  },
   teams: [
     {
       name: "Personal",
@@ -100,8 +95,10 @@ const DATA = {
 
 export const DashboardSidebar = ({
   children,
+  user,
 }: {
   children: React.ReactNode;
+  user: UserType;
 }) => {
   const isMobile = useIsMobile();
   const [activeTeam, setActiveTeam] = React.useState(DATA.teams[0]);
@@ -322,19 +319,16 @@ export const DashboardSidebar = ({
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage
-                        src={DATA.user.avatar}
-                        alt={DATA.user.name}
-                      />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarImage src={""} alt={user.email} />
+                      <AvatarFallback className="rounded-lg">
+                        {user.email.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">
-                        {DATA.user.name}
+                      <span className="truncate font-semibold hidden">
+                        {user.name}
                       </span>
-                      <span className="truncate text-xs">
-                        {DATA.user.email}
-                      </span>
+                      <span className="truncate text-xs">{user.email}</span>
                     </div>
                     <ChevronsUpDown className="ml-auto size-4" />
                   </SidebarMenuButton>
@@ -348,21 +342,18 @@ export const DashboardSidebar = ({
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage
-                          src={DATA.user.avatar}
-                          alt={DATA.user.name}
-                        />
+                        <AvatarImage src={""} alt={user.name || user.email} />
                         <AvatarFallback className="rounded-lg">
-                          CN
+                          <AvatarFallback className="rounded-lg">
+                            {user.email.charAt(0).toUpperCase()}
+                          </AvatarFallback>
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-semibold">
-                          {DATA.user.name}
+                        <span className="truncate font-semibold hidden">
+                          {user.name}
                         </span>
-                        <span className="truncate text-xs">
-                          {DATA.user.email}
-                        </span>
+                        <span className="truncate text-xs">{user.email}</span>
                       </div>
                     </div>
                   </DropdownMenuLabel>
