@@ -47,11 +47,7 @@ export default async function Page() {
           <ProjectsGrid projects={transformedProjects} />
         </div>
 
-        {stats.totalProjects > 0 && (
-          <div className="mt-12 max-w-md">
-            <RecentActivity projects={projects || []} />
-          </div>
-        )}
+  
       </div>
     </div>
   );

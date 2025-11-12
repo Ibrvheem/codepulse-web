@@ -79,23 +79,9 @@ const DATA = {
   navMain: [
     {
       title: "Projects",
-      url: "#",
+      url: "/dashboard",
       icon: SquareTerminal,
       isActive: true,
-      items: [
-        {
-          title: "Project 1",
-          url: "#",
-        },
-        {
-          title: "Project 2",
-          url: "#",
-        },
-        {
-          title: "Project 3",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Models",
@@ -262,20 +248,67 @@ export const DashboardSidebar = ({
           <SidebarGroup>
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <SidebarMenu>
-              {DATA.navMain.map((item) => (
-                <Collapsible
-                  key={item.title}
-                  asChild
-                  defaultOpen={item.isActive}
-                  className="group/collapsible"
-                >
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton
-                        className={
-                          item.isActive ? "text-indigo-600" : undefined
-                        }
-                      >
+              {DATA.navMain.map((item) =>
+                item.items && item.items.length > 0 ? (
+                  <Collapsible
+                    key={item.title}
+                    asChild
+                    defaultOpen={item.isActive}
+                    className="group/collapsible"
+                  >
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          className={
+                            item.isActive ? "text-indigo-600" : undefined
+                          }
+                        >
+                          {item.icon && (
+                            <item.icon
+                              className={
+                                item.isActive ? "text-indigo-600" : undefined
+                              }
+                            />
+                          )}
+                          <span
+                            className={
+                              item.isActive ? "text-indigo-600" : undefined
+                            }
+                          >
+                            {item.title}
+                          </span>
+                          <ChevronRight
+                            className={
+                              "ml-auto transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90 " +
+                              (item.isActive ? "text-indigo-600" : "")
+                            }
+                          />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items?.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild>
+                                <a href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </a>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                ) : (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      className={
+                        item.isActive ? "text-indigo-600" : undefined
+                      }
+                    >
+                      <a href={item.url}>
                         {item.icon && (
                           <item.icon
                             className={
@@ -290,30 +323,11 @@ export const DashboardSidebar = ({
                         >
                           {item.title}
                         </span>
-                        <ChevronRight
-                          className={
-                            "ml-auto transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90 " +
-                            (item.isActive ? "text-indigo-600" : "")
-                          }
-                        />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items?.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
-                              <a href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </a>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
+                      </a>
+                    </SidebarMenuButton>
                   </SidebarMenuItem>
-                </Collapsible>
-              ))}
+                )
+              )}
             </SidebarMenu>
           </SidebarGroup>
           {/* Nav Main */}
