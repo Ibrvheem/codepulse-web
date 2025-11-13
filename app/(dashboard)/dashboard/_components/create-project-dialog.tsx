@@ -32,7 +32,7 @@ export function CreateProjectDialog() {
           <DialogTitle>Create New Project</DialogTitle>
           <DialogDescription>
             Add a new project to track your development work logs and generate
-            AI summaries.
+            summaries.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

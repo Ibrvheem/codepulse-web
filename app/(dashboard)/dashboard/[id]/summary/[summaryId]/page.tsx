@@ -181,15 +181,6 @@ export default async function TasksSummaryPage({ params }: SummaryPageProps) {
                   <div className="text-sm text-gray-600">Files Changed</div>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {Math.round(averageConfidence * 100)}%
-                  </div>
-                  <div className="text-sm text-gray-600">AI Confidence</div>
-                </CardContent>
-              </Card>
             </div>
 
             {/* Task List */}
@@ -198,10 +189,6 @@ export default async function TasksSummaryPage({ params }: SummaryPageProps) {
                 <h2 className="text-xl font-semibold text-gray-900">
                   Development Tasks
                 </h2>
-                <Badge className="bg-green-100 text-green-800">
-                  <Bot className="w-3 h-3 mr-1" />
-                  AI Generated
-                </Badge>
               </div>
 
               {tasks.map((task: Task, index: number) => (

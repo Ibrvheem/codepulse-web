@@ -143,7 +143,7 @@ export default async function SingleProjectPage({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-gray-600 mb-1">
-                    AI Summaries
+                    Summaries
                   </p>
                   <p className="text-2xl font-semibold text-gray-900">
                     {project._count.workLogSummaries}
@@ -370,9 +370,6 @@ function WorkLogSummaryCard({ summary }: { summary: any }) {
       </div>
 
       <div className="flex items-center justify-between">
-        <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-          AI Generated
-        </Badge>
         <Link href={`/dashboard/${summary.projectId}/summary/${summary.id}`}>
           <Button variant="outline" size="sm" className="h-7 text-xs">
             View Details

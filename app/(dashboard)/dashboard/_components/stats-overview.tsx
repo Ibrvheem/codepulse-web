@@ -30,7 +30,7 @@ export function StatsOverview({
       icon: FileText,
     },
     {
-      label: "AI Summaries",
+      label: "Summaries",
       value: totalSummaries,
       icon: BarChart3,
     },

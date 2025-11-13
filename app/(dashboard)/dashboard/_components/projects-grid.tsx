@@ -28,7 +28,7 @@ export function ProjectsGrid({ projects }: ProjectsGridProps) {
         </h3>
         <p className="text-gray-600 max-w-sm mx-auto">
           Create your first project to start tracking work logs and generating
-          AI summaries.
+          summaries.
         </p>
       </div>
     );
