@@ -42,8 +42,6 @@ type SummaryPageProps = {
 export default async function TasksSummaryPage({ params }: SummaryPageProps) {
   const { id: projectId, summaryId } = await params;
 
-  console.log("TasksSummaryPage params:", { projectId, summaryId });
-
   const [tasks, project] = await Promise.all([
     getSummaries(summaryId),
     getProject(projectId),
@@ -81,7 +79,7 @@ export default async function TasksSummaryPage({ params }: SummaryPageProps) {
   }
 
   // Calculate summary stats
-  const totalTimeEstimate = tasks.reduce(
+  const totalTimeEstimate = tasks?.reduce(
     (sum: number, task: Task) => sum + task.time_minutes_estimate,
     0
   );
@@ -92,7 +90,7 @@ export default async function TasksSummaryPage({ params }: SummaryPageProps) {
     ...new Set(tasks.flatMap((task: Task) => task.files)),
   ] as string[];
   const averageConfidence =
-    tasks.reduce((sum: number, task: Task) => sum + task.confidence, 0) /
+    tasks?.reduce((sum: number, task: Task) => sum + task.confidence, 0) /
     tasks.length;
 
   // Get summary title from the first task (assuming it's in the project data)
@@ -153,7 +151,7 @@ export default async function TasksSummaryPage({ params }: SummaryPageProps) {
           {/* Main Content - Tasks */}
           <div className="lg:col-span-3 space-y-6">
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-indigo-600">
