@@ -129,15 +129,15 @@ export default async function TasksSummaryPage({ params }: SummaryPageProps) {
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" disabled>
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" disabled>
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
-              <Button size="sm">
+              <Button size="sm" disabled>
                 <Zap className="w-4 h-4 mr-2" />
                 Regenerate
               </Button>
