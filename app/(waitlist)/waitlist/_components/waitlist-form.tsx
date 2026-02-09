@@ -119,8 +119,8 @@ export function WaitListForm() {
                     isSubmitting
                       ? "loading"
                       : isSubmitSuccessful
-                      ? "success"
-                      : "idle"
+                        ? "success"
+                        : "idle"
                   }
                   variants={{
                     idle: { opacity: 0, scale: 0.8, x: -10 },
