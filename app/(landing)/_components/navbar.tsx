@@ -50,7 +50,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-6 text-[15px]">
             <Link
               href="/signin"
-              className="text-neutral-500 hover:text-neutral-900"
+              className="text-neutral-500 hover:text-neutral-900 hidden"
             >
               Sign in
             </Link>
@@ -101,7 +101,7 @@ export function Navbar() {
                 Pricing
               </a>
               <div className="pt-4 border-t border-neutral-100 space-y-4">
-                <Link href="/signin" className="block text-neutral-600">
+                <Link href="/signin" className="block text-neutral-600 hidden">
                   Sign in
                 </Link>
                 <Link
