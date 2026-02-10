@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import { useSignInForm } from "../_hooks/useSignInForm";
 import ControlledInput from "@/components/molecules/controlled-input";
 import { Command, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export function SignInForm() {
   const { form, onSubmit, isSubmitting } = useSignInForm();
@@ -72,6 +73,15 @@ export function SignInForm() {
           </motion.button>
 
           <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            Don't have an account?{" "}
+            <Link
+              href="/signup"
+              className="text-indigo-600 hover:text-indigo-700 font-medium"
+            >
+              Sign up
+            </Link>
+          </p>
 
           {/* <div className="flex flex-col space-y-4">
             <button
