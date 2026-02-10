@@ -14,15 +14,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
 } from "@/components/animate-ui/components/radix/sidebar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/animate-ui/primitives/radix/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,14 +28,10 @@ import {
 import {
   BadgeCheck,
   Bell,
-  BookOpen,
-  Bot,
-  ChevronRight,
   ChevronsUpDown,
   CreditCard,
   LogOut,
   Plus,
-  Settings2,
   Sparkles,
   SquareTerminal,
   User,
@@ -66,29 +54,6 @@ const DATA = {
       url: "/dashboard",
       icon: SquareTerminal,
       isActive: true,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
     },
   ],
 };
@@ -175,138 +140,34 @@ export const DashboardSidebar = ({
           <SidebarGroup>
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <SidebarMenu>
-              {DATA.navMain?.map((item) =>
-                item.items && item.items.length > 0 ? (
-                  <Collapsible
-                    key={item.title}
+              {DATA.navMain?.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
                     asChild
-                    defaultOpen={item.isActive}
-                    className="group/collapsible"
+                    className={item.isActive ? "text-indigo-600" : undefined}
                   >
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
+                    <a href={item.url}>
+                      {item.icon && (
+                        <item.icon
                           className={
                             item.isActive ? "text-indigo-600" : undefined
                           }
-                        >
-                          {item.icon && (
-                            <item.icon
-                              className={
-                                item.isActive ? "text-indigo-600" : undefined
-                              }
-                            />
-                          )}
-                          <span
-                            className={
-                              item.isActive ? "text-indigo-600" : undefined
-                            }
-                          >
-                            {item.title}
-                          </span>
-                          <ChevronRight
-                            className={
-                              "ml-auto transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90 " +
-                              (item.isActive ? "text-indigo-600" : "")
-                            }
-                          />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.items?.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild>
-                                <a href={subItem.url}>
-                                  <span>{subItem.title}</span>
-                                </a>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
-                ) : (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      className={item.isActive ? "text-indigo-600" : undefined}
-                    >
-                      <a href={item.url}>
-                        {item.icon && (
-                          <item.icon
-                            className={
-                              item.isActive ? "text-indigo-600" : undefined
-                            }
-                          />
-                        )}
-                        <span
-                          className={
-                            item.isActive ? "text-indigo-600" : undefined
-                          }
-                        >
-                          {item.title}
-                        </span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              )}
+                        />
+                      )}
+                      <span
+                        className={
+                          item.isActive ? "text-indigo-600" : undefined
+                        }
+                      >
+                        {item.title}
+                      </span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroup>
           {/* Nav Main */}
-
-          {/* Nav Project */}
-          {/* <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-            <SidebarGroupLabel>Projects</SidebarGroupLabel>
-            <SidebarMenu>
-              {DATA.projects?.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.name}</span>
-                    </a>
-                  </SidebarMenuButton>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <SidebarMenuAction showOnHover>
-                        <MoreHorizontal />
-                        <span className="sr-only">More</span>
-                      </SidebarMenuAction>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="w-48 rounded-lg"
-                      side={isMobile ? "bottom" : "right"}
-                      align={isMobile ? "end" : "start"}
-                    >
-                      <DropdownMenuItem>
-                        <Folder className="text-muted-foreground" />
-                        <span>View Project</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Forward className="text-muted-foreground" />
-                        <span>Share Project</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <Trash2 className="text-muted-foreground" />
-                        <span>Delete Project</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </SidebarMenuItem>
-              ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton className="text-sidebar-foreground/70">
-                  <MoreHorizontal className="text-sidebar-foreground/70" />
-                  <span>More</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup> */}
-          {/* Nav Project */}
         </SidebarContent>
         <SidebarFooter>
           {/* Nav User */}

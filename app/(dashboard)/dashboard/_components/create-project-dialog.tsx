@@ -22,30 +22,28 @@ export function CreateProjectDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
+        <Button size="sm">
+          <Plus className="w-4 h-4 mr-1.5" />
           New Project
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[440px]">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
+          <DialogTitle>New Project</DialogTitle>
           <DialogDescription>
-            Add a new project to track your development work logs and generate
-            summaries.
+            Create a project to track your development work.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <div className="space-y-3 flex-1">
+          <div className="space-y-4 mt-4">
             <div>
               <ControlledInput
                 name="name"
                 placeholder="Project name"
                 disabled={isSubmitting}
-                className="text-sm"
               />
               {form.formState.errors.name && (
-                <p className="text-red-600 text-xs mt-1">
+                <p className="text-red-500 text-xs mt-1">
                   {form.formState.errors.name.message}
                 </p>
               )}
@@ -56,7 +54,7 @@ export function CreateProjectDialog() {
                 name="description"
                 placeholder="Description (optional)"
                 disabled={isSubmitting}
-                className="text-sm min-h-[60px]"
+                className="min-h-20 resize-none"
               />
             </div>
 
@@ -66,7 +64,6 @@ export function CreateProjectDialog() {
                 placeholder="Repository URL (optional)"
                 type="url"
                 disabled={isSubmitting}
-                className="text-sm"
               />
             </div>
           </div>
@@ -74,7 +71,7 @@ export function CreateProjectDialog() {
           <Button
             onClick={() => onSubmit()}
             loading={isSubmitting}
-            className="w-full mt-4 bg-indigo-600 hover:bg-indigo-800 disabled:bg-indigo-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
+            className="w-full mt-6"
           >
             Create Project
           </Button>

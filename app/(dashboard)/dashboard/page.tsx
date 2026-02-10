@@ -26,14 +26,14 @@ export default async function Page() {
     totalSummaries:
       projects?.reduce(
         (acc: number, p: any) => acc + p._count.workLogSummaries,
-        0
+        0,
       ) || 0,
   };
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <DashboardHeader projectCount={stats?.totalProjects} />
+      <div className="max-w-6xl mx-auto px-6 py-4">
+        <DashboardHeader />
 
         <StatsOverview
           totalProjects={stats?.totalProjects}
@@ -42,7 +42,7 @@ export default async function Page() {
           totalSummaries={stats?.totalSummaries}
         />
 
-        <div className="mt-10">
+        <div className="mt-8">
           <ProjectsGrid projects={transformedProjects} />
         </div>
       </div>
