@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WriteLogs (codepulse-web)
 
-## Getting Started
+Focus on code, not log sheets. Built on the [frontend-v2](https://github.com/Ibrvheem/frontend-v2) Next.js template conventions — shadcn/ui, cookie-based JWT auth, and strong conventions for forms, services, and folder structure.
 
-First, run the development server:
+## Stack
+
+- **Next.js 15** (App Router, Turbopack) + React 19 + TypeScript
+- **Tailwind CSS v4** + **shadcn/ui** (`components.json` configured, components live in `components/ui/`)
+- **react-hook-form + Zod** for forms and validation
+- **Framer Motion** for entrance animations, **sonner** for toasts
+- Cookie-based JWT auth (access + refresh) via `middleware.ts` and `lib/api.ts`
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+# point BASE_URL in .env at your backend
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Branding lives in `lib/config.ts` (`APP_NAME`, `APP_DESCRIPTION`, `COMPANY_NAME`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Structure & conventions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+  (landing)/       public landing page — hero, pricing, waitlist dialog
+  (waitlist)/      waitlist signup flow
+  (auth)/          signin, signup
+  (dashboard)/     authenticated app — sidebar chrome in layout.tsx
+components/
+  ui/              shadcn components (design tokens)
+  molecules/       reusable app components — Controlled* form fields
+  motion/          StaggerReveal entrance animation
+  animate-ui/      animated radix primitives
+lib/
+  config.ts        app name/branding — single place to rebrand
+  api.ts           HTTP client — attaches Bearer token from cookies
+  auth.ts          cookie token helpers (get/set/clear, decode)
+  schemas.ts       apiResponse / paginatedApiResponse Zod envelope helpers
+middleware.ts      route protection
+```
 
-## Learn More
+Every feature follows the same shape — `app/(section)/[feature]/` with:
 
-To learn more about Next.js, take a look at the following resources:
+- `page.tsx` — server component (never `"use client"`), plus `loading.tsx` skeleton
+- `service.ts` — `"use server"` actions calling `api.*`, wrapped in try/catch
+- `types.ts` — Zod schemas + inferred types
+- `_components/` and `_hooks/` — co-located client components and form/mutation hooks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Forms always use the `Controlled*` molecules with a `use-[feature]` hook (react-hook-form + zodResolver) — never raw `register()`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The full ruleset lives in `DESIGN.md` and the Claude Code skills in `.claude/skills/`, wired in via `CLAUDE.md` / `AGENTS.md`:
 
-## Deploy on Vercel
+- `design-rules` — the enforced conventions (server components, no `useEffect`, skeletons, service/hook rules)
+- `forms-and-services` — usage guide: the `Controlled*` form component reference, form/mutation hook templates, `lib/api` + `service.ts`/`types.ts` patterns, full worked example
+- `code-review` — review checklist for all of the above
+- Animation & design-engineering skills from [emilkowalski/skills](https://github.com/emilkowalski/skills) (MIT): `animate`, `animation-vocabulary`, `apple-design`, `ask-sonner`, `emil-design-eng`, `find-animation-opportunities`, `improve-animations`, `pick-ui-library`, `prototype`, `review-animations`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Backend contract
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The API client expects a backend that:
+
+- Accepts `Authorization: Bearer <access_token>` and returns the envelope `{ success, status_code, message, data, meta? }`
+- Exposes the auth endpoints used by `app/(auth)/*/service.ts`
+
+Set `BASE_URL` in `.env` to the backend origin.
+
+## Adding shadcn components
+
+```bash
+pnpm dlx shadcn@latest add <component>
+```
+
+`components.json` is already configured (style, aliases, Tailwind v4 CSS variables).
