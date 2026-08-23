@@ -39,13 +39,13 @@ export function Topbar() {
       <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 font-semibold tracking-tight text-foreground"
+          className="flex items-center gap-2.5 font-semibold tracking-tight text-lg text-foreground"
         >
           <Image
             src="/loggy/loggy-head.png"
             alt=""
-            width={26}
-            height={27}
+            width={34}
+            height={35}
             priority
           />
           {APP_NAME}

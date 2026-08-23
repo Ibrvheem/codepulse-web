@@ -29,13 +29,13 @@ export function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 text-neutral-900 font-medium"
+            className="flex items-center gap-2.5 text-neutral-900 font-semibold text-lg"
           >
             <Image
               src="/loggy/loggy-head.png"
               alt=""
-              width={26}
-              height={27}
+              width={34}
+              height={35}
               priority
             />
             WriteLogs
