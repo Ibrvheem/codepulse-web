@@ -146,6 +146,22 @@ export function ActivityTab({ projectId }: { projectId: string }) {
   return (
     <TooltipProvider>
       <div className="space-y-4">
+        <div className="flex justify-end">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="relative flex size-1.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-win opacity-75 animate-ping motion-reduce:animate-none" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-win" />
+                </span>
+                Live
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Checks for new activity every 30 seconds.
+            </TooltipContent>
+          </Tooltip>
+        </div>
         {timeline.uncommitted && (
           <div className="border border-dashed rounded-lg p-4">
             <div className="flex items-start justify-between gap-3">
