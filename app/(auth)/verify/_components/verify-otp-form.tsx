@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   InputOTP,
   InputOTPGroup,
@@ -28,6 +29,15 @@ export function VerifyOtpForm({
 
   return (
     <FadeIn>
+      <div className="mb-6">
+        <Image
+          src="/loggy/loggy-verify.png"
+          alt="Loggy the mascot pulling a verified envelope out of a mailbox"
+          width={162}
+          height={110}
+          priority
+        />
+      </div>
       <div className="space-y-1.5 mb-8">
         <h1 className="text-xl font-semibold tracking-tight">
           Check your email
