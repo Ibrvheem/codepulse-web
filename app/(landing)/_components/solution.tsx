@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function SolutionSection() {
@@ -27,6 +28,13 @@ export function SolutionSection() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
           >
+            <Image
+              src="/loggy/loggy-vscode.png"
+              alt="Loggy the mascot hugging the VS Code logo"
+              width={88}
+              height={88}
+              className="mb-6"
+            />
             <h3 className="text-3xl lg:text-4xl font-semibold text-neutral-900 leading-[1.15] tracking-[-0.02em] mb-5">
               Install once.
               <br />
@@ -67,8 +75,15 @@ export function SolutionSection() {
             transition={{ duration: 0.6 }}
             className="order-1 lg:order-2"
           >
+            <Image
+              src="/loggy/loggy-excited.png"
+              alt="Loggy the mascot, excited"
+              width={122}
+              height={82}
+              className="mb-6"
+            />
             <h3 className="text-3xl lg:text-4xl font-semibold text-neutral-900 leading-[1.15] tracking-[-0.02em] mb-5">
-              AI writes your logs.
+              Loggy writes your logs.
               <br />
               <span className="text-neutral-400">You just review.</span>
             </h3>
@@ -87,6 +102,13 @@ export function SolutionSection() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
           >
+            <Image
+              src="/loggy/loggy-see-no-evil.png"
+              alt="Loggy the mascot covering his eyes"
+              width={84}
+              height={115}
+              className="mb-6"
+            />
             <h3 className="text-3xl lg:text-4xl font-semibold text-neutral-900 leading-[1.15] tracking-[-0.02em] mb-5">
               Your code stays private.
               <br />
