@@ -284,6 +284,11 @@ export const projects = {
       body: JSON.stringify(payload),
     })).data,
 
+  remove: async (id: string) =>
+    (await request<Record<string, never>>(`/projects/${id}`, {
+      method: "DELETE",
+    })).message,
+
   logs: async (id: string, params?: { page?: number; limit?: number }) => {
     const body = await request<LogEntry[]>(
       `/projects/${id}/logs${paginated(params)}`,

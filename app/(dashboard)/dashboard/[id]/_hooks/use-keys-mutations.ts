@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { pat } from "@/lib/api-client";
+import { ApiError, pat } from "@/lib/api-client";
 import type { CreatedPatKey } from "@/lib/types";
 import { createKeyPayloadSchema, type CreateKeyPayload } from "../types";
 
@@ -47,6 +47,14 @@ export function useRevokeKey(projectId: string, onDone?: () => void) {
       toast.success(`${key.name ?? key.display_hint} revoked`);
       onDone?.();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error) => {
+      // Already revoked/gone — same outcome as success.
+      if (error instanceof ApiError && error.status === 404) {
+        queryClient.invalidateQueries({ queryKey: ["keys", projectId] });
+        onDone?.();
+        return;
+      }
+      toast.error(error.message);
+    },
   });
 }
