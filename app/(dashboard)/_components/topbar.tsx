@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
 import { APP_NAME } from "@/lib/config";
 import { auth, getStoredUser } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -12,14 +13,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ThemeToggle } from "./theme-toggle";
 
 export function Topbar() {
   const router = useRouter();
   const user = getStoredUser();
+  const { theme, setTheme } = useTheme();
 
   const logout = useMutation({
     mutationFn: auth.logout,
@@ -50,40 +56,57 @@ export function Topbar() {
           />
           {APP_NAME}
         </Link>
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-                aria-label="Account menu"
-              >
-                <span className="size-7 rounded-full bg-secondary text-secondary-foreground text-xs font-medium flex items-center justify-center">
-                  {initials}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="font-normal">
-                <p className="text-sm font-medium truncate">
-                  {user?.full_name ?? "Account"}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user?.email}
-                </p>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                disabled={logout.isPending}
-                onSelect={() => logout.mutate()}
-              >
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              aria-label="Account menu"
+            >
+              <span className="size-7 rounded-full bg-secondary text-secondary-foreground text-xs font-medium flex items-center justify-center">
+                {initials}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="font-normal">
+              <p className="text-sm font-medium truncate">
+                {user?.full_name ?? "Account"}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email}
+              </p>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuRadioGroup
+                  value={theme ?? "system"}
+                  onValueChange={setTheme}
+                >
+                  <DropdownMenuRadioItem value="light">
+                    Light
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="dark">
+                    Dark
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="system">
+                    System
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              disabled={logout.isPending}
+              onSelect={() => logout.mutate()}
+            >
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
