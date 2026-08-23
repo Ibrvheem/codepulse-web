@@ -23,7 +23,7 @@ export function PricingSection() {
             Join now. When we launch paid plans, you keep Pro for life.
           </p>
 
-          <Link href="/waitlist">
+          <Link href="/signup">
             <Button
               size="lg"
               className="bg-neutral-900 hover:bg-neutral-800 text-white h-14 px-8 text-base rounded-full"
