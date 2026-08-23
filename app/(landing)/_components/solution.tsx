@@ -27,6 +27,7 @@ export function SolutionSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
+            className="min-w-0"
           >
             <Image
               src="/loggy/loggy-vscode.png"
@@ -51,10 +52,11 @@ export function SolutionSection() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            className="min-w-0"
           >
             <ExtensionMockup />
           </motion.div>
@@ -63,11 +65,11 @@ export function SolutionSection() {
         {/* Feature 2: Dashboard */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-32 lg:mb-40">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="order-2 lg:order-1"
+            className="order-2 lg:order-1 min-w-0"
           >
             <DashboardMockup />
           </motion.div>
@@ -77,7 +79,7 @@ export function SolutionSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="order-1 lg:order-2"
+            className="order-1 lg:order-2 min-w-0"
           >
             <Image
               src="/loggy/loggy-excited.png"
@@ -105,6 +107,7 @@ export function SolutionSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
+            className="min-w-0"
           >
             <Image
               src="/loggy/loggy-see-no-evil.png"
@@ -125,10 +128,11 @@ export function SolutionSection() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            className="min-w-0"
           >
             <PrivacyMockup />
           </motion.div>
@@ -153,7 +157,7 @@ function ExtensionMockup() {
       </div>
 
       <div className="flex">
-        <div className="w-56 bg-[#252526] border-r border-[#1e1e1e] p-4">
+        <div className="w-40 sm:w-56 shrink-0 bg-[#252526] border-r border-[#1e1e1e] p-4">
           <div className="flex items-center gap-2 mb-4">
             <Image
               src="/loggy/loggy-head.png"
@@ -182,7 +186,7 @@ function ExtensionMockup() {
           </div>
         </div>
 
-        <div className="flex-1 p-4 min-h-[250px] font-mono text-sm">
+        <div className="flex-1 min-w-0 overflow-x-auto p-4 min-h-[250px] font-mono text-xs sm:text-sm">
           <div className="text-neutral-500 text-xs mb-3">api/users.ts</div>
           <div className="space-y-1 text-neutral-400">
             <p>
