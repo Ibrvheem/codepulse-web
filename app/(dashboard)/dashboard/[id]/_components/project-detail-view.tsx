@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/motion/fade-in";
 import { ErrorState } from "../../../_components/query-states";
 import { useProject } from "../_hooks/use-project-data";
+import { ProjectActions } from "./project-actions";
 import { SummariesTab } from "./summaries-tab";
 import { ActivityTab } from "./activity-tab";
 import { KeysTab } from "./keys-tab";
@@ -58,14 +59,22 @@ export function ProjectDetailView({
           <Skeleton className="h-7 w-48 mt-2" />
         ) : (
           <FadeIn>
-            <h1 className="text-xl font-semibold tracking-tight mt-1">
-              {project.name}
-            </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {project.timezone}
-              {project._count &&
-                ` · ${project._count.log_entries} logs · ${project._count.summaries} summaries`}
-            </p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h1 className="text-xl font-semibold tracking-tight mt-1">
+                  {project.name}
+                </h1>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {project.timezone}
+                  {project._count &&
+                    ` · ${project._count.log_entries} logs · ${project._count.summaries} summaries`}
+                </p>
+              </div>
+              <ProjectActions
+                projectId={projectId}
+                projectName={project.name}
+              />
+            </div>
           </FadeIn>
         )}
       </div>
