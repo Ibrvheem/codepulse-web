@@ -166,7 +166,7 @@ function EditorMockup() {
           created user record.
         </p>
         <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-400">
-          <span>3h 12m active</span>
+          <span>Today · 12 logs</span>
           <span>Auto-generated</span>
         </div>
       </motion.div>

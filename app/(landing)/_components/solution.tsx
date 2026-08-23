@@ -151,9 +151,12 @@ function ExtensionMockup() {
       <div className="flex">
         <div className="w-56 bg-[#252526] border-r border-[#1e1e1e] p-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-5 h-5 rounded bg-indigo-500 flex items-center justify-center">
-              <span className="text-white text-xs font-bold">W</span>
-            </div>
+            <Image
+              src="/loggy/loggy-head.png"
+              alt=""
+              width={20}
+              height={21}
+            />
             <span className="text-sm text-white font-medium">WriteLogs</span>
           </div>
 
@@ -219,12 +222,13 @@ function DashboardMockup() {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h4 className="font-medium text-neutral-900">Today</h4>
-            <p className="text-sm text-neutral-500">February 9, 2026</p>
+            <h4 className="font-medium text-neutral-900">
+              Implemented auth and pagination fixes
+            </h4>
+            <p className="text-sm text-neutral-500">Today · 42 logs · 2 tasks</p>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-medium text-neutral-900">4h 12m</p>
-            <p className="text-sm text-neutral-500">active</p>
+          <div className="bg-neutral-900 text-white text-xs font-medium px-3.5 py-2 rounded-lg whitespace-nowrap">
+            Copy as standup
           </div>
         </div>
 
@@ -233,13 +237,13 @@ function DashboardMockup() {
             <p className="text-sm text-neutral-900 mb-1">
               Implemented user authentication flow
             </p>
-            <p className="text-xs text-neutral-500">2h 15m · 8 files</p>
+            <p className="text-xs text-neutral-500">~2h 15m · 8 files</p>
           </div>
           <div className="p-4 bg-neutral-50 rounded-lg">
             <p className="text-sm text-neutral-900 mb-1">
               Fixed pagination bug in dashboard
             </p>
-            <p className="text-xs text-neutral-500">45m · 3 files</p>
+            <p className="text-xs text-neutral-500">~45m · 3 files</p>
           </div>
         </div>
       </div>
