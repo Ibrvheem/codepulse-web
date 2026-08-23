@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Command, Github, Twitter } from "lucide-react";
+import { Github, Twitter } from "lucide-react";
 
 export function Footer() {
   return (
@@ -11,9 +12,12 @@ export function Footer() {
           {/* Logo and tagline */}
           <div className="flex flex-col gap-3">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="bg-indigo-600 p-1.5 rounded-lg">
-                <Command className="h-4 w-4 text-white" />
-              </div>
+              <Image
+                src="/loggy/loggy-head.png"
+                alt=""
+                width={28}
+                height={29}
+              />
               <span className="font-semibold text-neutral-900">WriteLogs</span>
             </Link>
             <p className="text-sm text-neutral-500">
@@ -24,19 +28,19 @@ export function Footer() {
           {/* Links */}
           <div className="flex items-center gap-8 text-sm text-neutral-600">
             <Link
-              href="/waitlist"
+              href="/signup"
               className="hover:text-neutral-900 transition-colors"
             >
-              Waitlist
+              Get started
             </Link>
             <Link
               href="/signin"
-              className="hover:text-neutral-900 transition-colors hidden"
+              className="hover:text-neutral-900 transition-colors"
             >
               Sign in
             </Link>
             <a
-              href="https://twitter.com/writelogs"
+              href="https://twitter.com/usewritelogs"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-neutral-900 transition-colors"
