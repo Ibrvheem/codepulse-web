@@ -15,10 +15,12 @@ export function Footer() {
               <Image
                 src="/loggy/loggy-head.png"
                 alt=""
-                width={28}
-                height={29}
+                width={34}
+                height={35}
               />
-              <span className="font-semibold text-neutral-900">WriteLogs</span>
+              <span className="font-semibold text-lg text-neutral-900">
+                WriteLogs
+              </span>
             </Link>
             <p className="text-sm text-neutral-500">
               Automatic work logs for developers.

@@ -12,13 +12,13 @@ export default function AuthLayout({
       <header className="p-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-semibold tracking-tight text-foreground"
+          className="inline-flex items-center gap-2.5 font-semibold tracking-tight text-lg text-foreground"
         >
           <Image
             src="/loggy/loggy-head.png"
             alt=""
-            width={26}
-            height={27}
+            width={34}
+            height={35}
             priority
           />
           {APP_NAME}
