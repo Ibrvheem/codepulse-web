@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import Image from "next/image";
-import { RotateCw, Home, Search } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Error({
   error,
@@ -18,85 +17,42 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full text-center">
-        {/* Loggy is just as confused as you are */}
+    <div className="min-h-svh bg-background flex items-center justify-center p-6">
+      <div className="max-w-md w-full text-center">
         <div className="mb-8 flex justify-center">
           <Image
             src="/loggy/loggy-error.png"
             alt="Loggy the mascot scratching his head over a crumpled log sheet"
-            width={155}
-            height={200}
+            width={140}
+            height={181}
             priority
           />
         </div>
 
-        {/* Error message */}
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-          Well, this is awkward...
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-3">
+          Well, this is awkward.
         </h1>
-
-        <p className="text-xl text-gray-600 mb-2">
-          Something went wrong. Like, really wrong.
+        <p className="text-muted-foreground mb-8">
+          Something broke on our end. Loggy is looking into it — ironically,
+          this is the one thing he didn&apos;t log.
         </p>
 
-        <p className="text-lg text-gray-500 mb-8">
-          We tried to track what happened, but ironically, our tracking failed
-          too.
-          <br />
-          <span className="text-sm italic">
-            (We promise we're better at tracking your code than our own bugs)
-          </span>
-        </p>
-
-        {/* Error details (collapsed by default) */}
-        <details className="mb-8 text-left bg-white rounded-lg p-6 shadow-sm">
-          <summary className="cursor-pointer text-gray-700 font-medium hover:text-gray-900 flex items-center gap-2">
-            <Search className="w-4 h-4" />
-            Technical details (for the curious)
-          </summary>
-          <div className="mt-4 text-sm text-gray-600 font-mono bg-gray-50 p-4 rounded overflow-auto max-h-40">
-            {error.message || "Unknown error occurred"}
-            {error.digest && (
-              <div className="mt-2 text-xs text-gray-400">
-                Error ID: {error.digest}
-              </div>
-            )}
-          </div>
-        </details>
-
-        {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button
-            onClick={reset}
-            size="lg"
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
-          >
-            <RotateCw className="w-4 h-4" />
-            Try Again
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button onClick={reset} className="w-full sm:w-auto">
+            Try again
           </Button>
-
           <Link href="/dashboard" className="w-full sm:w-auto">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full flex items-center gap-2"
-            >
-              <Home className="w-4 h-4" />
-              Back to Dashboard
+            <Button variant="outline" className="w-full">
+              Back to dashboard
             </Button>
           </Link>
         </div>
 
-        {/* Humorous footer */}
-        <div className="mt-12 text-sm text-gray-400">
-          <p>
-            Fun fact: This error page has been viewed{" "}
-            {Math.floor(Math.random() * 42 + 1)} time
-            {Math.floor(Math.random() * 42 + 1) === 1 ? "" : "s"} today.
+        {error.digest && (
+          <p className="mt-8 text-xs text-muted-foreground font-mono">
+            Error ID: {error.digest}
           </p>
-          <p className="mt-2">(We may or may not be making that up)</p>
-        </div>
+        )}
       </div>
     </div>
   );
