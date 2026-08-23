@@ -1,5 +1,20 @@
 # Design System
 
+## Brand Palette (Loggy) — reserved, not in use
+The UI is deliberately monotone (neutral shadcn tokens); Loggy's artwork is the
+only color on screen. These are the mascot's brand colors, documented for
+future accent use — do NOT sprinkle them into components without an explicit
+decision:
+
+| Color | Hex | Intended future role |
+|---|---|---|
+| Primary purple | `#7446D8` | Single accent (e.g. primary CTA / `--primary` swap) |
+| Dark purple / outline | `#30206F` | Outline/text on lavender surfaces |
+| Light lavender | `#A98AEF` | Dark-mode accent, subtle tints (`/10`, `/20`) |
+
+If accents are ever adopted, do it through ONE semantic token (swap `--primary`
+in `globals.css`) rather than scattering hex values.
+
 ## Identity
 - **Font**: Geist (neutral default) — swap in `app/layout.tsx`; keep the `--font-sans` variable name
 - **Border radius**: `0rem` everywhere — all corners are sharp, never add `rounded-*`
