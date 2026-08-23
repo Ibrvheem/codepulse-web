@@ -44,6 +44,10 @@ export function SolutionSection() {
               The VS Code extension runs silently in the background. It tracks
               file changes, detects when you step away, and syncs automatically.
             </p>
+            <p className="text-lg text-neutral-900 font-medium leading-relaxed mt-4">
+              Tracks your AI pair-programmer too — Claude Code&apos;s changes
+              are captured the minute they hit disk, even before you commit.
+            </p>
           </motion.div>
 
           <motion.div
