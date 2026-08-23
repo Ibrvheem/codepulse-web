@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
@@ -38,8 +39,15 @@ export function Topbar() {
       <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
         <Link
           href="/dashboard"
-          className="font-semibold tracking-tight text-foreground"
+          className="flex items-center gap-2 font-semibold tracking-tight text-foreground"
         >
+          <Image
+            src="/loggy/loggy-head.png"
+            alt=""
+            width={26}
+            height={27}
+            priority
+          />
           {APP_NAME}
         </Link>
         <div className="flex items-center gap-1">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -26,7 +27,17 @@ export function Navbar() {
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link href="/" className="text-neutral-900 font-medium">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-neutral-900 font-medium"
+          >
+            <Image
+              src="/loggy/loggy-head.png"
+              alt=""
+              width={26}
+              height={27}
+              priority
+            />
             WriteLogs
           </Link>
 

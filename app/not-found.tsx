@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Home, Rocket } from "lucide-react";
@@ -6,11 +7,16 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6">
       <div className="max-w-2xl w-full text-center">
-        {/* 404 Animation */}
-        <div className="mb-8 relative">
-          <div className="text-9xl font-bold text-gray-300 animate-pulse">
-            404
-          </div>
+        {/* Loggy searched everywhere */}
+        <div className="mb-8 flex flex-col items-center gap-4">
+          <Image
+            src="/loggy/loggy-error.png"
+            alt="Loggy the mascot scratching his head over a crumpled log sheet"
+            width={155}
+            height={200}
+            priority
+          />
+          <div className="text-6xl font-bold text-gray-300">404</div>
         </div>
 
         {/* Main message */}
