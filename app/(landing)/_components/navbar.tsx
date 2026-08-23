@@ -60,12 +60,6 @@ export function Navbar() {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-6 text-[15px]">
             <Link
-              href="/signin"
-              className="text-neutral-500 hover:text-neutral-900"
-            >
-              Sign in
-            </Link>
-            <Link
               href="/signup"
               className="text-neutral-900 font-medium hover:opacity-70"
             >
@@ -112,13 +106,6 @@ export function Navbar() {
                 Pricing
               </a>
               <div className="pt-4 border-t border-neutral-100 space-y-4">
-                <Link
-                  href="/signin"
-                  className="block text-neutral-600"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Sign in
-                </Link>
                 <Link
                   href="/signup"
                   className="block text-neutral-900 font-medium"
