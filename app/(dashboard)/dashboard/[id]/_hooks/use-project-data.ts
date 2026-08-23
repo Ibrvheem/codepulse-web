@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { pat, projects, summaries } from "@/lib/api-client";
 
 export function useProject(id: string) {
@@ -17,10 +17,19 @@ export function useProjectSummaries(projectId: string, page: number) {
   });
 }
 
-export function useProjectLogs(projectId: string, page: number) {
-  return useQuery({
-    queryKey: ["logs", projectId, page],
-    queryFn: () => projects.logs(projectId, { page, limit: 20 }),
+/**
+ * The Activity timeline groups client-side (commits anchor editor/agent
+ * rows), so pages accumulate instead of replacing each other — grouping
+ * always runs over every row loaded so far.
+ */
+export function useProjectLogsInfinite(projectId: string) {
+  return useInfiniteQuery({
+    queryKey: ["logs", projectId],
+    queryFn: ({ pageParam }) =>
+      projects.logs(projectId, { page: pageParam, limit: 50 }),
+    initialPageParam: 1,
+    getNextPageParam: (last) =>
+      last.meta.has_next_page ? last.meta.page + 1 : undefined,
   });
 }
 

@@ -1,35 +1,108 @@
 "use client";
 
-import { useState } from "react";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { EmptyState, ErrorState } from "../../../_components/query-states";
-import { PaginationControls } from "../../../_components/pagination-controls";
-import { useProjectLogs } from "../_hooks/use-project-data";
+import { useProject, useProjectLogsInfinite } from "../_hooks/use-project-data";
+import {
+  groupActivity,
+  dayKeyFor,
+  type CommitGroup,
+} from "../_lib/group-activity";
 import { formatDuration } from "@/lib/utils";
+import type { LogEntry } from "@/lib/types";
 
-dayjs.extend(relativeTime);
+function WorkRow({ row }: { row: LogEntry }) {
+  const isAgent = row.source === "agent";
+  return (
+    <div className="flex items-center justify-between gap-3 py-1.5">
+      <p className="font-mono text-xs truncate">{row.file_path}</p>
+      <span className="flex items-center gap-3 shrink-0 text-xs tabular-nums">
+        <span className="whitespace-nowrap">
+          <span className="text-win">+{row.lines_added}</span>{" "}
+          <span className="text-loss">−{row.lines_removed}</span>
+        </span>
+        {isAgent ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="secondary" className="font-mono text-[10px]">
+                AI
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              Written by an AI coding tool — captured before commit.
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <span className="text-muted-foreground whitespace-nowrap">
+            you · {formatDuration(row.active_ms)}
+          </span>
+        )}
+      </span>
+    </div>
+  );
+}
+
+function CommitGroupCard({ group }: { group: CommitGroup }) {
+  return (
+    <div className="border rounded-lg bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-medium text-sm flex items-center gap-2 min-w-0">
+          <span className="size-2 rounded-full bg-foreground shrink-0" />
+          <span className="truncate">{group.message}</span>
+        </p>
+        <p className="text-xs text-muted-foreground shrink-0 tabular-nums">
+          {group.shortHash && (
+            <span className="font-mono">{group.shortHash}</span>
+          )}
+          {" · "}
+          {dayjs(group.time).format("h:mm A")}
+        </p>
+      </div>
+      <p className="text-xs text-muted-foreground mt-1 ml-4 tabular-nums">
+        <span className="text-win">+{group.linesAdded}</span>{" "}
+        <span className="text-loss">−{group.linesRemoved}</span> ·{" "}
+        {group.fileCount} {group.fileCount === 1 ? "file" : "files"}
+        {group.branch && ` · ${group.branch}`}
+      </p>
+      {group.rows.length > 0 && (
+        <div className="mt-2 ml-[3px] border-l pl-4">
+          {group.rows.map((row) => (
+            <WorkRow key={row.id} row={row} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function ActivityTab({ projectId }: { projectId: string }) {
-  const [page, setPage] = useState(1);
-  const { data, isPending, isError, error, refetch, isRefetching } =
-    useProjectLogs(projectId, page);
+  const { data: project } = useProject(projectId);
+  const {
+    data,
+    isPending,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useProjectLogsInfinite(projectId);
 
   if (isPending) {
     return (
-      <div className="space-y-2">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 w-full" />
         ))}
       </div>
     );
@@ -45,71 +118,79 @@ export function ActivityTab({ projectId }: { projectId: string }) {
     );
   }
 
-  if (data.data.length === 0) {
+  const entries = data.pages.flatMap((page) => page.data);
+
+  if (entries.length === 0) {
     return (
       <EmptyState
         title="No activity yet"
-        description="Once the VS Code extension is set up with a project key, every coding session and commit lands here automatically. Head to the Keys tab to connect it."
+        description="Start coding — activity appears here within a minute. Not connected yet? Grab an API key in the Keys tab."
       />
     );
   }
 
+  const timezone = project?.timezone;
+  const timeline = groupActivity(entries, timezone);
+  const today = dayKeyFor(new Date().toISOString(), timezone);
+  const yesterday = dayKeyFor(
+    new Date(Date.now() - 86_400_000).toISOString(),
+    timezone,
+  );
+  const dayLabel = (day: string) =>
+    day === today
+      ? "Today"
+      : day === yesterday
+        ? "Yesterday"
+        : dayjs(day).format("dddd, MMM D");
+
   return (
-    <div className="space-y-4">
-      <div className="border rounded-lg overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Activity</TableHead>
-              <TableHead>Branch</TableHead>
-              <TableHead className="text-right">Changes</TableHead>
-              <TableHead className="text-right">Active</TableHead>
-              <TableHead className="text-right">When</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.data.map((log) => {
-              const isCommit = log.source === "commit";
-              return (
-                <TableRow key={log.id}>
-                  <TableCell className="max-w-[280px]">
-                    <p className="font-mono text-xs truncate">
-                      {log.file_path}
-                    </p>
-                    {isCommit && (
-                      <p className="flex items-center gap-1.5 mt-1 min-w-0">
-                        <Badge
-                          variant="secondary"
-                          className="shrink-0 font-mono text-[10px]"
-                        >
-                          commit
-                        </Badge>
-                        <span className="text-xs text-muted-foreground truncate">
-                          {log.commit_message ?? log.commit_hash}
-                        </span>
-                      </p>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {log.branch ?? "—"}
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums whitespace-nowrap">
-                    <span className="text-win">+{log.lines_added}</span>{" "}
-                    <span className="text-loss">−{log.lines_removed}</span>
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums">
-                    {formatDuration(log.active_ms)}
-                  </TableCell>
-                  <TableCell className="text-right text-xs text-muted-foreground whitespace-nowrap">
-                    {dayjs(log.started_at).fromNow()}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+    <TooltipProvider>
+      <div className="space-y-4">
+        {timeline.uncommitted && (
+          <div className="border border-dashed rounded-lg p-4">
+            <div className="flex items-start justify-between gap-3">
+              <p className="font-medium text-sm flex items-center gap-2">
+                <span className="size-2 rounded-full border border-foreground/60 shrink-0" />
+                Uncommitted
+              </p>
+              {timeline.uncommitted.branch && (
+                <p className="text-xs text-muted-foreground">
+                  {timeline.uncommitted.branch}
+                </p>
+              )}
+            </div>
+            <div className="mt-2 ml-[3px] border-l border-dashed pl-4">
+              {timeline.uncommitted.rows.map((row) => (
+                <WorkRow key={row.id} row={row} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {timeline.days.map((section) => (
+          <div key={section.day} className="space-y-2">
+            <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground pt-2">
+              {dayLabel(section.day)}
+            </h3>
+            {section.groups.map((group) => (
+              <CommitGroupCard key={group.key} group={group} />
+            ))}
+          </div>
+        ))}
+
+        {hasNextPage && (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              loading={isFetchingNextPage}
+              onClick={() => fetchNextPage()}
+            >
+              Load older activity
+            </Button>
+          </div>
+        )}
       </div>
-      <PaginationControls meta={data.meta} onPageChange={setPage} />
-    </div>
+    </TooltipProvider>
   );
 }
