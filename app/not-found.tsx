@@ -1,83 +1,41 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Home, Rocket } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full text-center">
-        {/* Loggy searched everywhere */}
-        <div className="mb-8 flex flex-col items-center gap-4">
+    <div className="min-h-svh bg-background flex items-center justify-center p-6">
+      <div className="max-w-md w-full text-center">
+        <div className="mb-8 flex flex-col items-center gap-3">
           <Image
             src="/loggy/loggy-error.png"
             alt="Loggy the mascot scratching his head over a crumpled log sheet"
-            width={155}
-            height={200}
+            width={140}
+            height={181}
             priority
           />
-          <div className="text-6xl font-bold text-gray-300">404</div>
+          <p className="text-5xl font-bold text-muted-foreground/40 tabular-nums">
+            404
+          </p>
         </div>
 
-        {/* Main message */}
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-          Page Not Found
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-3">
+          Page not found
         </h1>
-
-        <p className="text-xl text-gray-600 mb-2">
-          Looks like this page decided to take an unscheduled break.
+        <p className="text-muted-foreground mb-8">
+          We checked the logs — ironically, this page doesn&apos;t exist. Maybe
+          it never did.
         </p>
 
-        <p className="text-lg text-gray-500 mb-8">
-          We've checked the logs (ironically), and this page doesn't exist.
-          <br />
-          <span className="text-sm italic">
-            Maybe it never did. Maybe it's a conspiracy.
-          </span>
-        </p>
-
-        {/* Humorous suggestions */}
-        <div className="bg-white rounded-lg p-6 shadow-sm mb-8 text-left">
-          <h3 className="font-semibold text-gray-900 mb-3">
-            Here's what might have happened:
-          </h3>
-          <ul className="space-y-2 text-gray-600">
-            <li>• You typed a URL faster than our server could handle</li>
-            <li>• The page is on a coffee break (it's earned it)</li>
-            <li>• A developer deleted it and forgot to tell anyone</li>
-            <li>• You've discovered a glitch in the matrix</li>
-            <li>• The page moved and didn't leave a forwarding address</li>
-          </ul>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/dashboard" className="w-full sm:w-auto">
-            <Button
-              size="lg"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
-            >
-              <Home className="w-4 h-4" />
-              Back to Dashboard
-            </Button>
+            <Button className="w-full">Back to dashboard</Button>
           </Link>
-
           <Link href="/" className="w-full sm:w-auto">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full flex items-center gap-2"
-            >
-              <Rocket className="w-4 h-4" />
-              Go to Home
+            <Button variant="outline" className="w-full">
+              Go home
             </Button>
           </Link>
-        </div>
-
-        {/* Fun footer */}
-        <div className="mt-12 text-sm text-gray-400">
-          <p>Lost? Don't worry, we're tracking your confusion.</p>
-          <p className="mt-1 text-xs">(That's... literally what we do here)</p>
         </div>
       </div>
     </div>
