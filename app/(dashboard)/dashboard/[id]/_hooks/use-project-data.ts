@@ -30,6 +30,10 @@ export function useProjectLogsInfinite(projectId: string) {
     initialPageParam: 1,
     getNextPageParam: (last) =>
       last.meta.has_next_page ? last.meta.page + 1 : undefined,
+    // The extension syncs roughly once a minute, so a 30s poll reads as live.
+    // React Query pauses the interval while the tab is hidden and already
+    // refetches on window focus — no socket needed at this cadence.
+    refetchInterval: 30_000,
   });
 }
 
