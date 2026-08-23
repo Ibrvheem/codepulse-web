@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function ProblemSection() {
@@ -14,6 +15,14 @@ export function ProblemSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
+          <div className="mb-8 flex justify-center">
+            <Image
+              src="/loggy/loggy-tired.png"
+              alt="Loggy the mascot slumped over, exhausted, next to a finished coffee"
+              width={116}
+              height={160}
+            />
+          </div>
           <p className="text-neutral-500 text-lg mb-6">
             5:30 PM. Standup tomorrow.
           </p>
