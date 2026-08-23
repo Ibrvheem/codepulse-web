@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -16,6 +17,20 @@ export function Hero() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25, ease: "easeOut", delay: 0.15 }}
+            className="mb-6 flex justify-center"
+          >
+            <Image
+              src="/loggy/loggy-excited.png"
+              alt="Loggy, the WriteLogs mascot"
+              width={104}
+              height={70}
+              priority
+            />
+          </motion.div>
           <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold text-neutral-900 leading-[1.02] tracking-[-0.04em]">
             Your work, logged.
             <br />

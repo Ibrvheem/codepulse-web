@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { APP_NAME } from "@/lib/config";
 
@@ -9,7 +10,17 @@ export default function AuthLayout({
   return (
     <div className="min-h-svh bg-background flex flex-col">
       <header className="p-6">
-        <Link href="/" className="font-semibold tracking-tight text-foreground">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 font-semibold tracking-tight text-foreground"
+        >
+          <Image
+            src="/loggy/loggy-head.png"
+            alt=""
+            width={26}
+            height={27}
+            priority
+          />
           {APP_NAME}
         </Link>
       </header>

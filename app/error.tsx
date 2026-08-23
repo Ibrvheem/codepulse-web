@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { AlertTriangle, RotateCw, Home, Search } from "lucide-react";
+import Image from "next/image";
+import { RotateCw, Home, Search } from "lucide-react";
 
 export default function Error({
   error,
@@ -19,11 +20,15 @@ export default function Error({
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6">
       <div className="max-w-2xl w-full text-center">
-        {/* Animated error icon */}
-        <div className="mb-8 relative">
-          <div className="inline-block animate-bounce">
-            <AlertTriangle className="w-32 h-32 text-red-500" />
-          </div>
+        {/* Loggy is just as confused as you are */}
+        <div className="mb-8 flex justify-center">
+          <Image
+            src="/loggy/loggy-error.png"
+            alt="Loggy the mascot scratching his head over a crumpled log sheet"
+            width={155}
+            height={200}
+            priority
+          />
         </div>
 
         {/* Error message */}

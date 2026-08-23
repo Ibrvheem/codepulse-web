@@ -1,10 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  StaggerReveal,
-  StaggerItem,
-} from "@/components/motion/stagger-reveal";
+import { StaggerReveal, StaggerItem } from "@/components/motion/stagger-reveal";
 import { EmptyState, ErrorState } from "../../_components/query-states";
 import { useProjects } from "../_hooks/use-projects";
 import { CreateProjectDialog } from "./create-project-dialog";

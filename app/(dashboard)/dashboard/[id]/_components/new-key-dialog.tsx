@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -122,9 +123,17 @@ export function NewKeyDialog({
               </Button>
 
               <div className="pt-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-3">
-                  Set up VS Code
-                </p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Set up VS Code
+                  </p>
+                  <Image
+                    src="/loggy/loggy-vscode.png"
+                    alt="Loggy the mascot hugging the VS Code logo"
+                    width={56}
+                    height={56}
+                  />
+                </div>
                 <ol className="space-y-3">
                   {SETUP_STEPS.map((step, i) => (
                     <li key={step.title} className="flex gap-3">
