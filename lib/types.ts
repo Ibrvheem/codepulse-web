@@ -100,10 +100,19 @@ export type Summary = z.infer<typeof summarySchema>;
 export const generateSummaryResponseSchema = z.object({
   generated: z.number(),
   summary_ids: z.array(z.string()),
+  manual_runs_used: z.number(),
+  manual_runs_limit: z.number(),
 });
 export type GenerateSummaryResponse = z.infer<
   typeof generateSummaryResponseSchema
 >;
+
+/** Session-cached manual "Update summary" usage, keyed ["summary-usage", projectId]. */
+export type SummaryUsage = {
+  used: number | null;
+  limit: number | null;
+  exhausted: boolean;
+};
 
 export type Meta = z.infer<typeof metaSchema>;
 
