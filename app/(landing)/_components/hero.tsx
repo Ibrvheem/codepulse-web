@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { WaitlistDialog } from "./waitlist-dialog";
 
 export function Hero() {
   return (
@@ -28,15 +28,15 @@ export function Hero() {
           </p>
 
           <div className="mt-10">
-            <WaitlistDialog>
+            <Link href="/signup">
               <Button
                 size="lg"
                 className="bg-neutral-900 hover:bg-neutral-800 text-white h-14 px-8 text-base rounded-full"
               >
-                Get early access
+                Get started free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </WaitlistDialog>
+            </Link>
           </div>
 
           <p className="mt-6 text-sm text-neutral-400">
