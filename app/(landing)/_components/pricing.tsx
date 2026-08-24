@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 
 export function PricingSection() {
   return (
@@ -34,7 +35,16 @@ export function PricingSection() {
           </Link>
 
           <p className="mt-10 text-sm text-neutral-400">
-            No credit card. No setup. Just install the extension.
+            No credit card. No setup. Just{" "}
+            <a
+              href={EXTENSION_MARKETPLACE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4 hover:text-neutral-700 transition-colors"
+            >
+              install the extension
+            </a>
+            .
           </p>
         </motion.div>
       </div>

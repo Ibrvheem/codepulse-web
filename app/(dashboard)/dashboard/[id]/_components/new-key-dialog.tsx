@@ -16,13 +16,16 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import ControlledInput from "@/components/molecules/controlled-input";
 import { copyText } from "@/lib/utils";
+import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 import type { CreatedPatKey } from "@/lib/types";
 import { useCreateKey } from "../_hooks/use-keys-mutations";
 
 const SETUP_STEPS = [
   {
     title: "Install the extension",
-    detail: "Search “WriteLogs” in the VS Code marketplace and install it.",
+    detail: "Grab WriteLogs from the VS Code Marketplace.",
+    href: EXTENSION_MARKETPLACE_URL,
+    linkLabel: "Open Marketplace →",
   },
   {
     title: "Open the WriteLogs sidebar",
@@ -146,6 +149,19 @@ export function NewKeyDialog({
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {step.detail}
+                          {"href" in step && (
+                            <>
+                              {" "}
+                              <a
+                                href={step.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-foreground underline underline-offset-2"
+                              >
+                                {step.linkLabel}
+                              </a>
+                            </>
+                          )}
                         </p>
                       </div>
                     </li>
