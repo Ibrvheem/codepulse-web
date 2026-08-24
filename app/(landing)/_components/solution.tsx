@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 
 export function SolutionSection() {
   return (
@@ -49,6 +50,14 @@ export function SolutionSection() {
               Tracks your AI pair-programmer too — Claude Code&apos;s changes
               are captured the minute they hit disk, even before you commit.
             </p>
+            <a
+              href={EXTENSION_MARKETPLACE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-6 text-neutral-900 font-medium hover:opacity-70"
+            >
+              Get it on the VS Code Marketplace →
+            </a>
           </motion.div>
 
           <motion.div

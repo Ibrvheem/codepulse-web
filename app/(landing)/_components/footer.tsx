@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Github, Twitter } from "lucide-react";
+import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 
 export function Footer() {
   return (
@@ -29,6 +30,14 @@ export function Footer() {
 
           {/* Links */}
           <div className="flex items-center gap-8 text-sm text-neutral-600">
+            <a
+              href={EXTENSION_MARKETPLACE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-neutral-900 transition-colors"
+            >
+              VS Code extension
+            </a>
             <Link
               href="/signup"
               className="hover:text-neutral-900 transition-colors"
