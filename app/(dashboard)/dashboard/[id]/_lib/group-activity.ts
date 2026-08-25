@@ -5,9 +5,9 @@ import type { LogEntry } from "@/lib/types";
  *
  * The same work can appear as an editor row, an agent row, AND a commit row —
  * so instead of a flat list, commits become group headers and editor/agent
- * rows nest under the next commit (by time) on the same branch, preferring
- * commits that touch the same file. Rows with no later commit on their branch
- * are "uncommitted" — live work ahead of its first commit.
+ * rows nest under the next commit (by time) on the same branch that touches
+ * the same file. Rows with no such commit are "uncommitted" — live work that
+ * hasn't been committed yet.
  *
  * Commits arrive as one row per file sharing a commit_hash; they collapse
  * into a single group here.
@@ -116,11 +116,12 @@ export function groupActivity(
         new Date(c.time).getTime() >= t &&
         (c.branch ?? null) === (row.branch ?? null),
     );
-    // Prefer the earliest later commit that touched this row's file;
-    // fall back to the earliest later commit on the branch.
-    const target =
-      laterSameBranch.find((c) => commitFiles.get(c.key)?.has(row.file_path)) ??
-      laterSameBranch[0];
+    // The earliest later commit on the same branch that touched this file.
+    // No file match means the work hasn't been committed yet — editing
+    // README while committing other files leaves README uncommitted.
+    const target = laterSameBranch.find((c) =>
+      commitFiles.get(c.key)?.has(row.file_path),
+    );
     if (target) {
       target.rows.push(row);
     } else {
