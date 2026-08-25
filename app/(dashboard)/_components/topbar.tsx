@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
+import { Heart } from "lucide-react";
 import { APP_NAME } from "@/lib/config";
 import { auth, getStoredUser } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -21,11 +22,19 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useBilling } from "../_hooks/use-billing";
 
 export function Topbar() {
   const router = useRouter();
   const user = getStoredUser();
   const { theme, setTheme } = useTheme();
+  const { data: billing } = useBilling();
 
   const logout = useMutation({
     mutationFn: auth.logout,
@@ -56,6 +65,23 @@ export function Topbar() {
           />
           {APP_NAME}
         </Link>
+        <div className="flex items-center gap-1.5">
+          {billing?.founding_member && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {/* Loggy's purple — a quiet thank-you to founding members. */}
+                  <span
+                    className="p-1.5 cursor-default"
+                    aria-label="Founding member"
+                  >
+                    <Heart className="size-4 fill-current text-[#7446D8] dark:text-[#A98AEF]" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>Founding member</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -107,6 +133,7 @@ export function Topbar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
     </header>
   );
