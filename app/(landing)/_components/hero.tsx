@@ -14,16 +14,16 @@ function FoundingPill({ seats }: { seats: FoundingSeats | null }) {
   if (message.kind === "gone") {
     return (
       <div className="mb-8 flex justify-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-sm text-neutral-700">
-          Founding spots are gone — start your 14-day free trial.
+        <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-xs sm:text-sm text-neutral-700 whitespace-nowrap">
+          Founding spots are gone. Start your 14-day free trial.
         </span>
       </div>
     );
   }
   return (
     <div className="mb-8 flex justify-center">
-      <span className="inline-flex items-center gap-2.5 rounded-full  bg-[#7446D8]/[0.06] px-4 py-1.5 text-sm text-neutral-800">
-        <span className="relative flex size-2">
+      <span className="inline-flex items-center gap-2.5 rounded-full bg-[#7446D8]/[0.06] px-4 py-1.5 text-xs sm:text-sm text-neutral-800 whitespace-nowrap">
+        <span className="relative flex size-2 shrink-0">
           <span className="absolute inline-flex h-full w-full rounded-full bg-[#7446D8] opacity-60 animate-ping motion-reduce:animate-none" />
           <span className="relative inline-flex size-2 rounded-full bg-[#7446D8]" />
         </span>
@@ -31,7 +31,8 @@ function FoundingPill({ seats }: { seats: FoundingSeats | null }) {
           <span className="font-semibold tabular-nums">
             {message.left} of {message.total}
           </span>{" "}
-          founding spots left — 6 months of Pro, free
+          founding spots left
+          <span className="hidden sm:inline"> · 6 months of Pro, free</span>
         </span>
       </span>
     </div>
