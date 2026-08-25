@@ -28,8 +28,18 @@ const geistMono = Geist_Mono({
  * This metadata is used for setting the application's title and description.
  */
 export const metadata: Metadata = {
+  metadataBase: new URL("https://writelogs.com"),
   title: "WriteLogs",
   description: "Focus on code, not log sheets",
+  openGraph: {
+    siteName: "WriteLogs",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@usewritelogs",
+    creator: "@usewritelogs",
+  },
 };
 
 export default function RootLayout({
