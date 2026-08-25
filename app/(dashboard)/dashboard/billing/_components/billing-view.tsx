@@ -50,11 +50,17 @@ export function BillingView() {
       ? `Founding member · Pro until ${dayjs(billing.trial_ends_at).format("MMM D, YYYY")}`
       : `Pro trial · ${days} ${days === 1 ? "day" : "days"} left`
     : billing.has_subscription
-      ? `${billing.subscription_status ?? "Active"}${
-          billing.current_period_end
-            ? ` · renews ${dayjs(billing.current_period_end).format("MMM D, YYYY")}`
-            : ""
-        }`
+      ? /cancel/i.test(billing.subscription_status ?? "")
+        ? `Cancelled — Pro stays until ${
+            billing.current_period_end
+              ? dayjs(billing.current_period_end).format("MMM D, YYYY")
+              : "the end of the period"
+          }`
+        : `${billing.subscription_status ?? "Active"}${
+            billing.current_period_end
+              ? ` · renews ${dayjs(billing.current_period_end).format("MMM D, YYYY")}`
+              : ""
+          }`
       : isPro
         ? "Pro plan"
         : "No subscription — upgrade anytime";
