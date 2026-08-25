@@ -150,9 +150,9 @@ export function BillingView() {
           <ul className="space-y-1.5">
             <li>Unlimited projects</li>
             <li>Full history</li>
-            <li>Copy as standup</li>
-            <li>Both voices — “you” and “I”</li>
             <li>3 manual updates a day</li>
+            <li>Copy as standup — your day as a paste-ready update</li>
+            <li>Both voices — “you” and “I”</li>
           </ul>
         </div>
       </div>

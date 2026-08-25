@@ -134,6 +134,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    /* In-page anchor links (landing nav) glide instead of jumping. */
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
   body {
     @apply bg-background text-foreground;
   }

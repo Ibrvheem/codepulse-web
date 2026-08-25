@@ -6,24 +6,26 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 
+// Rows line up across the two cards: projects, history, updates, then extras.
 const FREE_FEATURES = [
   "1 project",
   "Last 7 days of summaries",
   "1 manual update a day",
-  "AI pair-programmer tracking",
+  "Captures changes from AI tools like Claude Code",
 ];
 
 const PRO_FEATURES = [
   "Unlimited projects",
   "Full history",
-  "Copy as standup",
-  "Both voices — “you” and “I”",
   "3 manual updates a day",
+  "Captures changes from AI tools like Claude Code",
+  "Copy as standup — your day as a paste-ready update for Slack or standup",
+  "Both voices — “you” and “I”",
 ];
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="py-28 lg:py-40">
+    <section id="pricing" className="scroll-mt-14 py-28 lg:py-40">
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -68,7 +70,9 @@ export function PricingSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full h-12 rounded-full border-neutral-300 text-neutral-900"
+                // The landing page is always light; don't let the .dark
+                // theme tokens turn this into dark-on-dark.
+                className="w-full h-12 rounded-full border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-300 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
               >
                 Get started free
               </Button>
