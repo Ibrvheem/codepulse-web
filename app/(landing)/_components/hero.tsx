@@ -5,8 +5,37 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { foundingMessage } from "../_lib/founding-copy";
+import type { FoundingSeats } from "../types";
 
-export function Hero() {
+function HeroFootnote({ seats }: { seats: FoundingSeats | null }) {
+  const message = foundingMessage(seats);
+  if (message?.kind === "open") {
+    return (
+      <p className="mt-6 text-sm text-neutral-500">
+        <span className="font-semibold text-neutral-900 tabular-nums">
+          {message.left} of {message.total}
+        </span>{" "}
+        founding spots left — 6 months of Pro, free.
+      </p>
+    );
+  }
+  if (message?.kind === "gone") {
+    return (
+      <p className="mt-6 text-sm text-neutral-500">
+        Founding spots are gone — start your 14-day free trial.
+      </p>
+    );
+  }
+  // No counter available — never block the hero on it.
+  return (
+    <p className="mt-6 text-sm text-neutral-400">
+      Free plan forever. Pro trial included. No credit card required.
+    </p>
+  );
+}
+
+export function Hero({ seats = null }: { seats?: FoundingSeats | null }) {
   return (
     <section className="relative pt-32 pb-24 lg:pt-44 lg:pb-32 overflow-hidden">
       <div className="max-w-5xl mx-auto px-6 lg:px-8">
@@ -54,9 +83,7 @@ export function Hero() {
             </Link>
           </div>
 
-          <p className="mt-6 text-sm text-neutral-400">
-            Free plan forever. Pro trial included. No credit card required.
-          </p>
+          <HeroFootnote seats={seats} />
         </motion.div>
 
         {/* Editor mockup - centered below */}
