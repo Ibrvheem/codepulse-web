@@ -3,14 +3,17 @@ import type { LogEntry } from "@/lib/types";
 /**
  * Commit-anchored timeline grouping for the Activity tab.
  *
- * The same work can appear as an editor row, an agent row, AND a commit row —
- * so instead of a flat list, commits become group headers and editor/agent
- * rows nest under the next commit (by time) on the same branch that touches
- * the same file. Rows with no such commit are "uncommitted" — live work that
- * hasn't been committed yet.
+ * The backend seals every editor/agent entry: `committed_in` holds the commit
+ * hash that absorbed it, the literal "reconciled" when ground-truth
+ * reconciliation sealed it, or null while the work is genuinely pending.
+ * That field is the ONLY thing that decides "uncommitted" — never timestamps,
+ * which produced false pending rows (an old entry with committed_in === null
+ * is still pending; a brand-new one with a hash never is).
  *
  * Commits arrive as one row per file sharing a commit_hash; they collapse
- * into a single group here.
+ * into a single group. Sealed entries nest under their commit when the hash
+ * matches a captured commit row; "reconciled" (or an uncaptured hash) has no
+ * card to attach to and simply stays out of Uncommitted.
  */
 
 export type CommitGroup = {
@@ -32,6 +35,8 @@ export type UncommittedGroup = {
   kind: "uncommitted";
   branch: string | null;
   rows: LogEntry[];
+  /** Entries with no net change (reverted edits) — shown as one muted line. */
+  revertedCount: number;
 };
 
 export type DaySection = {
@@ -70,10 +75,10 @@ export function groupActivity(
   const workRows = entries.filter((e) => e.source !== "commit");
 
   // Collapse per-file commit rows into one group per commit hash.
-  const commitsByKey = new Map<string, CommitGroup>();
+  const commitsByHash = new Map<string, CommitGroup>();
   for (const row of commitRows) {
     const key = row.commit_hash ?? row.id;
-    let group = commitsByKey.get(key);
+    let group = commitsByHash.get(key);
     if (!group) {
       group = {
         kind: "commit",
@@ -87,7 +92,7 @@ export function groupActivity(
         fileCount: 0,
         rows: [],
       };
-      commitsByKey.set(key, group);
+      commitsByHash.set(key, group);
     }
     group.linesAdded += row.lines_added;
     group.linesRemoved += row.lines_removed;
@@ -96,47 +101,35 @@ export function groupActivity(
       group.time = row.ended_at ?? row.started_at;
     }
   }
-  const commitFiles = new Map<string, Set<string>>();
-  for (const row of commitRows) {
-    const key = row.commit_hash ?? row.id;
-    if (!commitFiles.has(key)) commitFiles.set(key, new Set());
-    commitFiles.get(key)!.add(row.file_path);
-  }
-
-  // Oldest-first so "the next commit after this row" is a forward scan.
-  const commits = [...commitsByKey.values()].sort(
-    (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime(),
-  );
 
   const uncommittedRows: LogEntry[] = [];
+  let revertedCount = 0;
   for (const row of workRows) {
-    const t = rowTime(row);
-    const laterSameBranch = commits.filter(
-      (c) =>
-        new Date(c.time).getTime() >= t &&
-        (c.branch ?? null) === (row.branch ?? null),
-    );
-    // The earliest later commit on the same branch that touched this file.
-    // No file match means the work hasn't been committed yet — editing
-    // README while committing other files leaves README uncommitted.
-    const target = laterSameBranch.find((c) =>
-      commitFiles.get(c.key)?.has(row.file_path),
-    );
-    if (target) {
-      target.rows.push(row);
-    } else {
-      uncommittedRows.push(row);
+    const sealedBy = row.committed_in ?? null;
+    if (sealedBy === null) {
+      if (row.matches_head === true) {
+        revertedCount += 1; // reverted edit — no net change to show
+      } else {
+        uncommittedRows.push(row);
+      }
+      continue;
     }
+    // Sealed: nest under its commit when we captured that commit; otherwise
+    // ("reconciled" or an uncaptured hash) it just stays out of Uncommitted.
+    commitsByHash.get(sealedBy)?.rows.push(row);
   }
 
-  for (const commit of commits) {
+  for (const commit of commitsByHash.values()) {
     commit.rows.sort((a, b) => rowTime(b) - rowTime(a));
   }
   uncommittedRows.sort((a, b) => rowTime(b) - rowTime(a));
 
   // Day sections (project timezone), newest first, commits newest-first within.
+  const commits = [...commitsByHash.values()].sort(
+    (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime(),
+  );
   const dayMap = new Map<string, CommitGroup[]>();
-  for (const commit of [...commits].reverse()) {
+  for (const commit of commits) {
     const day = dayKeyFor(commit.time, timezone);
     if (!dayMap.has(day)) dayMap.set(day, []);
     dayMap.get(day)!.push(commit);
@@ -150,16 +143,18 @@ export function groupActivity(
     uncommittedRows.map((r) => r.branch ?? null),
   );
   return {
-    uncommitted: uncommittedRows.length
-      ? {
-          kind: "uncommitted",
-          branch:
-            uncommittedBranches.size === 1
-              ? [...uncommittedBranches][0]
-              : null,
-          rows: uncommittedRows,
-        }
-      : null,
+    uncommitted:
+      uncommittedRows.length || revertedCount
+        ? {
+            kind: "uncommitted",
+            branch:
+              uncommittedBranches.size === 1
+                ? [...uncommittedBranches][0]
+                : null,
+            rows: uncommittedRows,
+            revertedCount,
+          }
+        : null,
     days,
   };
 }
