@@ -99,6 +99,12 @@ export function Footer() {
             >
               Terms
             </Link>
+            <Link
+              href="/refunds"
+              className="hover:text-neutral-600 transition-colors"
+            >
+              Refunds
+            </Link>
           </div>
         </div>
       </div>

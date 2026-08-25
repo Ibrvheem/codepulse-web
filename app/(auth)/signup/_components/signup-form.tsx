@@ -46,6 +46,17 @@ export function SignupForm() {
           <Button type="submit" className="w-full" loading={isPending}>
             Create account
           </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            By creating an account you agree to our{" "}
+            <Link href="/terms" className="underline underline-offset-2">
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="underline underline-offset-2">
+              Privacy Notice
+            </Link>
+            .
+          </p>
         </form>
       </Form>
       <p className="mt-6 text-sm text-muted-foreground">
