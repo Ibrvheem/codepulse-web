@@ -48,7 +48,33 @@ export default function PrivacyPage() {
         </ul>
       </Section>
 
-      <Section title="3. How we use it">
+      <Section title="3. What we never collect">
+        <p>
+          The extension checks every file on your machine, before anything is
+          sent:
+        </p>
+        <ul>
+          <li>
+            <strong>Sensitive files are never tracked at all</strong> — not
+            even their names. That includes <code>.env</code> files (and
+            variants like <code>.env.local</code>), SSH and private keys,
+            certificates (<code>.pem</code>, <code>.key</code>,{" "}
+            <code>.p12</code> and similar), credential and secrets files, and
+            anything inside <code>.aws/</code> or <code>.ssh/</code>.
+          </li>
+          <li>
+            <strong>Secret-looking lines are redacted on your machine</strong>{" "}
+            — any captured code context is scrubbed for API keys, passwords,
+            tokens, and private-key blocks before it leaves your computer.
+          </li>
+          <li>
+            Your project API keys are stored in your operating system&apos;s
+            keychain, not in plain files.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="4. How we use it">
         <ul>
           <li>To run the Service: store your activity, show your dashboard.</li>
           <li>
@@ -61,7 +87,7 @@ export default function PrivacyPage() {
         <p>We don&apos;t sell your data or use it for advertising.</p>
       </Section>
 
-      <Section title="4. Who we share it with">
+      <Section title="5. Who we share it with">
         <p>
           Only service providers that help us run WriteLogs: cloud hosting and
           database providers, Paddle (payments), our AI model provider (summary
@@ -70,7 +96,7 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
-      <Section title="5. Retention and deletion">
+      <Section title="6. Retention and deletion">
         <p>
           We keep your data while your account exists. Deleting a project
           removes it from your view immediately; revoked API keys stop working
@@ -79,14 +105,14 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
-      <Section title="6. Security">
+      <Section title="7. Security">
         <p>
           Data is encrypted in transit, passwords are hashed, and API keys are
           scoped per project and revocable at any time.
         </p>
       </Section>
 
-      <Section title="7. Your rights">
+      <Section title="8. Your rights">
         <p>
           You can access, correct, export, or delete your data. Email{" "}
           <a href="mailto:i.aliyu019@gmail.com">i.aliyu019@gmail.com</a> and
@@ -96,11 +122,11 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
-      <Section title="8. Children">
+      <Section title="9. Children">
         <p>The Service is not directed at children under 16.</p>
       </Section>
 
-      <Section title="9. Changes">
+      <Section title="10. Changes">
         <p>
           We&apos;ll update this notice as the Service evolves and note the
           date above. Material changes will be announced by email or in the
