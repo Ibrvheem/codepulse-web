@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -266,19 +266,29 @@ export function SummariesTab({ projectId }: { projectId: string }) {
 
         {data.locked > 0 && !data.meta.has_next_page && (
           <StaggerItem>
-            <div className="border border-dashed rounded-lg px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
-              <Lock className="size-3.5 shrink-0" aria-hidden />
-              <span>
-                {data.locked} older{" "}
-              {data.locked === 1 ? "summary" : "summaries"} —{" "}
-              <Link
-                href={BILLING_PATH}
-                className="text-foreground underline underline-offset-4"
-              >
-                upgrade to see your full history
+            <div className="border border-dashed rounded-lg p-4 flex flex-wrap items-center gap-4">
+              <Image
+                src="/loggy/loggy-lock.png"
+                alt="Loggy the mascot peeking over a padlock"
+                width={47}
+                height={64}
+                className="shrink-0"
+              />
+              <div className="flex-1 min-w-40">
+                <p className="text-sm font-medium">
+                  {data.locked} older{" "}
+                  {data.locked === 1 ? "summary is" : "summaries are"} locked
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  The free plan keeps the last 7 days — upgrade to see your
+                  full history.
+                </p>
+              </div>
+              <Link href={BILLING_PATH} className="shrink-0">
+                <Button size="sm" variant="outline">
+                  Upgrade
+                </Button>
               </Link>
-              .
-              </span>
             </div>
           </StaggerItem>
         )}
