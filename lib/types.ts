@@ -125,3 +125,40 @@ export type SummaryUsage = {
 export type Meta = z.infer<typeof metaSchema>;
 
 export type Paginated<T> = { data: T[]; meta: Meta };
+
+export const planLimitsSchema = z.object({
+  /** null = unlimited */
+  max_projects: z.number().nullable(),
+  /** null = full history */
+  history_days: z.number().nullable(),
+  manual_updates_per_day: z.number(),
+  first_person_voice: z.boolean(),
+});
+export type PlanLimits = z.infer<typeof planLimitsSchema>;
+
+export const billingSchema = z.object({
+  plan: z.enum(["free", "pro"]),
+  limits: planLimitsSchema,
+  trial_ends_at: z.string().nullish(),
+  in_trial: z.boolean(),
+  subscription_status: z.string().nullish(),
+  current_period_end: z.string().nullish(),
+  has_subscription: z.boolean(),
+  founding_member: z.boolean(),
+});
+export type Billing = z.infer<typeof billingSchema>;
+
+export type BillingCheckout = {
+  environment: "sandbox" | "production";
+  client_token: string;
+  prices: { monthly: string; yearly: string };
+  customer: { email: string };
+  custom_data: Record<string, string>;
+};
+
+/** Summaries list: pagination plus the free-plan history window. */
+export type SummaryList = Paginated<Summary> & {
+  /** Summaries hidden by the plan's history window. */
+  locked: number;
+  limits?: PlanLimits;
+};

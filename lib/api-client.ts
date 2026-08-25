@@ -9,7 +9,11 @@
  */
 import {
   type AuthTokens,
+  type Billing,
+  type BillingCheckout,
   type CreatedPatKey,
+  type PlanLimits,
+  type SummaryList,
   type GenerateSummaryResponse,
   type LogEntry,
   type Paginated,
@@ -43,7 +47,15 @@ type Envelope<T> = {
   message: string;
   data: T;
   meta?: Meta;
+  /** Summaries list only: count hidden by the plan's history window. */
+  locked?: number;
+  limits?: PlanLimits;
 };
+
+/** 402 = the plan doesn't allow this; the message is the upgrade prompt. */
+export function isUpgradeRequired(error: unknown): error is ApiError {
+  return error instanceof ApiError && error.status === 402;
+}
 
 // ---------------------------------------------------------------------------
 // Session
@@ -329,6 +341,18 @@ export const pat = {
     (await request<PatKey>(`/pat/${id}`, { method: "DELETE" })).data,
 };
 
+export const billing = {
+  get: async () => (await request<Billing>("/billing")).data,
+
+  /** Throws ApiError 400 when billing isn't configured in this environment. */
+  checkout: async () =>
+    (await request<BillingCheckout>("/billing/checkout")).data,
+
+  portal: async () =>
+    (await request<{ url: string }>("/billing/portal", { method: "POST" }))
+      .data.url,
+};
+
 export const summaries = {
   listByProject: async (
     projectId: string,
@@ -337,7 +361,12 @@ export const summaries = {
     const body = await request<Summary[]>(
       `/summaries/project/${projectId}${paginated(params)}`,
     );
-    return { data: body.data, meta: body.meta! } satisfies Paginated<Summary>;
+    return {
+      data: body.data,
+      meta: body.meta!,
+      locked: body.locked ?? 0,
+      limits: body.limits,
+    } satisfies SummaryList;
   },
 
   get: async (id: string) => (await request<Summary>(`/summaries/${id}`)).data,

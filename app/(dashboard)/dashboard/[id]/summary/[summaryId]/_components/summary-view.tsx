@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/motion/fade-in";
-import { ErrorState } from "../../../../../_components/query-states";
+import { isUpgradeRequired } from "@/lib/api-client";
+import { ErrorState, UpgradeState } from "../../../../../_components/query-states";
+import { useBilling } from "../../../../../_hooks/use-billing";
 import { SummaryBullets } from "../../../_components/summary-bullets";
 import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
@@ -23,6 +25,10 @@ export function SummaryView({
     useSummary(summaryId);
   const copyStandup = useCopyStandup(summaryId);
   const { voice, setVoice, isReady } = useSummaryVoice(projectId);
+  const { data: billing } = useBilling();
+  // Free plan: no first-person text and no standup endpoint — hide both
+  // controls rather than show them disabled.
+  const proVoice = billing?.limits.first_person_voice ?? true;
 
   if (isPending) {
     return (
@@ -38,6 +44,20 @@ export function SummaryView({
   }
 
   if (isError) {
+    // Summaries outside the free plan's history window come back as 402.
+    if (isUpgradeRequired(error)) {
+      return (
+        <div className="space-y-4 max-w-2xl">
+          <Link
+            href={`/dashboard/${projectId}`}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Back to project
+          </Link>
+          <UpgradeState message={error.message} />
+        </div>
+      );
+    }
     return (
       <ErrorState
         message={error.message}
@@ -73,19 +93,21 @@ export function SummaryView({
               )}
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Voice</span>
-              <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
-            </span>
-            {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
-            <Button
-              loading={copyStandup.isPending}
-              onClick={() => copyStandup.mutate()}
-            >
-              Copy as standup
-            </Button>
-          </div>
+          {proVoice && (
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Voice</span>
+                <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
+              </span>
+              {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
+              <Button
+                loading={copyStandup.isPending}
+                onClick={() => copyStandup.mutate()}
+              >
+                Copy as standup
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
