@@ -200,6 +200,15 @@ export function ActivityTab({ projectId }: { projectId: string }) {
                     <WorkRow key={row.id} row={row} />
                   ))}
                 </AnimatePresence>
+                {timeline.uncommitted.revertedCount > 0 && (
+                  <p className="py-1.5 text-xs text-muted-foreground">
+                    {timeline.uncommitted.revertedCount} reverted{" "}
+                    {timeline.uncommitted.revertedCount === 1
+                      ? "edit"
+                      : "edits"}{" "}
+                    · no net change
+                  </p>
+                )}
               </div>
             </div>
           </StaggerItem>

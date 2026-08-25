@@ -50,6 +50,10 @@ export const logEntrySchema = z.object({
   commit_hash: z.string().nullish(),
   commit_message: z.string().nullish(),
   source: z.string().nullish(),
+  /** Commit hash that sealed this entry, "reconciled", or null = pending. */
+  committed_in: z.string().nullish(),
+  /** true = the edit was reverted / cancelled out (no net change). */
+  matches_head: z.boolean().nullish(),
   lines_added: z.number(),
   lines_removed: z.number(),
   started_at: z.string(),
