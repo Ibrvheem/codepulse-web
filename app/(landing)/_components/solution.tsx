@@ -6,7 +6,7 @@ import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 
 export function SolutionSection() {
   return (
-    <section id="how-it-works" className="py-28 lg:py-40 bg-neutral-50">
+    <section id="how-it-works" className="scroll-mt-14 py-28 lg:py-40 bg-neutral-50">
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         {/* Section header - Apple style */}
         <motion.div
