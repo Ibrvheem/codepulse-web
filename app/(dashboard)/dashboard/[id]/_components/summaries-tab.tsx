@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -265,8 +266,10 @@ export function SummariesTab({ projectId }: { projectId: string }) {
 
         {data.locked > 0 && !data.meta.has_next_page && (
           <StaggerItem>
-            <div className="border border-dashed rounded-lg px-4 py-3 text-sm text-muted-foreground">
-              <span aria-hidden>🔒</span> {data.locked} older{" "}
+            <div className="border border-dashed rounded-lg px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
+              <Lock className="size-3.5 shrink-0" aria-hidden />
+              <span>
+                {data.locked} older{" "}
               {data.locked === 1 ? "summary" : "summaries"} —{" "}
               <Link
                 href={BILLING_PATH}
@@ -275,6 +278,7 @@ export function SummariesTab({ projectId }: { projectId: string }) {
                 upgrade to see your full history
               </Link>
               .
+              </span>
             </div>
           </StaggerItem>
         )}
