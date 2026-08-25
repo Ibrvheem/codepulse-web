@@ -6,12 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/motion/fade-in";
-import {
-  StaggerReveal,
-  StaggerItem,
-} from "@/components/motion/stagger-reveal";
-import { formatDuration } from "@/lib/utils";
 import { ErrorState } from "../../../../../_components/query-states";
+import { SummaryBullets } from "../../../_components/summary-bullets";
+import { VoiceToggle } from "../../../_components/voice-toggle";
+import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useSummary, useCopyStandup } from "../_hooks/use-summary";
 
 export function SummaryView({
@@ -24,17 +22,17 @@ export function SummaryView({
   const { data: summary, isPending, isError, error, refetch, isRefetching } =
     useSummary(summaryId);
   const copyStandup = useCopyStandup(summaryId);
+  const { voice, setVoice, isReady } = useSummaryVoice(projectId);
 
   if (isPending) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-2xl">
         <Skeleton className="h-3 w-24" />
         <div className="space-y-2">
           <Skeleton className="h-7 w-2/3" />
           <Skeleton className="h-3 w-40" />
         </div>
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
@@ -49,8 +47,10 @@ export function SummaryView({
     );
   }
 
+  const hasTasks = summary.tasks.length > 0;
+
   return (
-    <FadeIn className="space-y-6 max-w-2xl">
+    <FadeIn className="space-y-8 max-w-2xl">
       <div>
         <Link
           href={`/dashboard/${projectId}`}
@@ -73,62 +73,33 @@ export function SummaryView({
               )}
             </p>
           </div>
-          <Button
-            loading={copyStandup.isPending}
-            onClick={() => copyStandup.mutate()}
-            className="shrink-0"
-          >
-            Copy as standup
-          </Button>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Voice</span>
+              <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
+            </span>
+            {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
+            <Button
+              loading={copyStandup.isPending}
+              onClick={() => copyStandup.mutate()}
+            >
+              Copy as standup
+            </Button>
+          </div>
         </div>
       </div>
 
+      {/* The full recap — the list cards clamp it, this is where it reads in full. */}
       <p className="text-sm leading-relaxed whitespace-pre-wrap">
-        {summary.message}
+        {inVoice(voice, summary.message, summary.message_first_person)}
       </p>
 
-      {summary.tasks.length > 0 && (
+      {hasTasks && (
         <div className="space-y-3">
           <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Tasks
+            {voice === "i" ? "What I did" : "What you did"}
           </h2>
-          <StaggerReveal className="space-y-3">
-            {summary.tasks.map((task) => (
-              <StaggerItem key={task.id}>
-                <div className="border rounded-lg p-4 bg-card">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-medium">{task.task}</p>
-                    {task.time_minutes >= 1 && (
-                      <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                        ~{formatDuration(task.time_minutes * 60_000)}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {task.description}
-                  </p>
-                  {task.files.length > 0 && (
-                    <p className="font-mono text-xs text-muted-foreground mt-2 truncate">
-                      {task.files.join("  ")}
-                    </p>
-                  )}
-                  {task.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-2.5">
-                      {task.tags.map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="text-[10px]"
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerReveal>
+          <SummaryBullets tasks={summary.tasks} voice={voice} />
         </div>
       )}
     </FadeIn>

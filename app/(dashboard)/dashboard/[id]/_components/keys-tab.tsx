@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,12 @@ export function KeysTab({ projectId }: { projectId: string }) {
     useProjectKeys(projectId);
   const [keyToRevoke, setKeyToRevoke] = useState<PatKey | null>(null);
   const revoke = useRevokeKey(projectId, () => setKeyToRevoke(null));
+  const reduceMotion = useReducedMotion();
+  // A revoked key keeps its layoutId, so it visibly travels from the live
+  // list down into the Revoked section instead of vanishing and reappearing.
+  const travel = reduceMotion
+    ? { duration: 0 }
+    : { type: "spring" as const, duration: 0.5, bounce: 0.2 };
 
   if (isPending) {
     return (
@@ -91,8 +98,11 @@ export function KeysTab({ projectId }: { projectId: string }) {
 
           <div className="space-y-3">
             {liveKeys.map((key) => (
-              <div
+              <motion.div
                 key={key.id}
+                layoutId={key.id}
+                layout
+                transition={travel}
                 className="border rounded-lg p-4 bg-card flex items-center justify-between gap-4"
               >
                 <div className="min-w-0">
@@ -118,7 +128,7 @@ export function KeysTab({ projectId }: { projectId: string }) {
                 >
                   Revoke
                 </Button>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -139,8 +149,11 @@ export function KeysTab({ projectId }: { projectId: string }) {
                 </p>
               </div>
               {revokedKeys.map((key) => (
-                <div
+                <motion.div
                   key={key.id}
+                  layoutId={key.id}
+                  layout
+                  transition={travel}
                   className="border rounded-lg p-4 bg-card opacity-60 flex items-center justify-between gap-4"
                 >
                   <div className="min-w-0">
@@ -154,7 +167,7 @@ export function KeysTab({ projectId }: { projectId: string }) {
                   <p className="text-xs text-muted-foreground shrink-0">
                     Revoked {dayjs(key.revoked_at).format("MMM D, YYYY")}
                   </p>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { StaggerReveal, StaggerItem } from "@/components/motion/stagger-reveal";
 import { EmptyState, ErrorState } from "../../../_components/query-states";
 import { useProject, useProjectLogsInfinite } from "../_hooks/use-project-data";
 import {
@@ -145,7 +146,7 @@ export function ActivityTab({ projectId }: { projectId: string }) {
 
   return (
     <TooltipProvider>
-      <div className="space-y-4">
+      <StaggerReveal className="space-y-4">
         <div className="flex justify-end">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -163,33 +164,39 @@ export function ActivityTab({ projectId }: { projectId: string }) {
           </Tooltip>
         </div>
         {timeline.uncommitted && (
-          <div className="border border-dashed rounded-lg p-4">
-            <div className="flex items-start justify-between gap-3">
-              <p className="font-medium text-sm flex items-center gap-2">
-                <span className="size-2 rounded-full border border-foreground/60 shrink-0" />
-                Uncommitted
-              </p>
-              {timeline.uncommitted.branch && (
-                <p className="text-xs text-muted-foreground">
-                  {timeline.uncommitted.branch}
+          <StaggerItem>
+            <div className="border border-dashed rounded-lg p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium text-sm flex items-center gap-2">
+                  <span className="size-2 rounded-full border border-foreground/60 shrink-0" />
+                  Uncommitted
                 </p>
-              )}
+                {timeline.uncommitted.branch && (
+                  <p className="text-xs text-muted-foreground">
+                    {timeline.uncommitted.branch}
+                  </p>
+                )}
+              </div>
+              <div className="mt-2 ml-[3px] border-l border-dashed pl-4">
+                {timeline.uncommitted.rows.map((row) => (
+                  <WorkRow key={row.id} row={row} />
+                ))}
+              </div>
             </div>
-            <div className="mt-2 ml-[3px] border-l border-dashed pl-4">
-              {timeline.uncommitted.rows.map((row) => (
-                <WorkRow key={row.id} row={row} />
-              ))}
-            </div>
-          </div>
+          </StaggerItem>
         )}
 
         {timeline.days.map((section) => (
           <div key={section.day} className="space-y-2">
-            <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground pt-2">
-              {dayLabel(section.day)}
-            </h3>
+            <StaggerItem>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground pt-2">
+                {dayLabel(section.day)}
+              </h3>
+            </StaggerItem>
             {section.groups.map((group) => (
-              <CommitGroupCard key={group.key} group={group} />
+              <StaggerItem key={group.key}>
+                <CommitGroupCard group={group} />
+              </StaggerItem>
             ))}
           </div>
         ))}
@@ -206,7 +213,7 @@ export function ActivityTab({ projectId }: { projectId: string }) {
             </Button>
           </div>
         )}
-      </div>
+      </StaggerReveal>
     </TooltipProvider>
   );
 }
