@@ -1,19 +1,30 @@
 "use client";
 
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { createContext, useContext, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 /** Strong ease-out — matches --ease-out-strong in globals.css. */
 export const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
+const STAGGER_MS = 60;
+/** Items mounting within this window of the container count as the first batch. */
+const INITIAL_BATCH_MS = 400;
+
+type StaggerContextValue = {
+  mountedAt: number;
+  nextOrder: () => number;
 };
+
+const StaggerContext = createContext<StaggerContextValue | null>(null);
 
 /**
  * Staggered entrance for grids and lists: 60ms per item, fade + 12px rise.
- * Items mounting later (pagination, polling) animate in on their own.
- * Reduced motion keeps the fade and drops the movement.
+ *
+ * Each item animates itself on mount rather than inheriting variants from
+ * the container — parent-driven variants leave late-mounted children
+ * (pagination, polling) stuck invisible once the parent's sequence has
+ * finished. Items in the first batch stagger by mount order; anything
+ * arriving later just fades in immediately.
  */
 export function StaggerReveal({
   children,
@@ -24,16 +35,15 @@ export function StaggerReveal({
   className?: string;
   as?: "div" | "ul";
 }) {
+  const [value] = useState<StaggerContextValue>(() => {
+    let order = 0;
+    return { mountedAt: performance.now(), nextOrder: () => order++ };
+  });
   const Component = as === "ul" ? motion.ul : motion.div;
   return (
-    <Component
-      className={className}
-      variants={container}
-      initial="hidden"
-      animate="show"
-    >
-      {children}
-    </Component>
+    <StaggerContext.Provider value={value}>
+      <Component className={className}>{children}</Component>
+    </StaggerContext.Provider>
   );
 }
 
@@ -47,17 +57,26 @@ export function StaggerItem({
   as?: "div" | "li";
 }) {
   const reduceMotion = useReducedMotion();
-  const item: Variants = {
-    hidden: { opacity: 0, transform: reduceMotion ? "none" : "translateY(12px)" },
-    show: {
-      opacity: 1,
-      transform: "translateY(0px)",
-      transition: { duration: 0.3, ease: EASE_OUT },
-    },
-  };
+  const ctx = useContext(StaggerContext);
+  const delay = useRef<number | null>(null);
+  if (delay.current === null) {
+    const initialBatch =
+      ctx !== null && performance.now() - ctx.mountedAt < INITIAL_BATCH_MS;
+    delay.current =
+      initialBatch && ctx ? (ctx.nextOrder() * STAGGER_MS) / 1000 : 0;
+  }
+
   const Component = as === "li" ? motion.li : motion.div;
   return (
-    <Component variants={item} className={className}>
+    <Component
+      className={className}
+      initial={{
+        opacity: 0,
+        transform: reduceMotion ? "none" : "translateY(12px)",
+      }}
+      animate={{ opacity: 1, transform: "translateY(0px)" }}
+      transition={{ duration: 0.3, ease: EASE_OUT, delay: delay.current }}
+    >
       {children}
     </Component>
   );

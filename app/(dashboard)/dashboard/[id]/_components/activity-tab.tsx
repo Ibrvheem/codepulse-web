@@ -1,6 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,13 +19,27 @@ import {
   dayKeyFor,
   type CommitGroup,
 } from "../_lib/group-activity";
+import { EASE_OUT } from "@/components/motion/stagger-reveal";
 import { formatDuration } from "@/lib/utils";
 import type { LogEntry } from "@/lib/types";
 
+/**
+ * Rows arriving from the 30s poll fade in; rows absorbed by a commit fade
+ * out. Wrapped in <AnimatePresence initial={false}> by callers so the first
+ * render doesn't double-animate under the card's own entrance.
+ */
 function WorkRow({ row }: { row: LogEntry }) {
   const isAgent = row.source === "agent";
+  const reduceMotion = useReducedMotion();
   return (
-    <div className="flex items-center justify-between gap-3 py-1.5">
+    <motion.div
+      layout={!reduceMotion}
+      initial={{ opacity: 0, transform: reduceMotion ? "none" : "translateY(-4px)" }}
+      animate={{ opacity: 1, transform: "translateY(0px)" }}
+      exit={{ opacity: 0, transform: reduceMotion ? "none" : "translateY(-4px)" }}
+      transition={{ duration: 0.2, ease: EASE_OUT }}
+      className="flex items-center justify-between gap-3 py-1.5"
+    >
       <p className="font-mono text-xs truncate">{row.file_path}</p>
       <span className="flex items-center gap-3 shrink-0 text-xs tabular-nums">
         <span className="whitespace-nowrap">
@@ -48,7 +63,7 @@ function WorkRow({ row }: { row: LogEntry }) {
           </span>
         )}
       </span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -76,9 +91,11 @@ function CommitGroupCard({ group }: { group: CommitGroup }) {
       </p>
       {group.rows.length > 0 && (
         <div className="mt-2 ml-[3px] border-l pl-4">
-          {group.rows.map((row) => (
-            <WorkRow key={row.id} row={row} />
-          ))}
+          <AnimatePresence initial={false}>
+            {group.rows.map((row) => (
+              <WorkRow key={row.id} row={row} />
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </div>
@@ -178,9 +195,11 @@ export function ActivityTab({ projectId }: { projectId: string }) {
                 )}
               </div>
               <div className="mt-2 ml-[3px] border-l border-dashed pl-4">
-                {timeline.uncommitted.rows.map((row) => (
-                  <WorkRow key={row.id} row={row} />
-                ))}
+                <AnimatePresence initial={false}>
+                  {timeline.uncommitted.rows.map((row) => (
+                    <WorkRow key={row.id} row={row} />
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
           </StaggerItem>

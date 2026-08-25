@@ -1,4 +1,4 @@
-# WriteLogs (codepulse-web)
+ # WriteLogs (codepulse-web)
 
 Focus on code, not log sheets. The dashboard for [writelogs-api](../writelogs-api) — a thin client over the REST API. The backend owns all state; the only config this app needs is `NEXT_PUBLIC_API_URL`.
 
@@ -78,3 +78,6 @@ surface the API's message; motion is subtle ease-out under 300ms; light + dark m
 ## Out of scope on purpose
 
 Billing, teams, charts, profile pictures, settings pages.
+
+
+Hello world!
