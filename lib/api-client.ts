@@ -17,6 +17,7 @@ import {
   type Project,
   type SigninResponse,
   type Summary,
+  type SummaryVoice,
   type User,
 } from "./types";
 import type { Meta } from "./schemas";
@@ -281,6 +282,15 @@ export const projects = {
   }) =>
     (await request<Project>("/projects", {
       method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+
+  update: async (
+    id: string,
+    payload: { summary_voice?: SummaryVoice; name?: string },
+  ) =>
+    (await request<Project>(`/projects/${id}`, {
+      method: "PATCH",
       body: JSON.stringify(payload),
     })).data,
 

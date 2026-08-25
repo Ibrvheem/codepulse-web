@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { StaggerReveal, StaggerItem } from "@/components/motion/stagger-reveal";
 import { EmptyState, ErrorState } from "../../../_components/query-states";
 import { PaginationControls } from "../../../_components/pagination-controls";
 import { useProject, useProjectSummaries } from "../_hooks/use-project-data";
@@ -20,7 +21,9 @@ import {
   useGenerateSummary,
   useSummaryUsage,
 } from "../_hooks/use-generate-summary";
-import type { Summary } from "@/lib/types";
+import { inVoice, useSummaryVoice } from "../_hooks/use-summary-voice";
+import { VoiceToggle } from "./voice-toggle";
+import type { Summary, SummaryVoice } from "@/lib/types";
 
 dayjs.extend(relativeTime);
 
@@ -37,6 +40,54 @@ function projectDay(timezone: string | undefined, daysAgo = 0): string {
   }
 }
 
+function SummaryCard({
+  summary,
+  voice,
+  projectId,
+  badges,
+  footer,
+}: {
+  summary: Summary;
+  voice: SummaryVoice;
+  projectId: string;
+  badges: React.ReactNode;
+  footer?: React.ReactNode;
+}) {
+  return (
+    // The title link stretches over the whole card (::after overlay); the
+    // footer controls sit above it so they stay independently clickable.
+    <div className="group relative border rounded-lg p-4 bg-card transition-all duration-200 hover:border-foreground/25 hover:-translate-y-0.5 hover:shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <Link
+          href={`/dashboard/${projectId}/summary/${summary.id}`}
+          className="font-medium after:absolute after:inset-0 after:content-['']"
+        >
+          {summary.title}
+        </Link>
+        <span className="flex items-center gap-1.5 shrink-0">
+          {badges}
+          {summary.status !== "COMPLETED" && (
+            <Badge variant="secondary">{summary.status}</Badge>
+          )}
+        </span>
+      </div>
+      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+        {inVoice(voice, summary.message, summary.message_first_person)}
+      </p>
+      <p className="text-xs text-muted-foreground mt-3 tabular-nums">
+        {dayjs(summary.date).format("ddd, MMM D YYYY")} · {summary.logs_count}{" "}
+        {summary.logs_count === 1 ? "log" : "logs"} · {summary.tasks.length}{" "}
+        {summary.tasks.length === 1 ? "task" : "tasks"}
+      </p>
+      {footer && (
+        <div className="relative z-10 mt-3 pt-3 border-t flex items-center justify-end">
+          {footer}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SummariesTab({ projectId }: { projectId: string }) {
   const [page, setPage] = useState(1);
   const { data, isPending, isError, error, refetch, isRefetching } =
@@ -44,6 +95,7 @@ export function SummariesTab({ projectId }: { projectId: string }) {
   const { data: project } = useProject(projectId);
   const generate = useGenerateSummary(projectId);
   const usage = useSummaryUsage(projectId);
+  const { voice, setVoice, isReady } = useSummaryVoice(projectId);
 
   const today = projectDay(project?.timezone);
   const yesterday = projectDay(project?.timezone, 1);
@@ -102,8 +154,25 @@ export function SummariesTab({ projectId }: { projectId: string }) {
     </div>
   );
 
+  // Voice switch applies to every summary on the tab and persists per project.
+  const voiceRow = (
+    <div className="flex items-center justify-between gap-3">
+      <span className="flex items-center gap-2">
+        <span className="text-xs text-muted-foreground">Voice</span>
+        <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
+      </span>
+      {data && data.meta.total > 0 && (
+        <span className="text-xs text-muted-foreground tabular-nums">
+          {data.meta.total} {data.meta.total === 1 ? "summary" : "summaries"}
+        </span>
+      )}
+    </div>
+  );
+
+  let content: React.ReactNode;
+
   if (isPending) {
-    return (
+    content = (
       <div className="space-y-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="border rounded-lg p-4 space-y-2">
@@ -114,116 +183,84 @@ export function SummariesTab({ projectId }: { projectId: string }) {
         ))}
       </div>
     );
-  }
-
-  if (isError) {
-    return (
+  } else if (isError) {
+    content = (
       <ErrorState
         message={error.message}
         onRetry={() => refetch()}
         retrying={isRefetching}
       />
     );
-  }
+  } else if (data.data.length === 0) {
+    content =
+      generate.data?.generated === 0 ? (
+        <EmptyState
+          title="No activity captured yet today"
+          description="Once the VS Code extension logs some work you can build today's summary here — and tonight's automatic summary will pick up everything either way."
+        >
+          {updateControls}
+        </EmptyState>
+      ) : (
+        <EmptyState
+          title="No summaries yet"
+          description="Summaries are written automatically every night. Already coded today? Build today's now."
+        >
+          {updateControls}
+        </EmptyState>
+      );
+  } else {
+    const todaySummary =
+      page === 1 ? data.data.find((s) => dayKey(s) === today) : undefined;
+    const pastSummaries = data.data.filter((s) => s !== todaySummary);
 
-  if (data.data.length === 0) {
-    return generate.data?.generated === 0 ? (
-      <EmptyState
-        title="No activity captured yet today"
-        description="Once the VS Code extension logs some work you can build today's summary here — and tonight's automatic summary will pick up everything either way."
-      >
-        {updateControls}
-      </EmptyState>
-    ) : (
-      <EmptyState
-        title="No summaries yet"
-        description="Summaries are written automatically every night. Already coded today? Build today's now."
-      >
-        {updateControls}
-      </EmptyState>
+    content = (
+      <StaggerReveal className="space-y-3">
+        {todaySummary ? (
+          <StaggerItem>
+            <SummaryCard
+              summary={todaySummary}
+              voice={voice}
+              projectId={projectId}
+              badges={<Badge>Today</Badge>}
+              footer={updateControls}
+            />
+          </StaggerItem>
+        ) : (
+          page === 1 && (
+            <StaggerItem>
+              <div className="border border-dashed rounded-lg p-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium">Today</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    No summary yet — build one from today&apos;s logs so far.
+                  </p>
+                </div>
+                {updateControls}
+              </div>
+            </StaggerItem>
+          )
+        )}
+
+        {pastSummaries.map((summary) => (
+          <StaggerItem key={summary.id}>
+            <SummaryCard
+              summary={summary}
+              voice={voice}
+              projectId={projectId}
+              badges={dayBadge(summary)}
+            />
+          </StaggerItem>
+        ))}
+
+        <PaginationControls meta={data.meta} onPageChange={setPage} />
+      </StaggerReveal>
     );
   }
 
-  const todaySummary =
-    page === 1 ? data.data.find((s) => dayKey(s) === today) : undefined;
-  const pastSummaries = data.data.filter((s) => s !== todaySummary);
-
   return (
-    <div className="space-y-3">
-      {todaySummary ? (
-        <div className="border rounded-lg p-4 bg-card">
-          <Link
-            href={`/dashboard/${projectId}/summary/${todaySummary.id}`}
-            className="block group"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <p className="font-medium group-hover:underline underline-offset-4">
-                {todaySummary.title}
-              </p>
-              <span className="flex items-center gap-1.5 shrink-0">
-                <Badge>Today</Badge>
-                {todaySummary.status !== "COMPLETED" && (
-                  <Badge variant="secondary">{todaySummary.status}</Badge>
-                )}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-              {todaySummary.message}
-            </p>
-            <p className="text-xs text-muted-foreground mt-3 tabular-nums">
-              {dayjs(todaySummary.date).format("ddd, MMM D YYYY")} ·{" "}
-              {todaySummary.logs_count}{" "}
-              {todaySummary.logs_count === 1 ? "log" : "logs"} ·{" "}
-              {todaySummary.tasks.length}{" "}
-              {todaySummary.tasks.length === 1 ? "task" : "tasks"}
-            </p>
-          </Link>
-          <div className="mt-3 pt-3 border-t flex items-center justify-end">
-            {updateControls}
-          </div>
-        </div>
-      ) : (
-        page === 1 && (
-          <div className="border border-dashed rounded-lg p-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium">Today</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                No summary yet — build one from today&apos;s logs so far.
-              </p>
-            </div>
-            {updateControls}
-          </div>
-        )
-      )}
-
-      {pastSummaries.map((summary) => (
-        <Link
-          key={summary.id}
-          href={`/dashboard/${projectId}/summary/${summary.id}`}
-          className="block border rounded-lg p-4 bg-card transition-all duration-200 hover:border-foreground/25 hover:-translate-y-0.5 hover:shadow-sm"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <p className="font-medium">{summary.title}</p>
-            <span className="flex items-center gap-1.5 shrink-0">
-              {dayBadge(summary)}
-              {summary.status !== "COMPLETED" && (
-                <Badge variant="secondary">{summary.status}</Badge>
-              )}
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-            {summary.message}
-          </p>
-          <p className="text-xs text-muted-foreground mt-3 tabular-nums">
-            {dayjs(summary.date).format("ddd, MMM D YYYY")} ·{" "}
-            {summary.logs_count} {summary.logs_count === 1 ? "log" : "logs"} ·{" "}
-            {summary.tasks.length}{" "}
-            {summary.tasks.length === 1 ? "task" : "tasks"}
-          </p>
-        </Link>
-      ))}
-
-      <PaginationControls meta={data.meta} onPageChange={setPage} />
+    <div className="space-y-4">
+      {voiceRow}
+      {content}
     </div>
   );
 }

@@ -21,11 +21,15 @@ export const signinResponseSchema = authTokensSchema.extend({
 });
 export type SigninResponse = z.infer<typeof signinResponseSchema>;
 
+export const summaryVoiceSchema = z.enum(["you", "i"]);
+export type SummaryVoice = z.infer<typeof summaryVoiceSchema>;
+
 export const projectSchema = z.object({
   id: z.string(),
   name: z.string(),
   repo_url: z.string().nullish(),
   timezone: z.string(),
+  summary_voice: summaryVoiceSchema.nullish(),
   created_at: z.string(),
   updated_at: z.string(),
   _count: z
@@ -76,6 +80,8 @@ export type CreatedPatKey = z.infer<typeof createdPatKeySchema>;
 export const summaryTaskSchema = z.object({
   id: z.string(),
   task: z.string(),
+  /** Standup line, no pronoun. Empty on summaries generated before Aug 25 2026. */
+  task_first_person: z.string().nullish(),
   description: z.string(),
   files: z.array(z.string()),
   time_minutes: z.number(),
@@ -90,6 +96,8 @@ export const summarySchema = z.object({
   timezone: z.string(),
   title: z.string(),
   message: z.string(),
+  /** "I" voice recap. Empty on summaries generated before Aug 25 2026. */
+  message_first_person: z.string().nullish(),
   status: z.string(),
   logs_count: z.number(),
   tasks: z.array(summaryTaskSchema),
