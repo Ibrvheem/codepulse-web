@@ -32,6 +32,8 @@ const API_URL =
 const REFRESH_TOKEN_KEY = "writelogs.refresh_token";
 const USER_KEY = "writelogs.user";
 
+export const SESSION_EXPIRED_MESSAGE = "Your session has expired. Sign in again.";
+
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -190,7 +192,7 @@ async function request<T>(
   // After a reload the access token is gone but the refresh token survives —
   // mint a new access token up front instead of eating a guaranteed 401.
   if (!accessToken && getRefreshToken()) await refreshAccessToken();
-  if (!accessToken) throw new ApiError("Your session has expired. Sign in again.", 401);
+  if (!accessToken) throw new ApiError(SESSION_EXPIRED_MESSAGE, 401);
 
   let res: Response;
   try {
@@ -212,7 +214,7 @@ async function request<T>(
   if (res.status === 401 && !isRetry) {
     const refreshed = await refreshAccessToken();
     if (refreshed) return request<T>(path, init, true);
-    throw new ApiError("Your session has expired. Sign in again.", 401);
+    throw new ApiError(SESSION_EXPIRED_MESSAGE, 401);
   }
 
   const body = await parseEnvelope<T>(res);
