@@ -2,10 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { EASE_OUT } from "@/components/motion/stagger-reveal";
+import { auth, SESSION_EXPIRED_MESSAGE } from "@/lib/api-client";
 import { BILLING_PATH } from "../_hooks/use-upgrade-toast";
+
+/** Retrying a dead session just fails again — offer the only real fix. */
+function SignOutButton() {
+  const router = useRouter();
+  const signOut = useMutation({
+    mutationFn: auth.logout,
+    onSettled: () => router.replace("/signin"),
+  });
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      loading={signOut.isPending}
+      onClick={() => signOut.mutate()}
+    >
+      Sign out
+    </Button>
+  );
+}
 
 /** A 402 rendered in place: the API's own message plus the way forward. */
 export function UpgradeState({ message }: { message: string }) {
@@ -57,10 +79,14 @@ export function ErrorState({
         className="mx-auto"
       />
       <p className="text-sm text-destructive">{message}</p>
-      {onRetry && (
-        <Button variant="outline" size="sm" onClick={onRetry} loading={retrying}>
-          Try again
-        </Button>
+      {message === SESSION_EXPIRED_MESSAGE ? (
+        <SignOutButton />
+      ) : (
+        onRetry && (
+          <Button variant="outline" size="sm" onClick={onRetry} loading={retrying}>
+            Try again
+          </Button>
+        )
       )}
     </motion.div>
   );

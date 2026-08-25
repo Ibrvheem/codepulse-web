@@ -8,30 +8,33 @@ import { motion } from "framer-motion";
 import { foundingMessage } from "../_lib/founding-copy";
 import type { FoundingSeats } from "../types";
 
-function HeroFootnote({ seats }: { seats: FoundingSeats | null }) {
+function FoundingPill({ seats }: { seats: FoundingSeats | null }) {
   const message = foundingMessage(seats);
-  if (message?.kind === "open") {
+  if (!message) return null;
+  if (message.kind === "gone") {
     return (
-      <p className="mt-6 text-sm text-neutral-500">
-        <span className="font-semibold text-neutral-900 tabular-nums">
-          {message.left} of {message.total}
-        </span>{" "}
-        founding spots left — 6 months of Pro, free.
-      </p>
+      <div className="mb-8 flex justify-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-sm text-neutral-700">
+          Founding spots are gone — start your 14-day free trial.
+        </span>
+      </div>
     );
   }
-  if (message?.kind === "gone") {
-    return (
-      <p className="mt-6 text-sm text-neutral-500">
-        Founding spots are gone — start your 14-day free trial.
-      </p>
-    );
-  }
-  // No counter available — never block the hero on it.
   return (
-    <p className="mt-6 text-sm text-neutral-400">
-      Free plan forever. Pro trial included. No credit card required.
-    </p>
+    <div className="mb-8 flex justify-center">
+      <span className="inline-flex items-center gap-2.5 rounded-full  bg-[#7446D8]/[0.06] px-4 py-1.5 text-sm text-neutral-800">
+        <span className="relative flex size-2">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-[#7446D8] opacity-60 animate-ping motion-reduce:animate-none" />
+          <span className="relative inline-flex size-2 rounded-full bg-[#7446D8]" />
+        </span>
+        <span>
+          <span className="font-semibold tabular-nums">
+            {message.left} of {message.total}
+          </span>{" "}
+          founding spots left — 6 months of Pro, free
+        </span>
+      </span>
+    </div>
   );
 }
 
@@ -46,6 +49,7 @@ export function Hero({ seats = null }: { seats?: FoundingSeats | null }) {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
+          <FoundingPill seats={seats} />
           <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -83,7 +87,9 @@ export function Hero({ seats = null }: { seats?: FoundingSeats | null }) {
             </Link>
           </div>
 
-          <HeroFootnote seats={seats} />
+          <p className="mt-6 text-sm text-neutral-400">
+            Free plan forever. Pro trial included. No credit card required.
+          </p>
         </motion.div>
 
         {/* Editor mockup - centered below */}
