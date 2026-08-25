@@ -8,8 +8,6 @@ import { useTheme } from "next-themes";
 import { APP_NAME } from "@/lib/config";
 import { auth, getStoredUser } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
-import { useBilling } from "../_hooks/use-billing";
-import { BILLING_PATH } from "../_hooks/use-upgrade-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +26,6 @@ export function Topbar() {
   const router = useRouter();
   const user = getStoredUser();
   const { theme, setTheme } = useTheme();
-  const { data: billing } = useBilling();
 
   const logout = useMutation({
     mutationFn: auth.logout,
@@ -82,16 +79,6 @@ export function Topbar() {
               </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={BILLING_PATH}>
-                Billing
-                {billing && (
-                  <span className="ml-auto text-xs text-muted-foreground">
-                    {billing.plan === "pro" ? "Pro" : "Free"}
-                  </span>
-                )}
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
