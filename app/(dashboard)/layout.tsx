@@ -1,5 +1,6 @@
 import { AuthGuard } from "./_components/auth-guard";
 import { Topbar } from "./_components/topbar";
+import { TrialBanner } from "./_components/trial-banner";
 
 export default function DashboardLayout({
   children,
@@ -10,6 +11,7 @@ export default function DashboardLayout({
     <AuthGuard>
       <div className="min-h-svh bg-background">
         <Topbar />
+        <TrialBanner />
         <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
       </div>
     </AuthGuard>

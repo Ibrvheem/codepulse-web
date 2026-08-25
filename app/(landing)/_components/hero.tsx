@@ -55,7 +55,7 @@ export function Hero() {
           </div>
 
           <p className="mt-6 text-sm text-neutral-400">
-            Free during beta. No credit card required.
+            Free plan forever. Pro trial included. No credit card required.
           </p>
         </motion.div>
 

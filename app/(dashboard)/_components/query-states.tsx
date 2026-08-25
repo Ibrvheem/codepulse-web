@@ -1,9 +1,37 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { EASE_OUT } from "@/components/motion/stagger-reveal";
+import { BILLING_PATH } from "../_hooks/use-upgrade-toast";
+
+/** A 402 rendered in place: the API's own message plus the way forward. */
+export function UpgradeState({ message }: { message: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2, ease: EASE_OUT }}
+      className="border border-dashed rounded-lg p-8 text-center space-y-3"
+    >
+      <Image
+        src="/loggy/loggy-lock.png"
+        alt="Loggy the mascot peeking over a padlock"
+        width={102}
+        height={140}
+        className="mx-auto"
+      />
+      <p className="text-sm max-w-sm mx-auto">{message}</p>
+      <div className="pt-1 flex justify-center">
+        <Link href={BILLING_PATH}>
+          <Button size="sm">Upgrade to Pro</Button>
+        </Link>
+      </div>
+    </motion.div>
+  );
+}
 
 export function ErrorState({
   message,

@@ -22,6 +22,8 @@ import {
   useSummaryUsage,
 } from "../_hooks/use-generate-summary";
 import { inVoice, useSummaryVoice } from "../_hooks/use-summary-voice";
+import { useBilling } from "../../../_hooks/use-billing";
+import { BILLING_PATH } from "../../../_hooks/use-upgrade-toast";
 import { VoiceToggle } from "./voice-toggle";
 import type { Summary, SummaryVoice } from "@/lib/types";
 
@@ -96,6 +98,10 @@ export function SummariesTab({ projectId }: { projectId: string }) {
   const generate = useGenerateSummary(projectId);
   const usage = useSummaryUsage(projectId);
   const { voice, setVoice, isReady } = useSummaryVoice(projectId);
+  const { data: billingInfo } = useBilling();
+  // Free plan: first-person text comes back empty, so the toggle has nothing
+  // to switch — hide it rather than show a dead control.
+  const canSwitchVoice = billingInfo?.limits.first_person_voice ?? true;
 
   const today = projectDay(project?.timezone);
   const yesterday = projectDay(project?.timezone, 1);
@@ -115,13 +121,14 @@ export function SummariesTab({ projectId }: { projectId: string }) {
   // The API only reports usage on generate responses, so until the first
   // update of the session we can state the daily allowance but not what's
   // left of it.
-  const DEFAULT_MANUAL_LIMIT = 3;
+  const manualLimit =
+    usage?.limit ?? billingInfo?.limits.manual_updates_per_day ?? 3;
   const remainingLabel =
-    usage?.used != null && usage.limit != null
-      ? `${Math.max(0, usage.limit - usage.used)} of ${usage.limit} updates left today`
+    usage?.used != null
+      ? `${Math.max(0, manualLimit - usage.used)} of ${manualLimit} updates left today`
       : usage?.exhausted
         ? "No updates left today"
-        : `Up to ${DEFAULT_MANUAL_LIMIT} manual updates a day`;
+        : `Up to ${manualLimit} manual ${manualLimit === 1 ? "update" : "updates"} a day`;
 
   // The update action only ever affects today's summary, so it lives on
   // today's card (or its placeholder) — never floating above the list.
@@ -157,10 +164,14 @@ export function SummariesTab({ projectId }: { projectId: string }) {
   // Voice switch applies to every summary on the tab and persists per project.
   const voiceRow = (
     <div className="flex items-center justify-between gap-3">
-      <span className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">Voice</span>
-        <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
-      </span>
+      {canSwitchVoice ? (
+        <span className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Voice</span>
+          <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
+        </span>
+      ) : (
+        <span />
+      )}
       {data && data.meta.total > 0 && (
         <span className="text-xs text-muted-foreground tabular-nums">
           {data.meta.total} {data.meta.total === 1 ? "summary" : "summaries"}
@@ -251,6 +262,22 @@ export function SummariesTab({ projectId }: { projectId: string }) {
             />
           </StaggerItem>
         ))}
+
+        {data.locked > 0 && !data.meta.has_next_page && (
+          <StaggerItem>
+            <div className="border border-dashed rounded-lg px-4 py-3 text-sm text-muted-foreground">
+              <span aria-hidden>🔒</span> {data.locked} older{" "}
+              {data.locked === 1 ? "summary" : "summaries"} —{" "}
+              <Link
+                href={BILLING_PATH}
+                className="text-foreground underline underline-offset-4"
+              >
+                upgrade to see your full history
+              </Link>
+              .
+            </div>
+          </StaggerItem>
+        )}
 
         <PaginationControls meta={data.meta} onPageChange={setPage} />
       </StaggerReveal>
