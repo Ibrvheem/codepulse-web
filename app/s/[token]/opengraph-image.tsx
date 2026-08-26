@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-import { formatDuration } from "@/lib/utils";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -83,8 +82,7 @@ export default async function OgImage({
   const stats: [string, string][] = [
     [String(summary.stats.commits), "COMMITS"],
     [String(summary.stats.files), "FILES"],
-    [String(summary.stats.ai_changes), "AI CHANGES"],
-    [summary.active_minutes >= 1 ? formatDuration(summary.active_minutes * 60_000) : "—", "ACTIVE"],
+    [String(summary.stats.ai_changes), "CHANGES"],
   ];
 
   return new ImageResponse(
@@ -135,14 +133,9 @@ export default async function OgImage({
             {tasks.map((task: { task: string; time_minutes: number }) => (
               <div key={task.task} style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 8, height: 8, borderRadius: 99, background: "#404040" }} />
-                <span style={{ fontSize: 24, flex: 1 }}>
+                <span style={{ fontSize: 24 }}>
                   {task.task.length > 70 ? `${task.task.slice(0, 70)}…` : task.task}
                 </span>
-                {task.time_minutes >= 1 && (
-                  <span style={{ fontSize: 20, color: "#737373" }}>
-                    ~{formatDuration(task.time_minutes * 60_000)}
-                  </span>
-                )}
               </div>
             ))}
             {extra > 0 && (
