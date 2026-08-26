@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Share2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { summaries } from "@/lib/api-client";
 import { copyText } from "@/lib/utils";
 import type { ShareLink } from "@/lib/types";
@@ -51,22 +58,32 @@ export function ShareSummary({ summaryId }: { summaryId: string }) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          loading={create.isPending}
-          onClick={(event) => {
-            // First click creates the share link; after that the trigger just
-            // toggles the popover.
-            if (!share) {
-              event.preventDefault();
-              create.mutate();
-            }
-          }}
-        >
-          {share ? "Sharing · Copy link" : "Share"}
-        </Button>
-      </PopoverTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={share ? "Sharing — open share options" : "Share"}
+                className={`size-7 text-muted-foreground hover:text-foreground ${share ? "bg-muted text-foreground" : ""}`}
+                loading={create.isPending}
+                onClick={(event) => {
+                  // First click creates the share link; after that the
+                  // trigger just toggles the popover.
+                  if (!share) {
+                    event.preventDefault();
+                    create.mutate();
+                  }
+                }}
+              >
+                {!create.isPending && <Share2 className="size-3.5" />}
+              </Button>
+            </PopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{share ? "Sharing" : "Share"}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       {share && (
         <PopoverContent align="end" className="w-80 space-y-3">
           <p className="text-xs text-muted-foreground">
