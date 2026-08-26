@@ -12,8 +12,6 @@ export function useCreateKey(
   projectId: string,
   onCreated: (key: CreatedPatKey) => void,
 ) {
-  const queryClient = useQueryClient();
-
   const form = useForm<CreateKeyPayload>({
     resolver: zodResolver(createKeyPayloadSchema),
     defaultValues: { name: "" },
@@ -25,10 +23,10 @@ export function useCreateKey(
         project_id: projectId,
         name: payload.name?.trim() || undefined,
       }),
-    onSuccess: (key) => {
-      queryClient.invalidateQueries({ queryKey: ["keys", projectId] });
-      onCreated(key);
-    },
+    // Deliberately NO list invalidation here: a refetch can flip the empty
+    // state and unmount the dialog that owns the one-time token. The dialog
+    // invalidates when it closes instead.
+    onSuccess: (key) => onCreated(key),
     onError: (error) => toast.error(error.message),
   });
 

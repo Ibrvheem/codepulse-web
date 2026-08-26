@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -49,10 +50,16 @@ export function NewKeyDialog({
   const [copied, setCopied] = useState(false);
 
   const { form, onSubmit, isPending } = useCreateKey(projectId, setCreatedKey);
+  const queryClient = useQueryClient();
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
     if (!next) {
+      // Refetch only now: doing it on creation can flip the tab's empty
+      // state and unmount this dialog before the token is copied.
+      if (createdKey) {
+        queryClient.invalidateQueries({ queryKey: ["keys", projectId] });
+      }
       // The token is gone for good once this closes — reset for next time.
       setCreatedKey(null);
       setCopied(false);
