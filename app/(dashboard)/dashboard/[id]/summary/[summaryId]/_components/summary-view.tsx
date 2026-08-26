@@ -13,6 +13,7 @@ import { SummaryBullets } from "../../../_components/summary-bullets";
 import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useSummary, useCopyStandup } from "../_hooks/use-summary";
+import { ShareSummary } from "./share-summary";
 
 export function SummaryView({
   projectId,
@@ -93,21 +94,24 @@ export function SummaryView({
               )}
             </p>
           </div>
-          {proVoice && (
-            <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
+            {proVoice && (
               <span className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Voice</span>
                 <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
               </span>
-              {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
+            )}
+            <ShareSummary summaryId={summaryId} />
+            {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
+            {proVoice && (
               <Button
                 loading={copyStandup.isPending}
                 onClick={() => copyStandup.mutate()}
               >
                 Copy as standup
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
