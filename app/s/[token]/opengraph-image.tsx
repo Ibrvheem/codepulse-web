@@ -6,29 +6,45 @@ export const contentType = "image/png";
 export const alt = "A WriteLogs daily summary";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9308";
+const FETCH_TIMEOUT = 2_500;
 
-async function loadGeist(weight: 400 | 600, text: string) {
-  const css = await (
-    await fetch(
-      `https://fonts.googleapis.com/css2?family=Geist:wght@${weight}&text=${encodeURIComponent(text)}`,
-    )
-  ).text();
-  const url = css.match(/src: url\((.+?)\) format\('(opentype|truetype)'\)/)?.[1];
-  if (!url) throw new Error("no font url");
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("font fetch failed");
-  return res.arrayBuffer();
+// X's crawler gives up around 5s, so everything here is parallel, capped,
+// and cached at module level (warm lambdas skip the font/mascot fetches).
+let fontCache: { name: string; data: ArrayBuffer; weight: 400 | 600 }[] | null =
+  null;
+let loggyCache: string | null | undefined;
+
+async function loadGeist() {
+  if (fontCache) return fontCache;
+  const weight = async (w: 400 | 600) => {
+    const css = await (
+      await fetch(`https://fonts.googleapis.com/css2?family=Geist:wght@${w}`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
+      })
+    ).text();
+    const url = css.match(/src: url\((.+?)\) format\('(opentype|truetype)'\)/)?.[1];
+    if (!url) throw new Error("no font url");
+    const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    if (!res.ok) throw new Error("font fetch failed");
+    return { name: "Geist", data: await res.arrayBuffer(), weight: w };
+  };
+  fontCache = await Promise.all([weight(400), weight(600)]);
+  return fontCache;
 }
 
 async function loadLoggy(): Promise<string | null> {
+  if (loggyCache !== undefined) return loggyCache;
   try {
-    const res = await fetch("https://www.writelogs.com/loggy/loggy-head.png");
-    if (!res.ok) return null;
+    const res = await fetch("https://www.writelogs.com/loggy/loggy-head.png", {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+    if (!res.ok) throw new Error("loggy fetch failed");
     const buf = Buffer.from(await res.arrayBuffer());
-    return `data:image/png;base64,${buf.toString("base64")}`;
+    loggyCache = `data:image/png;base64,${buf.toString("base64")}`;
   } catch {
-    return null;
+    loggyCache = null;
   }
+  return loggyCache;
 }
 
 export default async function OgImage({
@@ -38,15 +54,26 @@ export default async function OgImage({
 }) {
   const { token } = await params;
 
-  let summary;
-  try {
-    const res = await fetch(`${API_URL}/summaries/shared/${token}`);
-    const body = await res.json();
-    if (!res.ok || !body.success) throw new Error("not shared");
-    summary = body.data;
-  } catch {
-    return new Response("Not found", { status: 404 });
-  }
+  const [summaryResult, fontsResult, loggy] = await Promise.allSettled([
+    (async () => {
+      const res = await fetch(`${API_URL}/summaries/shared/${token}`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
+      });
+      const body = await res.json();
+      if (!res.ok || !body.success) throw new Error("not shared");
+      return body.data;
+    })(),
+    loadGeist(),
+    loadLoggy(),
+  ]).then((r) => [
+    r[0].status === "fulfilled" ? r[0].value : null,
+    r[1].status === "fulfilled" ? r[1].value : null,
+    r[2].status === "fulfilled" ? r[2].value : null,
+  ]);
+
+  if (!summaryResult) return new Response("Not found", { status: 404 });
+  const summary = summaryResult;
+  const fonts = fontsResult;
 
   const tasks = summary.tasks.slice(0, 4);
   const extra = summary.tasks.length - tasks.length;
@@ -60,16 +87,6 @@ export default async function OgImage({
     [summary.active_minutes >= 1 ? formatDuration(summary.active_minutes * 60_000) : "—", "ACTIVE"],
   ];
 
-  const allText = `WriteLogs${summary.title}by ${summary.author_name}${date}${tasks.map((t: { task: string }) => t.task).join("")}${stats.flat().join("")}+${extra} more~0123456789hm `;
-  const fonts: { name: string; data: ArrayBuffer; weight: 400 | 600 }[] = [];
-  try {
-    fonts.push({ name: "Geist", data: await loadGeist(400, allText), weight: 400 });
-    fonts.push({ name: "Geist", data: await loadGeist(600, allText), weight: 600 });
-  } catch {
-    // fall back to the bundled default font
-  }
-  const loggy = await loadLoggy();
-
   return new ImageResponse(
     (
       <div
@@ -82,7 +99,7 @@ export default async function OgImage({
           background: "#ffffff",
           color: "#0a0a0a",
           padding: 64,
-          fontFamily: fonts.length ? "Geist" : "sans-serif",
+          fontFamily: fonts ? "Geist" : "sans-serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -155,6 +172,13 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size, fonts: fonts.length ? fonts : undefined },
+    {
+      ...size,
+      fonts: fonts ?? undefined,
+      headers: {
+        // Let the CDN absorb crawler retries; a re-shared link gets a new token.
+        "cache-control": "public, no-transform, max-age=300, s-maxage=3600",
+      },
+    },
   );
 }
