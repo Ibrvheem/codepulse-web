@@ -93,14 +93,14 @@ export function SummaryView({
                 </Badge>
               )}
             </p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
             {proVoice && (
-              <span className="flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Voice</span>
                 <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
-              </span>
+              </div>
             )}
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
             <ShareSummary summaryId={summaryId} />
             {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
             {proVoice && (
