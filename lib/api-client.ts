@@ -13,6 +13,8 @@ import {
   type BillingCheckout,
   type CreatedPatKey,
   type PlanLimits,
+  type ShareLink,
+  type SharedSummary,
   type SummaryList,
   type GenerateSummaryResponse,
   type LogEntry,
@@ -372,6 +374,19 @@ export const summaries = {
   },
 
   get: async (id: string) => (await request<Summary>(`/summaries/${id}`)).data,
+
+  /** Enable public sharing; returns the share token + public URL. */
+  share: async (id: string) =>
+    (await request<ShareLink>(`/summaries/${id}/share`, { method: "POST" }))
+      .data,
+
+  unshare: async (id: string) => {
+    await request(`/summaries/${id}/share`, { method: "DELETE" });
+  },
+
+  /** Public, unauthenticated — used by the /s/[token] page and its OG image. */
+  shared: async (token: string) =>
+    (await publicRequest<SharedSummary>(`/summaries/shared/${token}`)).data,
 
   standup: async (id: string) =>
     (await request<{ text: string }>(`/summaries/${id}/standup`)).data.text,

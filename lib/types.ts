@@ -166,3 +166,20 @@ export type SummaryList = Paginated<Summary> & {
   locked: number;
   limits?: PlanLimits;
 };
+
+export const sharedSummarySchema = z.object({
+  date: z.string(),
+  title: z.string(),
+  message: z.string(),
+  author_name: z.string(),
+  tasks: z.array(z.object({ task: z.string(), time_minutes: z.number() })),
+  stats: z.object({
+    commits: z.number(),
+    files: z.number(),
+    ai_changes: z.number(),
+  }),
+  active_minutes: z.number(),
+});
+export type SharedSummary = z.infer<typeof sharedSummarySchema>;
+
+export type ShareLink = { token: string; url: string };
