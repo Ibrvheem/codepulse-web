@@ -28,7 +28,9 @@ const geistMono = Geist_Mono({
  * This metadata is used for setting the application's title and description.
  */
 export const metadata: Metadata = {
-  metadataBase: new URL("https://writelogs.com"),
+  // www is the canonical host — the apex 307s, and X's card crawler
+  // won't reliably follow redirects for images.
+  metadataBase: new URL("https://www.writelogs.com"),
   title: "WriteLogs",
   description: "Focus on code, not log sheets",
   openGraph: {
