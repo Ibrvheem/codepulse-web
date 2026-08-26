@@ -3,7 +3,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import dayjs from "dayjs";
 import { summaries } from "@/lib/api-client";
-import { formatDuration } from "@/lib/utils";
 import type { SharedSummary } from "@/lib/types";
 
 async function getShared(token: string): Promise<SharedSummary | null> {
@@ -32,7 +31,7 @@ export async function generateMetadata({
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex flex-col items-center gap-0.5 text-center">
       <span className="text-lg font-semibold tabular-nums">{value}</span>
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
         {label}
@@ -78,12 +77,7 @@ export default async function SharedSummaryPage({
             {summary.tasks.map((task) => (
               <li key={task.task} className="flex items-start gap-2.5">
                 <span className="mt-[7px] size-1.5 rounded-full bg-foreground/70 shrink-0" />
-                <span className="flex-1 min-w-0 text-sm">{task.task}</span>
-                {task.time_minutes >= 1 && (
-                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                    {formatDuration(task.time_minutes * 60_000)}
-                  </span>
-                )}
+                <span className="min-w-0 text-sm">{task.task}</span>
               </li>
             ))}
           </ul>
