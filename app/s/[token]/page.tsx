@@ -81,7 +81,7 @@ export default async function SharedSummaryPage({
                 <span className="flex-1 min-w-0 text-sm">{task.task}</span>
                 {task.time_minutes >= 1 && (
                   <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                    ~{formatDuration(task.time_minutes * 60_000)}
+                    {formatDuration(task.time_minutes * 60_000)}
                   </span>
                 )}
               </li>
@@ -89,18 +89,10 @@ export default async function SharedSummaryPage({
           </ul>
         )}
 
-        <div className="mt-8 pt-5 border-t grid grid-cols-4 gap-4">
+        <div className="mt-8 pt-5 border-t grid grid-cols-3 gap-4">
           <Stat value={String(summary.stats.commits)} label="commits" />
           <Stat value={String(summary.stats.files)} label="files" />
-          <Stat value={String(summary.stats.ai_changes)} label="AI changes" />
-          <Stat
-            value={
-              summary.active_minutes >= 1
-                ? formatDuration(summary.active_minutes * 60_000)
-                : "—"
-            }
-            label="active"
-          />
+          <Stat value={String(summary.stats.ai_changes)} label="changes" />
         </div>
       </div>
 
