@@ -72,6 +72,15 @@ function WorkRow({ row, showRepo }: { row: LogEntry; showRepo?: boolean }) {
   );
 }
 
+/** The repo a change came from — the one thing that tells rows apart when several repos feed a project. */
+function RepoBadge({ name }: { name: string }) {
+  return (
+    <Badge variant="outline" className="font-mono text-[10px] px-1.5 py-0">
+      {name}
+    </Badge>
+  );
+}
+
 function CommitGroupCard({ group }: { group: CommitGroup }) {
   return (
     <div className="border rounded-lg bg-card p-4">
@@ -88,17 +97,14 @@ function CommitGroupCard({ group }: { group: CommitGroup }) {
           {dayjs(group.time).format("h:mm A")}
         </p>
       </div>
-      <p className="text-xs text-muted-foreground mt-1 ml-4 tabular-nums">
-        <span className="text-win">+{group.linesAdded}</span>{" "}
-        <span className="text-loss">−{group.linesRemoved}</span> ·{" "}
-        {group.fileCount} {group.fileCount === 1 ? "file" : "files"}
-        {group.repo && (
-          <>
-            {" · "}
-            <span className="text-foreground/80">{group.repo}</span>
-          </>
-        )}
-        {group.branch && ` · ${group.branch}`}
+      <p className="text-xs text-muted-foreground mt-1.5 ml-4 tabular-nums flex items-center gap-1.5 flex-wrap">
+        {group.repo && <RepoBadge name={group.repo} />}
+        <span>
+          <span className="text-win">+{group.linesAdded}</span>{" "}
+          <span className="text-loss">−{group.linesRemoved}</span> ·{" "}
+          {group.fileCount} {group.fileCount === 1 ? "file" : "files"}
+          {group.branch && ` · ${group.branch}`}
+        </span>
       </p>
       {group.rows.length > 0 && (
         <div className="mt-2 ml-[3px] border-l pl-4">
@@ -199,10 +205,13 @@ export function ActivityTab({ projectId }: { projectId: string }) {
                   Uncommitted
                 </p>
                 {(timeline.uncommitted.repo || timeline.uncommitted.branch) && (
-                  <p className="text-xs text-muted-foreground">
-                    {[timeline.uncommitted.repo, timeline.uncommitted.branch]
-                      .filter(Boolean)
-                      .join(" · ")}
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    {timeline.uncommitted.repo && (
+                      <RepoBadge name={timeline.uncommitted.repo} />
+                    )}
+                    {timeline.uncommitted.branch && (
+                      <span>{timeline.uncommitted.branch}</span>
+                    )}
                   </p>
                 )}
               </div>

@@ -29,7 +29,7 @@ export type CommitGroup = {
   time: string;
   linesAdded: number;
   linesRemoved: number;
-  /** Files the commit itself touched (from its own rows). */
+  /** Distinct files the commit touched (its `files` list, or one per row on old data). */
   fileCount: number;
   rows: LogEntry[];
 };
@@ -79,8 +79,10 @@ export function groupActivity(
   const commitRows = entries.filter((e) => e.source === "commit");
   const workRows = entries.filter((e) => e.source !== "commit");
 
-  // Collapse per-file commit rows into one group per commit hash.
+  // Collapse per-file commit rows into one group per commit hash. A commit is
+  // normally ONE row carrying `files`; older clients sent one row per file.
   const commitsByHash = new Map<string, CommitGroup>();
+  const commitFiles = new Map<string, Set<string>>();
   for (const row of commitRows) {
     const key = row.commit_hash ?? row.id;
     let group = commitsByHash.get(key);
@@ -103,7 +105,10 @@ export function groupActivity(
     group.repo ??= row.repo_name ?? null;
     group.linesAdded += row.lines_added;
     group.linesRemoved += row.lines_removed;
-    group.fileCount += 1;
+    const files = commitFiles.get(key) ?? new Set<string>();
+    for (const f of row.files?.length ? row.files : [row.file_path]) files.add(f);
+    commitFiles.set(key, files);
+    group.fileCount = files.size;
     if (rowTime(row) > new Date(group.time).getTime()) {
       group.time = row.ended_at ?? row.started_at;
     }

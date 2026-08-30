@@ -58,6 +58,8 @@ export const logEntrySchema = z.object({
   matches_head: z.boolean().nullish(),
   /** Root folder name of the repo this came from; null on older clients. */
   repo_name: z.string().nullish(),
+  /** Commit entries: every file the commit touched. */
+  files: z.array(z.string()).nullish(),
   lines_added: z.number(),
   lines_removed: z.number(),
   started_at: z.string(),
