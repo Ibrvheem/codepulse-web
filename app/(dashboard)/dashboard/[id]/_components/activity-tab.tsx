@@ -28,7 +28,7 @@ import type { LogEntry } from "@/lib/types";
  * out. Wrapped in <AnimatePresence initial={false}> by callers so the first
  * render doesn't double-animate under the card's own entrance.
  */
-function WorkRow({ row, showRepo }: { row: LogEntry; showRepo?: boolean }) {
+function WorkRow({ row, showBranch }: { row: LogEntry; showBranch?: boolean }) {
   const isAgent = row.source === "agent";
   const reduceMotion = useReducedMotion();
   return (
@@ -41,7 +41,7 @@ function WorkRow({ row, showRepo }: { row: LogEntry; showRepo?: boolean }) {
       className="flex items-center justify-between gap-3 py-1.5"
     >
       <p className="font-mono text-xs truncate">
-        {showRepo && row.repo_name && (
+        {row.repo_name && (
           <span className="text-muted-foreground">{row.repo_name}/</span>
         )}
         {row.file_path}
@@ -51,6 +51,11 @@ function WorkRow({ row, showRepo }: { row: LogEntry; showRepo?: boolean }) {
           <span className="text-win">+{row.lines_added}</span>{" "}
           <span className="text-loss">−{row.lines_removed}</span>
         </span>
+        {showBranch && row.branch && (
+          <span className="text-muted-foreground whitespace-nowrap max-w-32 truncate">
+            {row.branch}
+          </span>
+        )}
         {isAgent ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -72,13 +77,9 @@ function WorkRow({ row, showRepo }: { row: LogEntry; showRepo?: boolean }) {
   );
 }
 
-/** The repo a change came from — the one thing that tells rows apart when several repos feed a project. */
-function RepoBadge({ name }: { name: string }) {
-  return (
-    <Badge variant="outline" className="font-mono text-[10px] px-1.5 py-0">
-      {name}
-    </Badge>
-  );
+/** The repo a change came from — plain text, just a step darker than the rest of the meta line. */
+function RepoName({ name }: { name: string }) {
+  return <span className="font-medium text-foreground/80">{name}</span>;
 }
 
 function CommitGroupCard({ group }: { group: CommitGroup }) {
@@ -97,14 +98,17 @@ function CommitGroupCard({ group }: { group: CommitGroup }) {
           {dayjs(group.time).format("h:mm A")}
         </p>
       </div>
-      <p className="text-xs text-muted-foreground mt-1.5 ml-4 tabular-nums flex items-center gap-1.5 flex-wrap">
-        {group.repo && <RepoBadge name={group.repo} />}
-        <span>
-          <span className="text-win">+{group.linesAdded}</span>{" "}
-          <span className="text-loss">−{group.linesRemoved}</span> ·{" "}
-          {group.fileCount} {group.fileCount === 1 ? "file" : "files"}
-          {group.branch && ` · ${group.branch}`}
-        </span>
+      <p className="text-xs text-muted-foreground mt-1 ml-4 tabular-nums">
+        {group.repo && (
+          <>
+            <RepoName name={group.repo} />
+            {" · "}
+          </>
+        )}
+        <span className="text-win">+{group.linesAdded}</span>{" "}
+        <span className="text-loss">−{group.linesRemoved}</span> ·{" "}
+        {group.fileCount} {group.fileCount === 1 ? "file" : "files"}
+        {group.branch && ` · ${group.branch}`}
       </p>
       {group.rows.length > 0 && (
         <div className="mt-2 ml-[3px] border-l pl-4">
@@ -199,31 +203,17 @@ export function ActivityTab({ projectId }: { projectId: string }) {
         {timeline.uncommitted && (
           <StaggerItem>
             <div className="border border-dashed rounded-lg p-4">
-              <div className="flex items-start justify-between gap-3">
-                <p className="font-medium text-sm flex items-center gap-2">
-                  <span className="size-2 rounded-full border border-foreground/60 shrink-0" />
-                  Uncommitted
-                </p>
-                {(timeline.uncommitted.repo || timeline.uncommitted.branch) && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    {timeline.uncommitted.repo && (
-                      <RepoBadge name={timeline.uncommitted.repo} />
-                    )}
-                    {timeline.uncommitted.branch && (
-                      <span>{timeline.uncommitted.branch}</span>
-                    )}
-                  </p>
-                )}
-              </div>
+              <p className="font-medium text-sm flex items-center gap-2">
+                <span className="size-2 rounded-full border border-foreground/60 shrink-0" />
+                Uncommitted
+              </p>
               <div className="mt-2 ml-[3px] border-l border-dashed pl-4">
                 <AnimatePresence initial={false}>
+                  {/* Pending rows can sit on different branches (per repo, or
+                      after a switch), so each row names its own. Rows under a
+                      commit inherit the commit's branch and stay quiet. */}
                   {timeline.uncommitted.rows.map((row) => (
-                    <WorkRow
-                      key={row.id}
-                      row={row}
-                      // No single repo in the header → say it per row.
-                      showRepo={timeline.uncommitted!.repo === null}
-                    />
+                    <WorkRow key={row.id} row={row} showBranch />
                   ))}
                 </AnimatePresence>
                 {timeline.uncommitted.revertedCount > 0 && (
