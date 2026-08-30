@@ -28,7 +28,7 @@ import type { LogEntry } from "@/lib/types";
  * out. Wrapped in <AnimatePresence initial={false}> by callers so the first
  * render doesn't double-animate under the card's own entrance.
  */
-function WorkRow({ row }: { row: LogEntry }) {
+function WorkRow({ row, showRepo }: { row: LogEntry; showRepo?: boolean }) {
   const isAgent = row.source === "agent";
   const reduceMotion = useReducedMotion();
   return (
@@ -40,7 +40,12 @@ function WorkRow({ row }: { row: LogEntry }) {
       transition={{ duration: 0.2, ease: EASE_OUT }}
       className="flex items-center justify-between gap-3 py-1.5"
     >
-      <p className="font-mono text-xs truncate">{row.file_path}</p>
+      <p className="font-mono text-xs truncate">
+        {showRepo && row.repo_name && (
+          <span className="text-muted-foreground">{row.repo_name}/</span>
+        )}
+        {row.file_path}
+      </p>
       <span className="flex items-center gap-3 shrink-0 text-xs tabular-nums">
         <span className="whitespace-nowrap">
           <span className="text-win">+{row.lines_added}</span>{" "}
@@ -87,6 +92,12 @@ function CommitGroupCard({ group }: { group: CommitGroup }) {
         <span className="text-win">+{group.linesAdded}</span>{" "}
         <span className="text-loss">−{group.linesRemoved}</span> ·{" "}
         {group.fileCount} {group.fileCount === 1 ? "file" : "files"}
+        {group.repo && (
+          <>
+            {" · "}
+            <span className="text-foreground/80">{group.repo}</span>
+          </>
+        )}
         {group.branch && ` · ${group.branch}`}
       </p>
       {group.rows.length > 0 && (
@@ -147,12 +158,11 @@ export function ActivityTab({ projectId }: { projectId: string }) {
     );
   }
 
-  const timezone = project?.timezone;
-  const timeline = groupActivity(entries, timezone);
-  const today = dayKeyFor(new Date().toISOString(), timezone);
+  const timeline = groupActivity(entries, project);
+  const today = dayKeyFor(new Date().toISOString(), project);
   const yesterday = dayKeyFor(
     new Date(Date.now() - 86_400_000).toISOString(),
-    timezone,
+    project,
   );
   const dayLabel = (day: string) =>
     day === today
@@ -188,16 +198,23 @@ export function ActivityTab({ projectId }: { projectId: string }) {
                   <span className="size-2 rounded-full border border-foreground/60 shrink-0" />
                   Uncommitted
                 </p>
-                {timeline.uncommitted.branch && (
+                {(timeline.uncommitted.repo || timeline.uncommitted.branch) && (
                   <p className="text-xs text-muted-foreground">
-                    {timeline.uncommitted.branch}
+                    {[timeline.uncommitted.repo, timeline.uncommitted.branch]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
                 )}
               </div>
               <div className="mt-2 ml-[3px] border-l border-dashed pl-4">
                 <AnimatePresence initial={false}>
                   {timeline.uncommitted.rows.map((row) => (
-                    <WorkRow key={row.id} row={row} />
+                    <WorkRow
+                      key={row.id}
+                      row={row}
+                      // No single repo in the header → say it per row.
+                      showRepo={timeline.uncommitted!.repo === null}
+                    />
                   ))}
                 </AnimatePresence>
                 {timeline.uncommitted.revertedCount > 0 && (

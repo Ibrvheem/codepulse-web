@@ -8,18 +8,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/motion/fade-in";
 import { ErrorState } from "../../../_components/query-states";
 import { useProject } from "../_hooks/use-project-data";
-import { ProjectActions } from "./project-actions";
 import { SummariesTab } from "./summaries-tab";
 import { ActivityTab } from "./activity-tab";
 import { KeysTab } from "./keys-tab";
+import { SettingsTab } from "./settings-tab";
+import { formatDayEnd } from "@/lib/project-day";
 
-const TABS = ["summaries", "activity", "keys"] as const;
+const TABS = ["summaries", "activity", "keys", "settings"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_LABELS: Record<Tab, string> = {
   summaries: "Summaries",
   activity: "Activity",
   keys: "Keys",
+  settings: "Settings",
 };
 
 export function ProjectDetailView({
@@ -59,22 +61,15 @@ export function ProjectDetailView({
           <Skeleton className="h-7 w-48 mt-2" />
         ) : (
           <FadeIn>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h1 className="text-xl font-semibold tracking-tight mt-1">
-                  {project.name}
-                </h1>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {project.timezone}
-                  {project._count &&
-                    ` · ${project._count.log_entries} logs · ${project._count.summaries} summaries`}
-                </p>
-              </div>
-              <ProjectActions
-                projectId={projectId}
-                projectName={project.name}
-              />
-            </div>
+            <h1 className="text-xl font-semibold tracking-tight mt-1">
+              {project.name}
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {project.timezone} · day ends{" "}
+              {formatDayEnd(project.summary_time).toLowerCase()}
+              {project._count &&
+                ` · ${project._count.log_entries} logs · ${project._count.summaries} summaries`}
+            </p>
           </FadeIn>
         )}
       </div>
@@ -121,6 +116,12 @@ export function ProjectDetailView({
           className="mt-4 opacity-100 transition-opacity duration-200 ease-out starting:opacity-0"
         >
           <KeysTab projectId={projectId} />
+        </TabsContent>
+        <TabsContent
+          value="settings"
+          className="mt-4 opacity-100 transition-opacity duration-200 ease-out starting:opacity-0"
+        >
+          <SettingsTab projectId={projectId} />
         </TabsContent>
       </Tabs>
     </div>

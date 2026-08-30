@@ -26,21 +26,20 @@ import { inVoice, useSummaryVoice } from "../_hooks/use-summary-voice";
 import { useBilling } from "../../../_hooks/use-billing";
 import { BILLING_PATH } from "../../../_hooks/use-upgrade-toast";
 import { VoiceToggle } from "./voice-toggle";
+import { projectDayKey } from "@/lib/project-day";
 import type { Summary, SummaryVoice } from "@/lib/types";
 
 dayjs.extend(relativeTime);
 
 /**
- * "Today" for a project is bounded by its own timezone, not the browser's —
- * that's what the timezone field on the project is for.
+ * "Today" for a project is bounded by its own timezone and day-end time, not
+ * the browser's clock — that's what those two project fields are for.
  */
-function projectDay(timezone: string | undefined, daysAgo = 0): string {
-  const date = new Date(Date.now() - daysAgo * 86_400_000);
-  try {
-    return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(date);
-  } catch {
-    return new Intl.DateTimeFormat("en-CA").format(date);
-  }
+function projectDay(
+  bounds: { timezone?: string; summary_time?: string | null } | undefined,
+  daysAgo = 0,
+): string {
+  return projectDayKey(Date.now() - daysAgo * 86_400_000, bounds);
 }
 
 function SummaryCard({
@@ -104,8 +103,8 @@ export function SummariesTab({ projectId }: { projectId: string }) {
   // to switch — hide it rather than show a dead control.
   const canSwitchVoice = billingInfo?.limits.first_person_voice ?? true;
 
-  const today = projectDay(project?.timezone);
-  const yesterday = projectDay(project?.timezone, 1);
+  const today = projectDay(project);
+  const yesterday = projectDay(project, 1);
   const dayKey = (summary: Summary) => summary.date.slice(0, 10);
 
   const dayBadge = (summary: Summary) => {
@@ -155,7 +154,7 @@ export function SummariesTab({ projectId }: { projectId: string }) {
           </TooltipTrigger>
           <TooltipContent>
             The counter resets daily — and summaries also update automatically
-            every night, which doesn&apos;t use your updates.
+            at the end of your day, which doesn&apos;t use your updates.
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -215,7 +214,7 @@ export function SummariesTab({ projectId }: { projectId: string }) {
       ) : (
         <EmptyState
           title="No summaries yet"
-          description="Summaries are written automatically every night. Already coded today? Build today's now."
+          description="Summaries are written automatically at the end of your day. Already coded today? Build today's now."
         >
           {updateControls}
         </EmptyState>
