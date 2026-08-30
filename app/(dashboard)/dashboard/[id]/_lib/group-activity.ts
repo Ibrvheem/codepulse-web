@@ -1,4 +1,5 @@
 import type { LogEntry } from "@/lib/types";
+import { projectDayKey, type DayBounds } from "@/lib/project-day";
 
 /**
  * Commit-anchored timeline grouping for the Activity tab.
@@ -22,6 +23,8 @@ export type CommitGroup = {
   message: string;
   shortHash: string | null;
   branch: string | null;
+  /** Root folder name of the repo the commit was made in (null on old clients). */
+  repo: string | null;
   /** Latest timestamp across the commit's rows. */
   time: string;
   linesAdded: number;
@@ -34,6 +37,8 @@ export type CommitGroup = {
 export type UncommittedGroup = {
   kind: "uncommitted";
   branch: string | null;
+  /** The single repo every pending row belongs to, or null when they span several. */
+  repo: string | null;
   rows: LogEntry[];
   /** Entries with no net change (reverted edits) — shown as one muted line. */
   revertedCount: number;
@@ -48,28 +53,28 @@ export type DaySection = {
 export type ActivityTimeline = {
   uncommitted: UncommittedGroup | null;
   days: DaySection[];
+  /** Distinct repo names seen — >1 means rows need a repo prefix to be unambiguous. */
+  repoCount: number;
 };
+
+/** One value if every row agrees on it, else null. */
+function single<T>(values: (T | null)[]): T | null {
+  const set = new Set(values);
+  return set.size === 1 ? [...set][0] : null;
+}
 
 function rowTime(row: LogEntry): number {
   return new Date(row.ended_at ?? row.started_at).getTime();
 }
 
-export function dayKeyFor(
-  iso: string,
-  timezone: string | undefined,
-): string {
-  try {
-    return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(
-      new Date(iso),
-    );
-  } catch {
-    return new Intl.DateTimeFormat("en-CA").format(new Date(iso));
-  }
+/** YYYY-MM-DD of the project day (timezone + day-end time) an ISO time falls in. */
+export function dayKeyFor(iso: string, bounds: DayBounds | undefined): string {
+  return projectDayKey(iso, bounds);
 }
 
 export function groupActivity(
   entries: LogEntry[],
-  timezone: string | undefined,
+  bounds: DayBounds | undefined,
 ): ActivityTimeline {
   const commitRows = entries.filter((e) => e.source === "commit");
   const workRows = entries.filter((e) => e.source !== "commit");
@@ -86,6 +91,7 @@ export function groupActivity(
         message: row.commit_message ?? "Commit",
         shortHash: row.commit_hash ? row.commit_hash.slice(0, 7) : null,
         branch: row.branch ?? null,
+        repo: row.repo_name ?? null,
         time: row.ended_at ?? row.started_at,
         linesAdded: 0,
         linesRemoved: 0,
@@ -94,6 +100,7 @@ export function groupActivity(
       };
       commitsByHash.set(key, group);
     }
+    group.repo ??= row.repo_name ?? null;
     group.linesAdded += row.lines_added;
     group.linesRemoved += row.lines_removed;
     group.fileCount += 1;
@@ -130,7 +137,7 @@ export function groupActivity(
   );
   const dayMap = new Map<string, CommitGroup[]>();
   for (const commit of commits) {
-    const day = dayKeyFor(commit.time, timezone);
+    const day = dayKeyFor(commit.time, bounds);
     if (!dayMap.has(day)) dayMap.set(day, []);
     dayMap.get(day)!.push(commit);
   }
@@ -139,22 +146,21 @@ export function groupActivity(
     groups,
   }));
 
-  const uncommittedBranches = new Set(
-    uncommittedRows.map((r) => r.branch ?? null),
+  const repoNames = new Set(
+    entries.map((e) => e.repo_name).filter((r): r is string => !!r),
   );
   return {
     uncommitted:
       uncommittedRows.length || revertedCount
         ? {
             kind: "uncommitted",
-            branch:
-              uncommittedBranches.size === 1
-                ? [...uncommittedBranches][0]
-                : null,
+            branch: single(uncommittedRows.map((r) => r.branch ?? null)),
+            repo: single(uncommittedRows.map((r) => r.repo_name ?? null)),
             rows: uncommittedRows,
             revertedCount,
           }
         : null,
     days,
+    repoCount: repoNames.size,
   };
 }

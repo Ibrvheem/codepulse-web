@@ -17,7 +17,7 @@ in `globals.css`) rather than scattering hex values.
 
 ## Identity
 - **Font**: Geist (neutral default) — swap in `app/layout.tsx`; keep the `--font-sans` variable name
-- **Border radius**: `0rem` everywhere — all corners are sharp, never add `rounded-*`
+- **Border radius**: rounded — cards/sections use `border rounded-lg p-4 bg-card`, controls `rounded-md`, pills `rounded-full` (via the `--radius` token). Never leave a bordered container square.
 - **Primary color**: neutral near-white on dark — swap the `--primary` (and `--sidebar-primary`) tokens in `globals.css` for your brand color
 
 ## Semantic Color Tokens

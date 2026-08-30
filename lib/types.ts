@@ -29,6 +29,8 @@ export const projectSchema = z.object({
   name: z.string(),
   repo_url: z.string().nullish(),
   timezone: z.string(),
+  /** Local "HH:mm" at which the project's day closes; "00:00" = midnight. */
+  summary_time: z.string().nullish(),
   summary_voice: summaryVoiceSchema.nullish(),
   created_at: z.string(),
   updated_at: z.string(),
@@ -54,6 +56,8 @@ export const logEntrySchema = z.object({
   committed_in: z.string().nullish(),
   /** true = the edit was reverted / cancelled out (no net change). */
   matches_head: z.boolean().nullish(),
+  /** Root folder name of the repo this came from; null on older clients. */
+  repo_name: z.string().nullish(),
   lines_added: z.number(),
   lines_removed: z.number(),
   started_at: z.string(),

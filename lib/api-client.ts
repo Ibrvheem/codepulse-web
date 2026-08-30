@@ -294,6 +294,7 @@ export const projects = {
   create: async (payload: {
     name: string;
     timezone: string;
+    summary_time?: string;
     repo_url?: string;
   }) =>
     (await request<Project>("/projects", {
@@ -303,7 +304,11 @@ export const projects = {
 
   update: async (
     id: string,
-    payload: { summary_voice?: SummaryVoice; name?: string },
+    payload: {
+      summary_voice?: SummaryVoice;
+      summary_time?: string;
+      name?: string;
+    },
   ) =>
     (await request<Project>(`/projects/${id}`, {
       method: "PATCH",
