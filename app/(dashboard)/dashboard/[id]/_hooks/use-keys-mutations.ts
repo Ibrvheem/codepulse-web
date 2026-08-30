@@ -35,6 +35,18 @@ export function useCreateKey(
   return { form, onSubmit, isPending: mutation.isPending };
 }
 
+export function useRegenerateKey(
+  onCreated: (key: CreatedPatKey) => void,
+) {
+  return useMutation({
+    mutationFn: pat.regenerate,
+    // No list invalidation here — the token dialog owns the one-time secret;
+    // the caller invalidates when that dialog closes (same as create).
+    onSuccess: (key) => onCreated(key),
+    onError: (error) => toast.error(error.message),
+  });
+}
+
 export function useRevokeKey(projectId: string, onDone?: () => void) {
   const queryClient = useQueryClient();
 
