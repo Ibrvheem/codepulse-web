@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { motion, useReducedMotion } from "framer-motion";
@@ -16,9 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "../../../_components/query-states";
 import { useProjectKeys } from "../_hooks/use-project-data";
-import { useRevokeKey } from "../_hooks/use-keys-mutations";
+import { useRegenerateKey, useRevokeKey } from "../_hooks/use-keys-mutations";
 import { NewKeyDialog } from "./new-key-dialog";
-import type { PatKey } from "@/lib/types";
+import type { CreatedPatKey, PatKey } from "@/lib/types";
 
 dayjs.extend(relativeTime);
 
@@ -31,6 +32,21 @@ export function KeysTab({ projectId }: { projectId: string }) {
     useProjectKeys(projectId);
   const [keyToRevoke, setKeyToRevoke] = useState<PatKey | null>(null);
   const revoke = useRevokeKey(projectId, () => setKeyToRevoke(null));
+  const queryClient = useQueryClient();
+  const [keyToRegen, setKeyToRegen] = useState<PatKey | null>(null);
+  const [newToken, setNewToken] = useState<CreatedPatKey | null>(null);
+  const [copied, setCopied] = useState(false);
+  const regenerate = useRegenerateKey((key) => {
+    setKeyToRegen(null);
+    setNewToken(key);
+  });
+  const closeTokenDialog = () => {
+    setNewToken(null);
+    setCopied(false);
+    // display_hint changed — safe to refetch now that the one-time token
+    // dialog is gone (same rule as key creation)
+    queryClient.invalidateQueries({ queryKey: ["keys", projectId] });
+  };
   const reduceMotion = useReducedMotion();
   // A revoked key keeps its layoutId, so it visibly travels from the live
   // list down into the Revoked section instead of vanishing and reappearing.
@@ -121,13 +137,22 @@ export function KeysTab({ projectId }: { projectId: string }) {
                       ` · expires ${dayjs(key.expires_at).format("MMM D, YYYY")}`}
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setKeyToRevoke(key)}
-                >
-                  Revoke
-                </Button>
+                <div className="flex shrink-0 gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setKeyToRegen(key)}
+                  >
+                    Regenerate
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setKeyToRevoke(key)}
+                  >
+                    Revoke
+                  </Button>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -173,6 +198,68 @@ export function KeysTab({ projectId }: { projectId: string }) {
           )}
         </>
       )}
+
+      <Dialog
+        open={keyToRegen !== null}
+        onOpenChange={(next) => !next && setKeyToRegen(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Regenerate {keyToRegen ? keyLabel(keyToRegen) : "this key"}?
+            </DialogTitle>
+            <DialogDescription>
+              You&apos;ll get a fresh token for the same key — shown once. The
+              current token stops working immediately, so re-paste the new one
+              into VS Code.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setKeyToRegen(null)}>
+              Cancel
+            </Button>
+            <Button
+              loading={regenerate.isPending}
+              onClick={() => keyToRegen && regenerate.mutate(keyToRegen.id)}
+            >
+              Regenerate token
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={newToken !== null}
+        onOpenChange={(next) => !next && closeTokenDialog()}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Your new token</DialogTitle>
+            <DialogDescription>
+              This is shown once — copy it now and paste it into the WriteLogs
+              VS Code extension.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-md border bg-muted/40 p-3 font-mono text-xs break-all select-all">
+            {newToken?.token}
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={async () => {
+                if (newToken) {
+                  await navigator.clipboard.writeText(newToken.token);
+                  setCopied(true);
+                }
+              }}
+            >
+              {copied ? "Copied" : "Copy token"}
+            </Button>
+            <Button variant="outline" onClick={closeTokenDialog}>
+              Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={keyToRevoke !== null}

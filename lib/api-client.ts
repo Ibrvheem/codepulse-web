@@ -343,6 +343,11 @@ export const pat = {
 
   revoke: async (id: string) =>
     (await request<PatKey>(`/pat/${id}`, { method: "DELETE" })).data,
+
+  /** Same key row, new secret (shown once); the old token dies immediately. */
+  regenerate: async (id: string) =>
+    (await request<CreatedPatKey>(`/pat/${id}/regenerate`, { method: "POST" }))
+      .data,
 };
 
 export const billing = {
