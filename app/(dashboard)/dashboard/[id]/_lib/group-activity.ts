@@ -36,9 +36,6 @@ export type CommitGroup = {
 
 export type UncommittedGroup = {
   kind: "uncommitted";
-  branch: string | null;
-  /** The single repo every pending row belongs to, or null when they span several. */
-  repo: string | null;
   rows: LogEntry[];
   /** Entries with no net change (reverted edits) — shown as one muted line. */
   revertedCount: number;
@@ -57,11 +54,6 @@ export type ActivityTimeline = {
   repoCount: number;
 };
 
-/** One value if every row agrees on it, else null. */
-function single<T>(values: (T | null)[]): T | null {
-  const set = new Set(values);
-  return set.size === 1 ? [...set][0] : null;
-}
 
 function rowTime(row: LogEntry): number {
   return new Date(row.ended_at ?? row.started_at).getTime();
@@ -157,13 +149,7 @@ export function groupActivity(
   return {
     uncommitted:
       uncommittedRows.length || revertedCount
-        ? {
-            kind: "uncommitted",
-            branch: single(uncommittedRows.map((r) => r.branch ?? null)),
-            repo: single(uncommittedRows.map((r) => r.repo_name ?? null)),
-            rows: uncommittedRows,
-            revertedCount,
-          }
+        ? { kind: "uncommitted", rows: uncommittedRows, revertedCount }
         : null,
     days,
     repoCount: repoNames.size,
