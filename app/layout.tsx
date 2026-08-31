@@ -31,11 +31,15 @@ export const metadata: Metadata = {
   // www is the canonical host — the apex 307s, and X's card crawler
   // won't reliably follow redirects for images.
   metadataBase: new URL("https://www.writelogs.com"),
-  title: "WriteLogs",
-  description: "Focus on code, not log sheets",
+  title: "WriteLogs — Automatic daily work logs for VS Code",
+  description:
+    "A VS Code extension that watches what you build and writes your daily work log for you. Automatic coding summaries — no timers, no forms, no log sheets.",
   openGraph: {
     siteName: "WriteLogs",
     type: "website",
+    title: "WriteLogs — Automatic daily work logs for VS Code",
+    description:
+      "A VS Code extension that watches what you build and writes your daily work log for you.",
   },
   twitter: {
     card: "summary_large_image",

@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { APP_NAME } from "@/lib/config";
+
+// Auth pages have no search value; keep them out of the index.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default function AuthLayout({
   children,
