@@ -20,8 +20,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { token } = await params;
   const summary = await getShared(token);
-  if (!summary) return { title: "Shared summary — WriteLogs" };
+  const robots = { index: false, follow: false };
+  if (!summary) return { title: "Shared summary — WriteLogs", robots };
   return {
+    robots,
     title: `${summary.title} — WriteLogs`,
     description: summary.message,
     openGraph: { title: summary.title, description: summary.message },

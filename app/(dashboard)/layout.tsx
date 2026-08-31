@@ -1,4 +1,8 @@
+import type { Metadata } from "next";
+
 import { AuthGuard } from "./_components/auth-guard";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 import { Topbar } from "./_components/topbar";
 import { TrialBanner } from "./_components/trial-banner";
 
