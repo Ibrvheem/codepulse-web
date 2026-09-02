@@ -72,8 +72,8 @@ export function Hero({ seats = null }: { seats?: FoundingSeats | null }) {
           </h1>
 
           <p className="mt-8 text-xl md:text-2xl text-neutral-500 leading-relaxed max-w-2xl mx-auto">
-            A VS Code extension that watches what you build and writes your
-            daily summary for you.
+            An extension for VS Code, Cursor, and Antigravity that watches
+            what you build and writes your daily summary for you.
           </p>
 
           <div className="mt-10">
