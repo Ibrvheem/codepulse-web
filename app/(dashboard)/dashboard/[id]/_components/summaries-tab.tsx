@@ -207,7 +207,7 @@ export function SummariesTab({ projectId }: { projectId: string }) {
       generate.data?.generated === 0 ? (
         <EmptyState
           title="No activity captured yet today"
-          description="Once the VS Code extension logs some work you can build today's summary here — and tonight's automatic summary will pick up everything either way."
+          description="Once the editor extension logs some work you can build today's summary here — and tonight's automatic summary will pick up everything either way."
         >
           {updateControls}
         </EmptyState>

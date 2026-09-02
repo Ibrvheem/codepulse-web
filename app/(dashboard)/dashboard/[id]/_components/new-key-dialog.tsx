@@ -17,16 +17,15 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import ControlledInput from "@/components/molecules/controlled-input";
 import { copyText } from "@/lib/utils";
-import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 import type { CreatedPatKey } from "@/lib/types";
 import { useCreateKey } from "../_hooks/use-keys-mutations";
 
 const SETUP_STEPS = [
   {
     title: "Install the extension",
-    detail: "Grab WriteLogs from the VS Code Marketplace.",
-    href: EXTENSION_MARKETPLACE_URL,
-    linkLabel: "Open Marketplace →",
+    detail: "Get WriteLogs for VS Code, Cursor, Antigravity, and more.",
+    href: "/dashboard/extension",
+    linkLabel: "Choose your editor →",
   },
   {
     title: "Open the WriteLogs sidebar",
@@ -72,9 +71,11 @@ export function NewKeyDialog({
     const ok = await copyText(createdKey.token);
     if (ok) {
       setCopied(true);
-      toast.success("Key copied — paste it into VS Code.");
+      toast.success("Key copied — paste it into your editor.");
     } else {
-      toast.error("Couldn't access the clipboard. Select the key and copy it manually.");
+      toast.error(
+        "Couldn't access the clipboard. Select the key and copy it manually.",
+      );
     }
   };
 
@@ -87,7 +88,7 @@ export function NewKeyDialog({
             <DialogHeader>
               <DialogTitle>New API key</DialogTitle>
               <DialogDescription>
-                The VS Code extension uses this key to log activity to this
+                The WriteLogs extension uses this key to log activity to this
                 project.
               </DialogDescription>
             </DialogHeader>
@@ -135,11 +136,11 @@ export function NewKeyDialog({
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Set up VS Code
+                    Set up your editor
                   </p>
                   <Image
-                    src="/loggy/loggy-vscode.png"
-                    alt="Loggy the mascot hugging the VS Code logo"
+                    src="/loggy/loggy-extension.png"
+                    alt="Loggy the mascot hugging an extensions icon"
                     width={56}
                     height={56}
                   />

@@ -5,7 +5,10 @@ import { motion } from "framer-motion";
 
 export function SolutionSection() {
   return (
-    <section id="how-it-works" className="scroll-mt-14 py-28 lg:py-40 bg-neutral-50">
+    <section
+      id="how-it-works"
+      className="scroll-mt-14 py-28 lg:py-40 bg-neutral-50"
+    >
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         {/* Section header - Apple style */}
         <motion.div
@@ -30,8 +33,8 @@ export function SolutionSection() {
             className="min-w-0"
           >
             <Image
-              src="/loggy/loggy-vscode.png"
-              alt="Loggy the mascot hugging the VS Code logo"
+              src="/loggy/loggy-extension.png"
+              alt="Loggy the mascot hugging an extensions icon"
               width={88}
               height={88}
               className="mb-6"
@@ -42,8 +45,8 @@ export function SolutionSection() {
               <span className="text-neutral-400">Forget it exists.</span>
             </h3>
             <p className="text-lg text-neutral-500 leading-relaxed">
-              The extension runs silently in the background. It tracks
-              file changes, detects when you step away, and syncs automatically.
+              The extension runs silently in the background. It tracks file
+              changes, detects when you step away, and syncs automatically.
             </p>
             <p className="text-lg text-neutral-900 font-medium leading-relaxed mt-4">
               Tracks your AI pair-programmer too — Claude Code&apos;s changes
@@ -165,12 +168,7 @@ function ExtensionMockup() {
       <div className="flex">
         <div className="w-40 sm:w-56 shrink-0 bg-[#252526] border-r border-[#1e1e1e] p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Image
-              src="/loggy/loggy-head.png"
-              alt=""
-              width={20}
-              height={21}
-            />
+            <Image src="/loggy/loggy-head.png" alt="" width={20} height={21} />
             <span className="text-sm text-white font-medium">WriteLogs</span>
           </div>
 
@@ -239,7 +237,9 @@ function DashboardMockup() {
             <h4 className="font-medium text-neutral-900">
               Implemented auth and pagination fixes
             </h4>
-            <p className="text-sm text-neutral-500">Today · 42 logs · 2 tasks</p>
+            <p className="text-sm text-neutral-500">
+              Today · 42 logs · 2 tasks
+            </p>
           </div>
           <div className="bg-neutral-900 text-white text-xs font-medium px-3.5 py-2 rounded-lg whitespace-nowrap">
             Copy as standup
