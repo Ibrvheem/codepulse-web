@@ -125,6 +125,10 @@ export function Topbar() {
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/extension">Install the extension</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={logout.isPending}
               onSelect={() => logout.mutate()}

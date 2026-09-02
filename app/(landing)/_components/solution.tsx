@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 
 export function SolutionSection() {
   return (
@@ -43,7 +42,7 @@ export function SolutionSection() {
               <span className="text-neutral-400">Forget it exists.</span>
             </h3>
             <p className="text-lg text-neutral-500 leading-relaxed">
-              The VS Code extension runs silently in the background. It tracks
+              The extension runs silently in the background. It tracks
               file changes, detects when you step away, and syncs automatically.
             </p>
             <p className="text-lg text-neutral-900 font-medium leading-relaxed mt-4">
@@ -51,12 +50,10 @@ export function SolutionSection() {
               are captured the minute they hit disk, even before you commit.
             </p>
             <a
-              href={EXTENSION_MARKETPLACE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-6 text-neutral-900 font-medium hover:opacity-70"
+              href="#get-extension"
+              className="inline-block mt-6 text-neutral-900 font-medium hover:opacity-70 transition-opacity"
             >
-              Get it on the VS Code Marketplace →
+              Get the extension for your editor →
             </a>
           </motion.div>
 

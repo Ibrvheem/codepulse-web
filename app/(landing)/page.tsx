@@ -4,6 +4,7 @@ import { Navbar } from "./_components/navbar";
 import { Hero } from "./_components/hero";
 import { ProblemSection } from "./_components/problem";
 import { SolutionSection } from "./_components/solution";
+import { EditorsSection } from "./_components/editors";
 import { PricingSection } from "./_components/pricing";
 import { Footer } from "./_components/footer";
 import { getFoundingSeats } from "./service";
@@ -21,7 +22,7 @@ const jsonLd = {
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Windows, macOS, Linux",
   description:
-    "A VS Code extension that watches what you build and writes your daily work log for you. Automatic coding summaries — no timers, no forms.",
+    "An extension for VS Code, Cursor, Antigravity, and Devin Desktop that watches what you build and writes your daily work log for you. Automatic coding summaries — no timers, no forms.",
   offers: {
     "@type": "Offer",
     price: "8.00",
@@ -42,6 +43,7 @@ export default async function LandingPage() {
       <Hero seats={seats} />
       <ProblemSection />
       <SolutionSection />
+      <EditorsSection />
       <PricingSection />
       <Footer />
     </main>

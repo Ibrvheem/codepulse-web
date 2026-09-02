@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Github } from "lucide-react";
-import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 
 /** The X logo — lucide dropped brand icons, so this is inline. */
 function XLogo({ className }: { className?: string }) {
@@ -44,14 +43,12 @@ export function Footer() {
 
           {/* Links */}
           <div className="flex items-center gap-8 text-sm text-neutral-600">
-            <a
-              href={EXTENSION_MARKETPLACE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/#get-extension"
               className="hover:text-neutral-900 transition-colors"
             >
-              VS Code extension
-            </a>
+              Get the extension
+            </Link>
             <Link
               href="/signup"
               className="hover:text-neutral-900 transition-colors"
