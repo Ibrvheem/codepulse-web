@@ -28,7 +28,7 @@ export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
 if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host:
-      process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+      process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://eu.i.posthog.com",
     defaults: "2025-05-24",
     // recordings on (Ibrahim's call, 2026-09-02); inputs are masked so
     // passwords and project keys don't end up in replays
