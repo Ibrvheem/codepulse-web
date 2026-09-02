@@ -66,7 +66,7 @@ export function ProjectsView() {
         <EmptyState
           // Free gets exactly one project, so "first" would be a tease.
           title={maxProjects === 1 ? "Create your project" : "Create your first project"}
-          description="A project tracks one codebase. Create it, grab an API key, and the VS Code extension starts logging your work — summaries follow automatically."
+          description="A project tracks one codebase. Create it, grab an API key, and the editor extension starts logging your work — summaries follow automatically."
         >
           <CreateProjectDialog>
             <Button>Create a project</Button>

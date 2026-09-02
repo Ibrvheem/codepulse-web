@@ -93,7 +93,7 @@ export function KeysTab({ projectId }: { projectId: string }) {
       {data.data.length === 0 ? (
         <EmptyState
           title="No keys yet"
-          description="Create a key and paste it into the WriteLogs VS Code extension — that's how your coding activity reaches this project."
+          description="Create a key and paste it into the WriteLogs editor extension — that's how your coding activity reaches this project."
         >
           <NewKeyDialog projectId={projectId}>
             <Button>Create your first key</Button>
@@ -104,7 +104,7 @@ export function KeysTab({ projectId }: { projectId: string }) {
           {liveKeys.length === 0 && (
             <EmptyState
               title="No active keys"
-              description="Every key for this project has been revoked, so nothing is syncing. Create a new key to reconnect VS Code."
+              description="Every key for this project has been revoked, so nothing is syncing. Create a new key to reconnect your editor."
             >
               <NewKeyDialog projectId={projectId}>
                 <Button>New key</Button>
@@ -211,7 +211,7 @@ export function KeysTab({ projectId }: { projectId: string }) {
             <DialogDescription>
               You&apos;ll get a fresh token for the same key — shown once. The
               current token stops working immediately, so re-paste the new one
-              into VS Code.
+              into your editor.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -237,7 +237,7 @@ export function KeysTab({ projectId }: { projectId: string }) {
             <DialogTitle>Your new token</DialogTitle>
             <DialogDescription>
               This is shown once — copy it now and paste it into the WriteLogs
-              VS Code extension.
+              extension in your editor.
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-md border bg-muted/40 p-3 font-mono text-xs break-all select-all">
@@ -271,7 +271,7 @@ export function KeysTab({ projectId }: { projectId: string }) {
               Revoke {keyToRevoke ? keyLabel(keyToRevoke) : "this key"}?
             </DialogTitle>
             <DialogDescription>
-              VS Code extensions using this key will stop syncing.
+              Editors using this key will stop syncing.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

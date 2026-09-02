@@ -35,7 +35,7 @@ export function CreateProjectDialog({
         <DialogHeader>
           <DialogTitle>New project</DialogTitle>
           <DialogDescription>
-            One project per codebase. You&apos;ll get an API key for the VS Code
+            One project per codebase. You&apos;ll get an API key for the editor
             extension next.
           </DialogDescription>
         </DialogHeader>
