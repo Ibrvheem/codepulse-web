@@ -43,6 +43,7 @@ export function ForgotPasswordForm() {
           </p>
         </div>
 
+        <div data-mask>
         <InputOTP
           maxLength={6}
           value={otp}
@@ -61,6 +62,7 @@ export function ForgotPasswordForm() {
             ))}
           </InputOTPGroup>
         </InputOTP>
+        </div>
 
         <Button
           className="w-full mt-6"
