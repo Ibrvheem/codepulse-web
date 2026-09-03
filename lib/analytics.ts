@@ -28,6 +28,7 @@ export function identifyUser(user: User): void {
     posthog.identify(user.id, {
       email: user.email,
       name: user.full_name,
+      ...(user.created_at ? { created_at: user.created_at } : {}),
     });
     identifiedUserId = user.id;
   } catch {
