@@ -125,7 +125,10 @@ export function NewKeyDialog({
 
             <div className="mt-4 space-y-4">
               <div className="border rounded-lg bg-muted/50 p-4">
-                <p className="font-mono text-sm break-all select-all leading-relaxed">
+                <p
+                  data-mask
+                  className="font-mono text-sm break-all select-all leading-relaxed"
+                >
                   {createdKey.token}
                 </p>
               </div>

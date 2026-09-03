@@ -49,6 +49,7 @@ export function VerifyOtpForm({
         </p>
       </div>
 
+      <div data-mask>
       <InputOTP
         maxLength={6}
         value={otp}
@@ -67,6 +68,7 @@ export function VerifyOtpForm({
           ))}
         </InputOTPGroup>
       </InputOTP>
+      </div>
 
       <Button
         className="w-full mt-6"

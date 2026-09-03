@@ -12,9 +12,15 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     ),
     // replay on (Ibrahim's call, 2026-09-02): every errored session, 10% of
     // the rest — the free-tier replay quota is small and PostHog records all
-    // sessions anyway. Text visible, inputs masked (passwords, wrlg_ keys).
+    // sessions anyway. Since 2026-09-03 inputs record too; only secrets are
+    // masked: password fields plus anything tagged data-mask (wrlg_ key
+    // reveals, OTP entry).
     integrations: [
-      Sentry.replayIntegration({ maskAllText: false, maskAllInputs: true }),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        maskAllInputs: false,
+        mask: ['input[type="password"]', '[data-mask]'],
+      }),
     ],
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
@@ -30,8 +36,13 @@ if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
     api_host:
       process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://eu.i.posthog.com",
     defaults: "2025-05-24",
-    // recordings on (Ibrahim's call, 2026-09-02); inputs are masked so
-    // passwords and project keys don't end up in replays
-    session_recording: { maskAllInputs: true },
+    // recordings on (Ibrahim's call, 2026-09-02); since 2026-09-03 inputs
+    // record too — only secrets are masked: password fields plus anything
+    // tagged data-mask (wrlg_ key reveals, OTP entry)
+    session_recording: {
+      maskAllInputs: false,
+      maskInputOptions: { password: true },
+      maskTextSelector: '[data-mask]',
+    },
   });
 }

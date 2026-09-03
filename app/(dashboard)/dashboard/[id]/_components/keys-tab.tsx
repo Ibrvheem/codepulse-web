@@ -240,7 +240,10 @@ export function KeysTab({ projectId }: { projectId: string }) {
               extension in your editor.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-md border bg-muted/40 p-3 font-mono text-xs break-all select-all">
+          <div
+            data-mask
+            className="rounded-md border bg-muted/40 p-3 font-mono text-xs break-all select-all"
+          >
             {newToken?.token}
           </div>
           <DialogFooter>
