@@ -34,6 +34,7 @@ export function SigninForm() {
             placeholder="Your password"
             showEyeIcon
             autoComplete="current-password"
+            rightLink={{ label: "Forgot password?", href: "/forgot-password" }}
           />
           <Button type="submit" className="w-full" loading={isPending}>
             Sign in
