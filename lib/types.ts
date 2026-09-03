@@ -7,6 +7,8 @@ export const userSchema = z.object({
   email: z.string(),
   phone_no: z.string().nullish(),
   profile_picture: z.string().nullish(),
+  // Nullish: sessions stored before the API started sending it lack it.
+  created_at: z.string().nullish(),
 });
 export type User = z.infer<typeof userSchema>;
 
