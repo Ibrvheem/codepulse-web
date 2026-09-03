@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { billing } from "@/lib/api-client";
+import { setAnalyticsPlan } from "@/lib/analytics";
 import type { Billing } from "@/lib/types";
 
 export const BILLING_KEY = ["billing"];
@@ -9,7 +10,13 @@ export const BILLING_KEY = ["billing"];
 export function useBilling() {
   return useQuery({
     queryKey: BILLING_KEY,
-    queryFn: billing.get,
+    queryFn: async () => {
+      const data = await billing.get();
+      // The plan tier isn't on the auth user object — enrich the identified
+      // PostHog person with it once entitlements load.
+      setAnalyticsPlan(data.plan);
+      return data;
+    },
     staleTime: 60_000,
   });
 }

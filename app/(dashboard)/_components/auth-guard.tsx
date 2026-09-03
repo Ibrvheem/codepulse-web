@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/api-client";
+import { isAuthenticated, getStoredUser } from "@/lib/api-client";
+import { identifyUser } from "@/lib/analytics";
 
 /**
  * The backend owns auth; the client only knows whether a refresh token is
@@ -17,6 +18,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       router.replace("/signin");
       return;
     }
+    // Session rehydration: re-attach the analytics identity after a reload
+    // (identifyUser is idempotent per user id).
+    const user = getStoredUser();
+    if (user) identifyUser(user);
     setReady(true);
   }, [router]);
 

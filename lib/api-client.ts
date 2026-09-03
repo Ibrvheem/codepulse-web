@@ -27,6 +27,7 @@ import {
   type User,
 } from "./types";
 import type { Meta } from "./schemas";
+import { identifyUser, resetAnalytics } from "./analytics";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9308";
@@ -78,6 +79,7 @@ function getRefreshToken(): string | null {
 
 function storeSession(tokens: AuthTokens, user?: User) {
   accessToken = tokens.access_token;
+  if (user) identifyUser(user); // link analytics to the DB user id
   try {
     window.localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh_token);
     if (user) window.localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -87,6 +89,9 @@ function storeSession(tokens: AuthTokens, user?: User) {
 }
 
 export function clearSession() {
+  // Reset before wiping the session so the next sign-in on this browser
+  // doesn't inherit this user's analytics identity.
+  resetAnalytics();
   accessToken = null;
   try {
     window.localStorage.removeItem(REFRESH_TOKEN_KEY);
