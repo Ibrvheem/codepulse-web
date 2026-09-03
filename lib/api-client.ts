@@ -271,6 +271,27 @@ export const auth = {
       body: JSON.stringify(payload),
     })).message,
 
+  forgotPassword: async (payload: { email: string }) =>
+    (await publicRequest<Record<string, never>>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).message,
+
+  verifyResetOtp: async (payload: { email: string; otp: string }) =>
+    (await publicRequest<{ reset_token: string }>("/auth/verify-reset-otp", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+
+  // Authenticated by the short-lived reset token from verifyResetOtp, not the
+  // session — so it goes through publicRequest with an explicit header.
+  resetPassword: async (payload: { reset_token: string; new_password: string }) =>
+    (await publicRequest<Record<string, never>>("/auth/reset-password", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${payload.reset_token}` },
+      body: JSON.stringify({ new_password: payload.new_password }),
+    })).message,
+
   logout: async () => {
     const refresh_token = getRefreshToken();
     clearSession();

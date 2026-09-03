@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOff } from "lucide-react";
+import Link from "next/link";
 import React, { useState } from "react";
 
 export default function ControlledInput({
@@ -27,6 +28,7 @@ export default function ControlledInput({
   onChange,
   min,
   autoComplete,
+  rightLink,
 }: {
   name: string;
   label?: string;
@@ -43,6 +45,7 @@ export default function ControlledInput({
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   min?: number;
   autoComplete?: string;
+  rightLink?: { label: string; href: string };
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -52,14 +55,25 @@ export default function ControlledInput({
       render={({ field, fieldState }) => (
         <FormItem>
           {label && (
-            <FormLabel className="text-sm font-medium">
-              {label}{" "}
-              {optional && (
-                <span className="text-muted-foreground font-normal text-xs">
-                  (optional)
-                </span>
+            <div className="flex items-center justify-between">
+              <FormLabel className="text-sm font-medium">
+                {label}{" "}
+                {optional && (
+                  <span className="text-muted-foreground font-normal text-xs">
+                    (optional)
+                  </span>
+                )}
+              </FormLabel>
+              {rightLink && (
+                <Link
+                  href={rightLink.href}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
+                >
+                  {rightLink.label}
+                </Link>
               )}
-            </FormLabel>
+            </div>
           )}
           <FormControl>
             <div className="relative">
