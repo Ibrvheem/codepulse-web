@@ -191,3 +191,68 @@ export const sharedSummarySchema = z.object({
 export type SharedSummary = z.infer<typeof sharedSummarySchema>;
 
 export type ShareLink = { token: string; url: string };
+
+// ---------------------------------------------------------------------------
+// Feedback board
+// ---------------------------------------------------------------------------
+
+export const feedbackCategorySchema = z.enum(["FEATURE", "BUG", "IMPROVEMENT"]);
+export const feedbackStatusSchema = z.enum([
+  "OPEN",
+  "PLANNED",
+  "IN_PROGRESS",
+  "DONE",
+  "DECLINED",
+]);
+export type FeedbackCategory = z.infer<typeof feedbackCategorySchema>;
+export type FeedbackStatus = z.infer<typeof feedbackStatusSchema>;
+export type FeedbackSort = "top" | "new";
+
+export const feedbackAuthorSchema = z.object({
+  id: z.string(),
+  full_name: z.string(),
+  profile_picture: z.string().nullish(),
+});
+export type FeedbackAuthor = z.infer<typeof feedbackAuthorSchema>;
+
+export const feedbackPostSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  body: z.string(),
+  category: feedbackCategorySchema,
+  status: feedbackStatusSchema,
+  /** Admin's public note under the status ("Shipping in 2.3"). */
+  status_note: z.string().nullish(),
+  vote_count: z.number(),
+  comment_count: z.number(),
+  /** The caller has upvoted this post. */
+  has_voted: z.boolean(),
+  /** The caller wrote this post (show edit/delete). */
+  is_mine: z.boolean(),
+  author: feedbackAuthorSchema,
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+export type FeedbackPost = z.infer<typeof feedbackPostSchema>;
+
+export const feedbackCommentSchema = z.object({
+  id: z.string(),
+  body: z.string(),
+  /** Official reply from WriteLogs — render with a small "Team" badge. */
+  is_admin: z.boolean(),
+  is_mine: z.boolean(),
+  author: feedbackAuthorSchema,
+  created_at: z.string(),
+});
+export type FeedbackComment = z.infer<typeof feedbackCommentSchema>;
+
+export type FeedbackMe = {
+  is_admin: boolean;
+  categories: FeedbackCategory[];
+  statuses: FeedbackStatus[];
+};
+export type FeedbackVoteResult = {
+  id: string;
+  vote_count: number;
+  has_voted: boolean;
+};

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StaggerReveal, StaggerItem } from "@/components/motion/stagger-reveal";
 import { EmptyState, ErrorState } from "../../_components/query-states";
@@ -51,7 +52,15 @@ export function ProjectsView() {
             </span>
           )}
         </div>
-        {newProjectButton}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/feedback"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Have an idea?
+          </Link>
+          {newProjectButton}
+        </div>
       </div>
 
       {isPending ? (

@@ -12,6 +12,13 @@ import {
   type Billing,
   type BillingCheckout,
   type CreatedPatKey,
+  type FeedbackCategory,
+  type FeedbackComment,
+  type FeedbackMe,
+  type FeedbackPost,
+  type FeedbackSort,
+  type FeedbackStatus,
+  type FeedbackVoteResult,
   type PlanLimits,
   type ShareLink,
   type SharedSummary,
@@ -430,6 +437,100 @@ export const summaries = {
   generate: async (payload: { project_id: string; include_today?: boolean }) =>
     (await request<GenerateSummaryResponse>("/summaries/generate", {
       method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+};
+
+export const feedback = {
+  /** Who am I on the board: admin flag plus the enum lists the API accepts. */
+  me: async () => (await request<FeedbackMe>("/feedback/me")).data,
+
+  list: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: FeedbackStatus;
+    category?: FeedbackCategory;
+    sort?: FeedbackSort;
+    mine?: boolean;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.status) query.set("status", params.status);
+    if (params?.category) query.set("category", params.category);
+    if (params?.sort) query.set("sort", params.sort);
+    if (params?.mine) query.set("mine", "true");
+    const qs = query.toString();
+    const body = await request<FeedbackPost[]>(`/feedback${qs ? `?${qs}` : ""}`);
+    return { data: body.data, meta: body.meta! } satisfies Paginated<FeedbackPost>;
+  },
+
+  get: async (id: string) =>
+    (await request<FeedbackPost>(`/feedback/${id}`)).data,
+
+  create: async (payload: {
+    title: string;
+    body: string;
+    category?: FeedbackCategory;
+  }) =>
+    (await request<FeedbackPost>("/feedback", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+
+  update: async (
+    id: string,
+    payload: { title?: string; body?: string; category?: FeedbackCategory },
+  ) =>
+    (await request<FeedbackPost>(`/feedback/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    })).data,
+
+  remove: async (id: string) =>
+    (await request<{ id: string }>(`/feedback/${id}`, { method: "DELETE" }))
+      .message,
+
+  // Both idempotent — a double-click lands on the same state.
+  vote: async (id: string) =>
+    (await request<FeedbackVoteResult>(`/feedback/${id}/vote`, {
+      method: "POST",
+    })).data,
+  unvote: async (id: string) =>
+    (await request<FeedbackVoteResult>(`/feedback/${id}/vote`, {
+      method: "DELETE",
+    })).data,
+
+  /** Oldest first. */
+  comments: async (id: string, params?: { page?: number; limit?: number }) => {
+    const body = await request<FeedbackComment[]>(
+      `/feedback/${id}/comments${paginated(params)}`,
+    );
+    return {
+      data: body.data,
+      meta: body.meta!,
+    } satisfies Paginated<FeedbackComment>;
+  },
+
+  addComment: async (id: string, payload: { body: string }) =>
+    (await request<FeedbackComment>(`/feedback/${id}/comments`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+
+  removeComment: async (id: string, commentId: string) =>
+    (await request<{ id: string }>(
+      `/feedback/${id}/comments/${commentId}`,
+      { method: "DELETE" },
+    )).message,
+
+  /** Admin only. Planned / In progress / Done email the author server-side. */
+  setStatus: async (
+    id: string,
+    payload: { status: FeedbackStatus; note?: string },
+  ) =>
+    (await request<FeedbackPost>(`/feedback/${id}/status`, {
+      method: "PATCH",
       body: JSON.stringify(payload),
     })).data,
 };
