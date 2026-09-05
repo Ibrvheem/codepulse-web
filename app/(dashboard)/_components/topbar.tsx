@@ -128,6 +128,9 @@ export function Topbar() {
             <DropdownMenuItem asChild>
               <Link href="/dashboard/extension">Install the extension</Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/feedback">Feedback</Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={logout.isPending}
