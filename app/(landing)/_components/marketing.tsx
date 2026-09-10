@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import type { Faq } from "../types";
+
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 
@@ -13,7 +15,7 @@ import { Footer } from "./footer";
  * the HTML for crawlers without waiting on JS.
  */
 
-export type Faq = { q: string; a: string };
+export type { Faq };
 
 export function PageShell({ children }: { children: React.ReactNode }) {
   return (

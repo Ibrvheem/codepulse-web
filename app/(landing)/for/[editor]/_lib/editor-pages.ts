@@ -1,6 +1,6 @@
 import { EXTENSION_MARKETPLACE_URL, EXTENSION_OPENVSX_URL } from "@/lib/config";
 
-import type { Faq } from "../../../_components/marketing";
+import type { Faq } from "../../../types";
 
 export type EditorPage = {
   slug: string;
