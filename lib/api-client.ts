@@ -108,6 +108,32 @@ export function clearSession() {
   }
 }
 
+/**
+ * Hand the current session to another window of this origin. Used by the Meet
+ * add-on: its iframe on meet.google.com gets partitioned storage, so it cannot
+ * see the dashboard's session and has to be given one explicitly.
+ */
+export function exportSessionForHandoff(): {
+  refresh_token: string;
+  user: User | null;
+} | null {
+  const refresh_token = getRefreshToken();
+  if (!refresh_token) return null;
+  return { refresh_token, user: getStoredUser() };
+}
+
+/** Accept a session handed over by exportSessionForHandoff. */
+export function adoptSession(refresh_token: string, user?: User | null) {
+  accessToken = null;
+  try {
+    window.localStorage.setItem(REFRESH_TOKEN_KEY, refresh_token);
+    if (user) window.localStorage.setItem(USER_KEY, JSON.stringify(user));
+  } catch {
+    // storage unavailable — the session just won't survive a reload
+  }
+  if (user) identifyUser(user);
+}
+
 export function isAuthenticated(): boolean {
   return getRefreshToken() !== null;
 }
