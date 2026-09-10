@@ -1,0 +1,16 @@
+{
+  "addOns": {
+    "common": {
+      "name": "WriteLogs",
+      "logoUrl": "https://www.writelogs.com/loggy/favicon.png"
+    },
+    "meet": {
+      "web": {
+        "sidePanelUrl": "https://www.writelogs.com/meet/panel",
+        "addOnOrigins": ["https://www.writelogs.com"],
+        "darkModeLogoUrl": "https://www.writelogs.com/loggy/favicon.png",
+        "supportsScreenSharing": false
+      }
+    }
+  }
+}
