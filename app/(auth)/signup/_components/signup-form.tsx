@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import ControlledInput from "@/components/molecules/controlled-input";
 import { FadeIn } from "@/components/motion/fade-in";
+import { OauthButtons } from "@/components/oauth-buttons";
 import { useSignup } from "../_hooks/use-signup";
 
 export function SignupForm() {
@@ -19,6 +20,9 @@ export function SignupForm() {
         <p className="text-sm text-muted-foreground">
           Your coding activity, summarized daily. Free while in beta.
         </p>
+      </div>
+      <div className="mb-6">
+        <OauthButtons />
       </div>
       <Form {...form}>
         <form onSubmit={onSubmit} className="space-y-4">

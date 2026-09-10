@@ -277,6 +277,16 @@ export const auth = {
     return body.data;
   },
 
+  /** Trades the single-use code from an OAuth redirect for a session. */
+  oauthExchange: async (code: string) => {
+    const body = await publicRequest<SigninResponse>("/auth/oauth/exchange", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+    storeSession(body.data, body.data.user);
+    return body.data;
+  },
+
   resendOtp: async (payload: { email: string }) =>
     (await publicRequest<Record<string, never>>("/auth/resend-otp", {
       method: "POST",
