@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Github } from "lucide-react";
 
+import { EDITOR_PAGES } from "../for/[editor]/_lib/editor-pages";
+
 /** The X logo — lucide dropped brand icons, so this is inline. */
 function XLogo({ className }: { className?: string }) {
   return (
@@ -18,12 +20,60 @@ function XLogo({ className }: { className?: string }) {
   );
 }
 
+const PRODUCT_LINKS = [
+  { href: "/#get-extension", label: "Get the extension" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/signup", label: "Get started" },
+  { href: "/signin", label: "Sign in" },
+];
+
+// Editor pages come from the same source as the routes and the sitemap, so a
+// new editor page shows up here without a second edit.
+const EDITOR_LINKS = EDITOR_PAGES.map((page) => ({
+  href: `/for/${page.slug}`,
+  label: page.name,
+}));
+
+const GUIDE_LINKS = [
+  { href: "/daily-standup-update", label: "Daily standup updates" },
+  { href: "/wakatime-alternative", label: "WriteLogs vs WakaTime" },
+];
+
+function LinkColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: { href: string; label: string }[];
+}) {
+  return (
+    <div>
+      <p className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-400">
+        {title}
+      </p>
+      <ul className="mt-4 space-y-3">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function Footer() {
   return (
     <footer className="border-t border-neutral-200 bg-white">
-      <div className="max-w-5xl mx-auto px-6 lg:px-8 py-12">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-          {/* Logo and tagline */}
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 py-14">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          {/* Brand */}
           <div className="flex flex-col gap-3">
             <Link href="/" className="flex items-center gap-2.5">
               <Image
@@ -36,52 +86,37 @@ export function Footer() {
                 WriteLogs
               </span>
             </Link>
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-neutral-500 max-w-[22rem]">
               Automatic work logs for developers.
             </p>
+            <div className="mt-2 flex items-center gap-4 text-neutral-500">
+              <a
+                href="https://x.com/usewritelogs"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WriteLogs on X"
+                className="hover:text-neutral-900 transition-colors"
+              >
+                <XLogo className="h-4 w-4" />
+              </a>
+              <a
+                href="https://github.com/writelogs"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WriteLogs on GitHub"
+                className="hidden hover:text-neutral-900 transition-colors"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+            </div>
           </div>
 
-          {/* Links */}
-          <div className="flex items-center gap-8 text-sm text-neutral-600">
-            <Link
-              href="/#get-extension"
-              className="hover:text-neutral-900 transition-colors"
-            >
-              Get the extension
-            </Link>
-            <Link
-              href="/signup"
-              className="hover:text-neutral-900 transition-colors"
-            >
-              Get started
-            </Link>
-            <Link
-              href="/signin"
-              className="hover:text-neutral-900 transition-colors"
-            >
-              Sign in
-            </Link>
-            <a
-              href="https://x.com/usewritelogs"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WriteLogs on X"
-              className="hover:text-neutral-900 transition-colors"
-            >
-              <XLogo className="h-4 w-4" />
-            </a>
-            <a
-              href="https://github.com/writelogs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden hover:text-neutral-900 transition-colors"
-            >
-              <Github className="h-4 w-4" />
-            </a>
-          </div>
+          <LinkColumn title="Product" links={PRODUCT_LINKS} />
+          <LinkColumn title="Editors" links={EDITOR_LINKS} />
+          <LinkColumn title="Guides" links={GUIDE_LINKS} />
         </div>
 
-        <div className="mt-10 pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
+        <div className="mt-12 pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
           <p>© {new Date().getFullYear()} WriteLogs</p>
           <div className="flex items-center gap-6">
             <Link
