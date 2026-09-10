@@ -8,6 +8,35 @@ import { motion } from "framer-motion";
 import { foundingMessage } from "../_lib/founding-copy";
 import type { FoundingSeats } from "../types";
 
+/** Launch badge. Remove this and <ProductHuntBadge /> below when the launch is over. */
+const PRODUCT_HUNT = {
+  url: "https://www.producthunt.com/products/writelogs?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-writelogs",
+  badge:
+    "https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1245997&theme=light&t=1789025349051",
+};
+
+function ProductHuntBadge() {
+  return (
+    <div className="mt-8 flex justify-center">
+      <a
+        href={PRODUCT_HUNT.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="transition-opacity hover:opacity-80"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={PRODUCT_HUNT.badge}
+          alt="WriteLogs - Built for those who freeze during standup | Product Hunt"
+          width={250}
+          height={54}
+          className="h-[54px] w-[250px]"
+        />
+      </a>
+    </div>
+  );
+}
+
 function FoundingPill({ seats }: { seats: FoundingSeats | null }) {
   const message = foundingMessage(seats);
   if (!message) return null;
@@ -91,6 +120,8 @@ export function Hero({ seats = null }: { seats?: FoundingSeats | null }) {
           <p className="mt-6 text-sm text-neutral-400">
             Free plan forever. Pro trial included. No credit card required.
           </p>
+
+          <ProductHuntBadge />
         </motion.div>
 
         {/* Editor mockup - centered below */}
