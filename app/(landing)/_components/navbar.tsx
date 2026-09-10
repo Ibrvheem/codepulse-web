@@ -43,18 +43,18 @@ export function Navbar() {
 
           {/* Desktop Nav - centered */}
           <div className="hidden md:flex items-center gap-8 text-[15px]">
-            <a
-              href="#how-it-works"
+            <Link
+              href="/#how-it-works"
               className="text-neutral-500 hover:text-neutral-900"
             >
               How it works
-            </a>
-            <a
-              href="#pricing"
+            </Link>
+            <Link
+              href="/#pricing"
               className="text-neutral-500 hover:text-neutral-900"
             >
               Pricing
-            </a>
+            </Link>
           </div>
 
           {/* Desktop CTA */}
@@ -91,20 +91,20 @@ export function Navbar() {
             className="md:hidden absolute inset-x-0 top-14 bg-white border-b border-neutral-200"
           >
             <div className="px-6 py-6 space-y-5">
-              <a
-                href="#how-it-works"
+              <Link
+                href="/#how-it-works"
                 className="block text-neutral-600"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 How it works
-              </a>
-              <a
-                href="#pricing"
+              </Link>
+              <Link
+                href="/#pricing"
                 className="block text-neutral-600"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Pricing
-              </a>
+              </Link>
               <div className="pt-4 border-t border-neutral-100 space-y-4">
                 <Link
                   href="/signup"
