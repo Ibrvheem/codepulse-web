@@ -6,6 +6,10 @@ export const alt = "A WriteLogs daily summary";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9308";
 const FETCH_TIMEOUT = 2_500;
+// The card can render without the font or the mascot, but not without the
+// data — so the API gets a longer budget than the decorations. Everything
+// runs in parallel, so the worst case is still inside the crawler's ~5s.
+const DATA_TIMEOUT = 4_000;
 
 // X's crawler gives up around 5s, so everything here is parallel, capped,
 // and cached at module level (warm lambdas skip the font/mascot fetches).
@@ -46,6 +50,29 @@ async function loadLoggy(): Promise<string | null> {
   return loggyCache;
 }
 
+// Satori will not measure a wrapped text node: it reports one line, then
+// paints the rest on top of whatever follows. Rather than fight that, the
+// title always occupies exactly one line — it just gets the smaller size when
+// it is long. The rest of the card then keeps the spacing it was designed
+// with, four bullets and all. Character counts are for Geist SemiBold across
+// the 1072px content width.
+const TITLE_LARGE = { fontSize: 48, maxChars: 42 };
+const TITLE_SMALL = { fontSize: 36, maxChars: 58 };
+const TITLE_BOX_HEIGHT = Math.round(TITLE_LARGE.fontSize * 1.3);
+
+/** One line of title: the size that fits it, ellipsized only if truly long. */
+function fitTitle(title: string): { text: string; fontSize: number } {
+  const trimmed = title.trim();
+  if (trimmed.length <= TITLE_LARGE.maxChars) {
+    return { text: trimmed, fontSize: TITLE_LARGE.fontSize };
+  }
+  const text =
+    trimmed.length > TITLE_SMALL.maxChars
+      ? `${trimmed.slice(0, TITLE_SMALL.maxChars - 1).trimEnd()}…`
+      : trimmed;
+  return { text, fontSize: TITLE_SMALL.fontSize };
+}
+
 export default async function OgImage({
   params,
 }: {
@@ -56,7 +83,7 @@ export default async function OgImage({
   const [summaryResult, fontsResult, loggy] = await Promise.allSettled([
     (async () => {
       const res = await fetch(`${API_URL}/summaries/shared/${token}`, {
-        signal: AbortSignal.timeout(FETCH_TIMEOUT),
+        signal: AbortSignal.timeout(DATA_TIMEOUT),
       });
       const body = await res.json();
       if (!res.ok || !body.success) throw new Error("not shared");
@@ -74,6 +101,7 @@ export default async function OgImage({
   const summary = summaryResult;
   const fonts = fontsResult;
 
+  const { text: title, fontSize: titleFontSize } = fitTitle(summary.title);
   const tasks = summary.tasks.slice(0, 4);
   const extra = summary.tasks.length - tasks.length;
   const date = new Date(summary.date)
@@ -116,16 +144,27 @@ export default async function OgImage({
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", flex: 1, marginTop: 40 }}>
-          <span
+          {/* Satori measures a wrapping text node as ONE line and then paints
+              the second line over whatever follows, and it honours neither
+              line-clamp nor the wrap in its height. So the height is reserved
+              explicitly — see fitTitle. */}
+          <div
             style={{
-              fontSize: 48,
+              display: "flex",
+              height: TITLE_BOX_HEIGHT,
+              // The parent column is flex:1, so its children shrink by
+              // default — without this the box collapses under the text and
+              // the title paints over the byline.
+              flexShrink: 0,
+              alignItems: "center",
+              fontSize: titleFontSize,
               fontWeight: 600,
               letterSpacing: -1.5,
               lineHeight: 1.3,
             }}
           >
-            {summary.title.length > 90 ? `${summary.title.slice(0, 90)}…` : summary.title}
-          </span>
+            {title}
+          </div>
           <span style={{ fontSize: 22, color: "#737373", marginTop: 10 }}>
             by {summary.author_name}
           </span>
