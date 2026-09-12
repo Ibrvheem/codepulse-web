@@ -105,8 +105,8 @@ export function BillingView() {
               {billing.in_trial ? "Keep Pro after your trial" : "Upgrade to Pro"}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Unlimited projects, full history, Copy as standup, both voices,
-              and 3 updates a day.
+              Unlimited projects, full history, weekly recaps, Copy as
+              standup, both voices, and 3 updates a day.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -157,6 +157,7 @@ export function BillingView() {
             <li>Unlimited projects</li>
             <li>Full history</li>
             <li>3 manual updates a day</li>
+            <li>Recaps — a week, sprint or month as one summary</li>
             <li>Copy as standup — your day as a paste-ready update</li>
             <li>Both voices — “you” and “I”</li>
           </ul>

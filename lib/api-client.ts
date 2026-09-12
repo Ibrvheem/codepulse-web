@@ -28,6 +28,8 @@ import {
   type Paginated,
   type PatKey,
   type Project,
+  type Recap,
+  type SharedRecap,
   type SigninResponse,
   type Summary,
   type SummaryVoice,
@@ -475,6 +477,54 @@ export const summaries = {
       method: "POST",
       body: JSON.stringify(payload),
     })).data,
+};
+
+export const recaps = {
+  listByProject: async (
+    projectId: string,
+    params?: { page?: number; limit?: number },
+  ) => {
+    const body = await request<Recap[]>(
+      `/recaps/project/${projectId}${paginated(params)}`,
+    );
+    return { data: body.data, meta: body.meta! } satisfies Paginated<Recap>;
+  },
+
+  get: async (id: string) => (await request<Recap>(`/recaps/${id}`)).data,
+
+  /**
+   * Build the recap for a span of project days. Re-running the same span
+   * rebuilds it in place, so the id and any share link survive.
+   * Throws ApiError 402 on the free plan, 404 when the span has no day
+   * summaries yet.
+   */
+  create: async (payload: {
+    project_id: string;
+    start_date: string;
+    end_date: string;
+  }) =>
+    (await request<Recap>("/recaps", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+
+  remove: async (id: string) => {
+    await request(`/recaps/${id}`, { method: "DELETE" });
+  },
+
+  share: async (id: string) =>
+    (await request<ShareLink>(`/recaps/${id}/share`, { method: "POST" })).data,
+
+  unshare: async (id: string) => {
+    await request(`/recaps/${id}/share`, { method: "DELETE" });
+  },
+
+  /** Public, unauthenticated — used by the /r/[token] page and its OG image. */
+  shared: async (token: string) =>
+    (await publicRequest<SharedRecap>(`/recaps/shared/${token}`)).data,
+
+  standup: async (id: string) =>
+    (await request<{ text: string }>(`/recaps/${id}/standup`)).data.text,
 };
 
 export const feedback = {

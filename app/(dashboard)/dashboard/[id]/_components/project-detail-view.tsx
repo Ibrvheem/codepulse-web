@@ -9,16 +9,18 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { ErrorState } from "../../../_components/query-states";
 import { useProject } from "../_hooks/use-project-data";
 import { SummariesTab } from "./summaries-tab";
+import { RecapsTab } from "./recaps-tab";
 import { ActivityTab } from "./activity-tab";
 import { KeysTab } from "./keys-tab";
 import { SettingsTab } from "./settings-tab";
 import { formatDayEnd } from "@/lib/project-day";
 
-const TABS = ["summaries", "activity", "keys", "settings"] as const;
+const TABS = ["summaries", "recaps", "activity", "keys", "settings"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_LABELS: Record<Tab, string> = {
   summaries: "Summaries",
+  recaps: "Recaps",
   activity: "Activity",
   keys: "Keys",
   settings: "Settings",
@@ -104,6 +106,12 @@ export function ProjectDetailView({
           className="mt-4 opacity-100 transition-opacity duration-200 ease-out starting:opacity-0"
         >
           <SummariesTab projectId={projectId} />
+        </TabsContent>
+        <TabsContent
+          value="recaps"
+          className="mt-4 opacity-100 transition-opacity duration-200 ease-out starting:opacity-0"
+        >
+          <RecapsTab projectId={projectId} />
         </TabsContent>
         <TabsContent
           value="activity"

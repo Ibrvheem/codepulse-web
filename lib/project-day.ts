@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 /**
  * A project's day doesn't have to end at midnight: `summary_time` ("HH:mm",
  * project timezone) is when the day closes and the summary goes out. Mirrors
@@ -32,6 +34,20 @@ export function projectDayKey(
   } catch {
     return new Intl.DateTimeFormat("en-CA").format(shifted);
   }
+}
+
+/**
+ * A span of project days as one label: "Sep 7 – 11, 2026", collapsing the
+ * month and the year only when both ends share them.
+ */
+export function formatSpan(start: string, end: string): string {
+  const from = dayjs(start);
+  const to = dayjs(end);
+  if (from.year() !== to.year()) {
+    return `${from.format("MMM D, YYYY")} – ${to.format("MMM D, YYYY")}`;
+  }
+  const tail = from.month() === to.month() ? "D" : "MMM D";
+  return `${from.format("MMM D")} – ${to.format(tail)}, ${to.format("YYYY")}`;
 }
 
 /** "18:00" → "6:00 PM"; "00:00" → "Midnight". */

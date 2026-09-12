@@ -145,6 +145,10 @@ export const planLimitsSchema = z.object({
   history_days: z.number().nullable(),
   manual_updates_per_day: z.number(),
   first_person_voice: z.boolean(),
+  /** Multi-day recaps. Nullish on responses from an older API. */
+  recaps: z.boolean().nullish(),
+  /** Longest span one recap may cover, in days. */
+  recap_max_days: z.number().nullish(),
 });
 export type PlanLimits = z.infer<typeof planLimitsSchema>;
 
@@ -174,6 +178,50 @@ export type SummaryList = Paginated<Summary> & {
   locked: number;
   limits?: PlanLimits;
 };
+
+// ---------------------------------------------------------------------------
+// Recaps — one summary across a span of days ("what did I do last week")
+// ---------------------------------------------------------------------------
+
+export const recapTaskSchema = summaryTaskSchema.extend({
+  /** The project days this theme showed up on. */
+  days: z.array(z.string()).nullish(),
+});
+export type RecapTask = z.infer<typeof recapTaskSchema>;
+
+export const recapSchema = z.object({
+  id: z.string(),
+  start_date: z.string(),
+  end_date: z.string(),
+  timezone: z.string(),
+  title: z.string(),
+  message: z.string(),
+  message_first_person: z.string().nullish(),
+  status: z.string(),
+  /** Days with activity inside the span — not the length of the span. */
+  days_count: z.number(),
+  logs_count: z.number(),
+  tasks: z.array(recapTaskSchema),
+  created_at: z.string(),
+});
+export type Recap = z.infer<typeof recapSchema>;
+
+export const sharedRecapSchema = z.object({
+  start_date: z.string(),
+  end_date: z.string(),
+  title: z.string(),
+  message: z.string(),
+  author_name: z.string().nullish(),
+  days_count: z.number(),
+  tasks: z.array(z.object({ task: z.string(), time_minutes: z.number() })),
+  stats: z.object({
+    commits: z.number(),
+    files: z.number(),
+    ai_changes: z.number(),
+  }),
+  active_minutes: z.number(),
+});
+export type SharedRecap = z.infer<typeof sharedRecapSchema>;
 
 export const sharedSummarySchema = z.object({
   date: z.string(),
