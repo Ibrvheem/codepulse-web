@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
+import dayjs from "dayjs";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EASE_OUT } from "@/components/motion/stagger-reveal";
@@ -9,16 +10,26 @@ import { formatDuration } from "@/lib/utils";
 import type { SummaryTask, SummaryVoice } from "@/lib/types";
 import { inVoice } from "../_hooks/use-summary-voice";
 
+/**
+ * A daily task, or a recap theme — which adds the days it spanned. One
+ * component renders both; the daily summaries simply have no `days`.
+ */
+type Bullet = SummaryTask & { days?: string[] | null };
+
 const list: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.04 } },
 };
 
-function TaskBullet({ task, voice }: { task: SummaryTask; voice: SummaryVoice }) {
+function TaskBullet({ task, voice }: { task: Bullet; voice: SummaryVoice }) {
   const [open, setOpen] = useState(false);
   const reduceMotion = useReducedMotion();
+  const days = task.days ?? [];
   const hasDetails = Boolean(
-    task.description.trim() || task.files.length > 0 || task.tags.length > 0,
+    task.description.trim() ||
+      task.files.length > 0 ||
+      task.tags.length > 0 ||
+      days.length > 0,
   );
   const minutes =
     task.time_minutes >= 1 ? `~${formatDuration(task.time_minutes * 60_000)}` : null;
@@ -81,6 +92,12 @@ function TaskBullet({ task, voice }: { task: SummaryTask; voice: SummaryVoice })
               {task.description.trim() && (
                 <p className="text-sm text-foreground/80">{task.description}</p>
               )}
+              {days.length > 0 && (
+                <p className="text-xs text-muted-foreground tabular-nums">
+                  {days.length} {days.length === 1 ? "day" : "days"}:{" "}
+                  {days.map((day) => dayjs(day).format("MMM D")).join(", ")}
+                </p>
+              )}
               {task.files.length > 0 && (
                 <p className="font-mono text-xs text-muted-foreground break-all">
                   {task.files.join("  ")}
@@ -108,7 +125,7 @@ export function SummaryBullets({
   tasks,
   voice,
 }: {
-  tasks: SummaryTask[];
+  tasks: Bullet[];
   voice: SummaryVoice;
 }) {
   if (tasks.length === 0) return null;

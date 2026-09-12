@@ -1,0 +1,123 @@
+"use client";
+
+import { useState } from "react";
+import { Share2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { recaps } from "@/lib/api-client";
+import { copyText } from "@/lib/utils";
+import type { ShareLink } from "@/lib/types";
+
+const TWEET_TEXT =
+  "Everything I (and my AI) shipped this stretch, written for me by WriteLogs 👇";
+
+export function ShareRecap({ recapId }: { recapId: string }) {
+  const [share, setShare] = useState<ShareLink | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const create = useMutation({
+    mutationFn: () => recaps.share(recapId),
+    onSuccess: (link) => {
+      setShare(link);
+      setOpen(true);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const stop = useMutation({
+    mutationFn: () => recaps.unshare(recapId),
+    onSuccess: () => {
+      setShare(null);
+      setOpen(false);
+      toast.success("Sharing stopped — the link no longer works.");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const handleCopy = async () => {
+    if (!share) return;
+    if (await copyText(share.url)) toast.success("Link copied.");
+    else toast.error("Couldn't access the clipboard.");
+  };
+
+  const intent = share
+    ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(TWEET_TEXT)}&url=${encodeURIComponent(share.url)}`
+    : "#";
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={share ? "Sharing — open share options" : "Share"}
+                className={`size-7 text-muted-foreground hover:text-foreground ${share ? "bg-muted text-foreground" : ""}`}
+                loading={create.isPending}
+                onClick={(event) => {
+                  // First click creates the share link; after that the
+                  // trigger just toggles the popover.
+                  if (!share) {
+                    event.preventDefault();
+                    create.mutate();
+                  }
+                }}
+              >
+                {!create.isPending && <Share2 className="size-3.5" />}
+              </Button>
+            </PopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{share ? "Sharing" : "Share"}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      {share && (
+        <PopoverContent align="end" className="w-80 space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Anyone with this link can see the recap.
+          </p>
+          <div className="flex items-center gap-2">
+            <p className="flex-1 min-w-0 truncate rounded-md border bg-muted/40 px-2.5 py-1.5 font-mono text-xs">
+              {share.url}
+            </p>
+            <Button size="sm" onClick={handleCopy}>
+              Copy
+            </Button>
+          </div>
+          <div className="flex items-center justify-between">
+            <a
+              href={intent}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium underline underline-offset-4"
+            >
+              Share on X
+            </a>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              loading={stop.isPending}
+              onClick={() => stop.mutate()}
+            >
+              Stop sharing
+            </Button>
+          </div>
+        </PopoverContent>
+      )}
+    </Popover>
+  );
+}
