@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { AreaChips } from "@/components/area-chips";
 import { recaps } from "@/lib/api-client";
 import { formatSpan } from "@/lib/project-day";
 import type { SharedRecap } from "@/lib/types";
@@ -74,6 +75,8 @@ export default async function SharedRecapPage({
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
           {recap.message}
         </p>
+
+        <AreaChips areas={recap.areas} className="mt-6" />
 
         {recap.tasks.length > 0 && (
           <ul className="mt-6 space-y-2.5">

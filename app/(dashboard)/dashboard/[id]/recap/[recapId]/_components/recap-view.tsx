@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/motion/fade-in";
+import { AreaChips } from "@/components/area-chips";
 import { isUpgradeRequired } from "@/lib/api-client";
 import {
   ErrorState,
@@ -130,6 +131,8 @@ export function RecapView({
       <p className="text-sm leading-relaxed whitespace-pre-wrap">
         {inVoice(voice, recap.message, recap.message_first_person)}
       </p>
+
+      <AreaChips areas={recap.areas} />
 
       {recap.tasks.length > 0 && (
         <div className="space-y-3">

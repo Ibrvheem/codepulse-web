@@ -200,6 +200,8 @@ export const recapSchema = z.object({
   status: z.string(),
   /** Days with activity inside the span — not the length of the span. */
   days_count: z.number(),
+  /** Product areas the period touched, biggest first. Empty on older recaps. */
+  areas: z.array(z.string()).nullish(),
   logs_count: z.number(),
   tasks: z.array(recapTaskSchema),
   created_at: z.string(),
@@ -213,6 +215,7 @@ export const sharedRecapSchema = z.object({
   message: z.string(),
   author_name: z.string().nullish(),
   days_count: z.number(),
+  areas: z.array(z.string()).nullish(),
   tasks: z.array(z.object({ task: z.string(), time_minutes: z.number() })),
   stats: z.object({
     commits: z.number(),

@@ -81,6 +81,13 @@ const TITLE_LARGE = { fontSize: 48, maxChars: 42 };
 const TITLE_SMALL = { fontSize: 36, maxChars: 58 };
 const TITLE_BOX_HEIGHT = Math.round(TITLE_LARGE.fontSize * 1.3);
 
+// The card's vertical budget is fixed, so the areas row is paid for out of
+// the bullet list: 4 bullets with no areas, 3 when the row is there.
+const BULLETS_WITH_AREAS = 3;
+const BULLETS_WITHOUT_AREAS = 4;
+// Six 1-3 word chips is about all that fits on one 20px line.
+const MAX_AREAS_SHOWN = 6;
+
 /** One line of title: the size that fits it, ellipsized only if truly long. */
 function fitTitle(title: string): { text: string; fontSize: number } {
   const trimmed = title.trim();
@@ -123,7 +130,21 @@ export default async function OgImage({
   const fonts = fontsResult;
 
   const { text: title, fontSize: titleFontSize } = fitTitle(recap.title);
-  const tasks = recap.tasks.slice(0, 4);
+  const areas: string[] = recap.areas ?? [];
+  const areasShown = areas.slice(0, MAX_AREAS_SHOWN);
+  const areasLine =
+    areasShown.length > 0
+      ? [
+          areasShown.join("  ·  "),
+          areas.length > areasShown.length
+            ? `  +${areas.length - areasShown.length}`
+            : "",
+        ].join("")
+      : "";
+  const tasks = recap.tasks.slice(
+    0,
+    areasLine ? BULLETS_WITH_AREAS : BULLETS_WITHOUT_AREAS,
+  );
   const extra = recap.tasks.length - tasks.length;
   const byline = [
     recap.author_name ? `by ${recap.author_name}` : null,
@@ -189,7 +210,23 @@ export default async function OgImage({
           <span style={{ fontSize: 22, color: "#737373", marginTop: 10 }}>
             {byline}
           </span>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 30 }}>
+          {areasLine && (
+            <div
+              style={{
+                display: "flex",
+                height: 30,
+                flexShrink: 0,
+                alignItems: "center",
+                marginTop: 18,
+                fontSize: 20,
+                color: "#0a0a0a",
+                letterSpacing: 0.2,
+              }}
+            >
+              {areasLine}
+            </div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: areasLine ? 18 : 30 }}>
             {tasks.map((task: { task: string; time_minutes: number }) => (
               <div key={task.task} style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 8, height: 8, borderRadius: 99, background: "#404040" }} />
