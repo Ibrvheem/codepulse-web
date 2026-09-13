@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import Script from "next/script";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Copy, Loader2, RefreshCw } from "lucide-react";
 
@@ -27,24 +28,53 @@ type MeetGlobal = {
   };
 };
 
+/** Pinned version, loaded from Google's CDN at runtime rather than bundled. */
+const MEET_SDK = "https://www.gstatic.com/meetjs/addons/1.1.0/meet.addons.js";
+
 /**
- * Tells Meet the add-on has finished loading. Best effort on purpose: if the
- * SDK is missing or the project number is unset, the panel is still a perfectly
- * good summary view, so a failure here must not blank the screen.
+ * Tells Meet the add-on has finished loading. Not optional: Meet covers the
+ * iframe with its own "Loading" spinner until createSidePanelClient resolves,
+ * so if this never runs the panel below is never shown at all.
+ *
+ * It waits on the SDK script, because the effect would otherwise race the CDN
+ * load and find no window.meet, with nothing to retry it.
  */
-function useMeetSession() {
+function useMeetSession(sdkReady: boolean) {
   useEffect(() => {
+    if (!sdkReady) return;
+    if (!CLOUD_PROJECT_NUMBER) {
+      console.warn(
+        "NEXT_PUBLIC_MEET_CLOUD_PROJECT_NUMBER is unset, so Meet will keep showing its loading spinner.",
+      );
+      return;
+    }
     const meet = (window as unknown as { meet?: MeetGlobal }).meet;
-    if (!meet?.addon || !CLOUD_PROJECT_NUMBER) return;
+    if (!meet?.addon) return;
     meet.addon
       .createAddonSession({ cloudProjectNumber: CLOUD_PROJECT_NUMBER })
       .then((session) => session.createSidePanelClient())
       .catch((err: unknown) => console.warn("Meet add-on session failed", err));
-  }, []);
+  }, [sdkReady]);
 }
 
 export function MeetPanel() {
-  useMeetSession();
+  const [sdkReady, setSdkReady] = useState(false);
+  useMeetSession(sdkReady);
+
+  return (
+    <>
+      {/* onReady rather than onLoad, so a cached script still marks us ready. */}
+      <Script
+        src={MEET_SDK}
+        strategy="afterInteractive"
+        onReady={() => setSdkReady(true)}
+      />
+      <PanelBody />
+    </>
+  );
+}
+
+function PanelBody() {
   const [connected, setConnected] = useState<boolean | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
 
