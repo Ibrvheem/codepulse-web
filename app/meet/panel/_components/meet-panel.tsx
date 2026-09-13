@@ -183,24 +183,28 @@ function PanelBody() {
     allProjects.length > 1 ? (
       // Not a native <select>: its menu is drawn by the OS, so inside the Meet
       // panel it spills over the add-on's own header.
-      <Select value={activeProjectId ?? ""} onValueChange={setProjectId}>
-        <SelectTrigger size="sm" className="w-full" aria-label="Project">
-          <SelectValue placeholder="Project" />
-        </SelectTrigger>
-        <SelectContent>
-          {allProjects.map((p) => (
-            <SelectItem key={p.id} value={p.id}>
-              {p.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="space-y-1.5">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          Project
+        </p>
+        <Select value={activeProjectId ?? ""} onValueChange={setProjectId}>
+          <SelectTrigger size="sm" className="w-full" aria-label="Project">
+            <SelectValue placeholder="Project" />
+          </SelectTrigger>
+          <SelectContent>
+            {allProjects.map((p) => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     ) : null;
 
   if (projectsQuery.isPending || (activeProjectId && summaryQuery.isPending)) {
     return (
-      <PanelShell>
-        {picker}
+      <PanelShell header={picker}>
         <PanelSkeleton />
       </PanelShell>
     );
@@ -208,8 +212,7 @@ function PanelBody() {
 
   if (error) {
     return (
-      <PanelShell>
-        {picker}
+      <PanelShell header={picker}>
         <Message
           art="error"
           title="Couldn't load your log"
@@ -234,8 +237,7 @@ function PanelBody() {
 
   if (!summary) {
     return (
-      <PanelShell>
-        {picker}
+      <PanelShell header={picker}>
         <Message
           art="empty"
           title="Nothing logged yet"
@@ -246,10 +248,8 @@ function PanelBody() {
   }
 
   return (
-    <PanelShell>
+    <PanelShell header={picker}>
       <div className="space-y-4">
-        {picker}
-
         <div>
           <p className="text-xs text-muted-foreground">
             {dayjs(summary.date).format("ddd, MMM D YYYY")}
@@ -335,8 +335,21 @@ function CopyStandup({
   );
 }
 
-function PanelShell({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-svh p-4">{children}</div>;
+function PanelShell({
+  children,
+  header,
+}: {
+  children: React.ReactNode;
+  header?: React.ReactNode;
+}) {
+  return (
+    // pt-8, not p-4: flush against Meet's header, the first control here sits
+    // a few pixels under Meet's own back arrow and catches clicks meant for it.
+    <div className="min-h-svh px-4 pb-4 pt-8">
+      {header ? <div className="mb-5">{header}</div> : null}
+      {children}
+    </div>
+  );
 }
 
 /** Art matches the dashboard's EmptyState and ErrorState, scaled for the panel. */
