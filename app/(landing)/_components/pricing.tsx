@@ -10,17 +10,18 @@ import { EXTENSION_MARKETPLACE_URL } from "@/lib/config";
 const FREE_FEATURES = [
   "1 project",
   "Last 7 days of summaries",
-  "1 manual update a day",
+  "1 update a day",
   "Captures changes from AI tools like Claude Code",
 ];
 
 const PRO_FEATURES = [
   "Unlimited projects",
   "Full history",
-  "3 manual updates a day",
+  "5 updates a day, shared between summaries and recaps",
   "Captures changes from AI tools like Claude Code",
-  "Copy as standup — your day as a paste-ready update for Slack or standup",
-  "Both voices — “you” and “I”",
+  "Recaps: a week, a sprint or a month as one summary",
+  "Copy as standup: your day, ready to paste into Slack",
+  "Both voices, “you” and “I”",
 ];
 
 export function PricingSection() {

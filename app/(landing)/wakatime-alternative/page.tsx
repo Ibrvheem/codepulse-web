@@ -55,6 +55,11 @@ const ROWS: { label: string; writelogs: string; wakatime: string }[] = [
     writelogs: "Yes, on Pro",
     wakatime: "Not what it is for",
   },
+  {
+    label: "A week or month as one write-up",
+    writelogs: "Recaps, on Pro",
+    wakatime: "Charts for the range",
+  },
 ];
 
 const WAKATIME_FITS = [

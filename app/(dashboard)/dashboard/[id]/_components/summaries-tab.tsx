@@ -146,7 +146,7 @@ export function SummariesTab({ projectId }: { projectId: string }) {
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            Shared with recap builds. The counter resets daily — and summaries
+            Shared with recap builds. The counter resets daily, and summaries
             also update automatically at the end of your day, which
             doesn&apos;t use your updates.
           </TooltipContent>
