@@ -116,13 +116,22 @@ export function clearSession() {
  * add-on: its iframe on meet.google.com gets partitioned storage, so it cannot
  * see the dashboard's session and has to be given one explicitly.
  */
-export function exportSessionForHandoff(): {
+/**
+ * Mints a SEPARATE session to hand to the Meet panel.
+ *
+ * Never pass this session's own refresh token along: tokens rotate on use and
+ * the API revokes every session for the user when one is reused, so two
+ * clients sharing a token sign each other out.
+ */
+export async function createHandoffSession(): Promise<{
   refresh_token: string;
   user: User | null;
-} | null {
-  const refresh_token = getRefreshToken();
-  if (!refresh_token) return null;
-  return { refresh_token, user: getStoredUser() };
+} | null> {
+  if (!getRefreshToken()) return null;
+  const body = await request<AuthTokens>("/auth/companion-session", {
+    method: "POST",
+  });
+  return { refresh_token: body.data.refresh_token, user: getStoredUser() };
 }
 
 /** Accept a session handed over by exportSessionForHandoff. */

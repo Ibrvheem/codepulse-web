@@ -9,9 +9,11 @@ import { Check, Copy, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   adoptSession,
+  clearSession,
   isAuthenticated,
   isUpgradeRequired,
   projects as projectsApi,
+  SESSION_EXPIRED_MESSAGE,
   summaries as summariesApi,
 } from "@/lib/api-client";
 import type { User } from "@/lib/types";
@@ -122,6 +124,15 @@ function PanelBody() {
   });
 
   const summary = summaryQuery.data?.data?.[0] ?? null;
+  const error = projectsQuery.error ?? summaryQuery.error;
+
+  // A dead session belongs back at Connect, not in a retry loop that can't win.
+  useEffect(() => {
+    if (error instanceof Error && error.message === SESSION_EXPIRED_MESSAGE) {
+      clearSession();
+      setConnected(false);
+    }
+  }, [error]);
 
   if (connected === null) return <PanelShell><Spinner /></PanelShell>;
 
@@ -154,7 +165,6 @@ function PanelBody() {
     return <PanelShell><Spinner /></PanelShell>;
   }
 
-  const error = projectsQuery.error ?? summaryQuery.error;
   if (error) {
     return (
       <PanelShell>

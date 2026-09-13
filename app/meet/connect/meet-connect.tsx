@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { exportSessionForHandoff, isAuthenticated } from "@/lib/api-client";
+import { createHandoffSession, isAuthenticated } from "@/lib/api-client";
 
 export const HANDOFF_MESSAGE = "writelogs:meet-session";
 
@@ -32,18 +32,23 @@ export function MeetConnect() {
       setState("signed-out");
       return;
     }
-    const session = exportSessionForHandoff();
-    if (!session) {
-      setState("signed-out");
-      return;
-    }
-    // targetOrigin is our own origin, so the payload never reaches Meet.
-    window.opener?.postMessage(
-      { type: HANDOFF_MESSAGE, ...session },
-      window.location.origin,
-    );
-    setState("done");
-    setTimeout(() => window.close(), 900);
+
+    createHandoffSession()
+      .then((session) => {
+        if (!session) {
+          setState("signed-out");
+          return;
+        }
+        // targetOrigin is our own origin, so the payload never reaches Meet.
+        window.opener?.postMessage(
+          { type: HANDOFF_MESSAGE, ...session },
+          window.location.origin,
+        );
+        setState("done");
+        setTimeout(() => window.close(), 900);
+      })
+      // The only likely failure is a dead session, which signing in fixes.
+      .catch(() => setState("signed-out"));
   }, []);
 
   return (
