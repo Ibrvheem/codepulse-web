@@ -102,7 +102,11 @@ export function BillingView() {
         <div className="border rounded-lg bg-card p-5 space-y-4">
           <div>
             <p className="font-medium">
-              {billing.in_trial ? "Keep Pro after your trial" : "Upgrade to Pro"}
+              {billing.in_trial
+                ? billing.founding_member
+                  ? "Keep Pro when your founding access ends"
+                  : "Keep Pro after your trial"
+                : "Upgrade to Pro"}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               Unlimited projects, full history, weekly recaps, Copy as

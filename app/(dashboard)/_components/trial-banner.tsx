@@ -17,7 +17,12 @@ function readDismissed(key: string): boolean {
   }
 }
 
-/** Last-days-of-trial nudge. Dismissal is remembered per trial end date. */
+/**
+ * Nudge for the last days of a time-limited Pro grant. There is no signup
+ * trial any more, so this reaches two groups: founding members nearing the end
+ * of their 6 months, and the handful of accounts whose 14-day trial was still
+ * running when the trial was removed. The wording differs for each.
+ */
 export function TrialBanner() {
   const { data: billing } = useBilling();
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -43,8 +48,10 @@ export function TrialBanner() {
     <div className="border-b bg-muted/40">
       <div className="mx-auto max-w-5xl px-4 py-2 flex items-center justify-between gap-3 text-sm">
         <p>
-          Your Pro trial ends {when} — keep unlimited projects and Copy as
-          standup.
+          {billing.founding_member
+            ? `Your founding member Pro ends ${when}.`
+            : `Your Pro trial ends ${when}.`}{" "}
+          Upgrade to keep unlimited projects, recaps and Copy as standup.
         </p>
         <span className="flex items-center gap-1 shrink-0">
           <Link href={BILLING_PATH}>
