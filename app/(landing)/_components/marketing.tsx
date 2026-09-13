@@ -96,7 +96,7 @@ export function Hero({
           ) : null}
         </div>
         <p className="mt-6 text-sm text-neutral-400">
-          Free plan forever. Pro trial included. No credit card required.
+          Free plan forever. No credit card required.
         </p>
       </div>
     </section>
@@ -274,7 +274,7 @@ export function ClosingCta({ title, body }: { title: string; body: string }) {
           </Link>
         </div>
         <p className="mt-6 text-sm text-neutral-400">
-          Free plan forever. Pro trial included. No credit card required.
+          Free plan forever. No credit card required.
         </p>
       </div>
     </section>

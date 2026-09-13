@@ -5,8 +5,8 @@ export type FoundingMessage =
   | { kind: "gone" };
 
 /**
- * "0 left" is a dead number — when the seats are gone the message flips to
- * the trial instead of counting down to nothing.
+ * "0 left" is a dead number, so when the seats are gone the message flips to
+ * the free plan instead of counting down to nothing.
  */
 export function foundingMessage(seats: FoundingSeats | null): FoundingMessage | null {
   if (!seats) return null;

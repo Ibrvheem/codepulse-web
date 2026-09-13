@@ -15,7 +15,7 @@ function FoundingPill({ seats }: { seats: FoundingSeats | null }) {
     return (
       <div className="mb-8 flex justify-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-xs sm:text-sm text-neutral-700 whitespace-nowrap">
-          Founding spots are gone. Start your 14-day free trial.
+          Founding spots are gone. The free plan is still free forever.
         </span>
       </div>
     );
@@ -89,7 +89,7 @@ export function Hero({ seats = null }: { seats?: FoundingSeats | null }) {
           </div>
 
           <p className="mt-6 text-sm text-neutral-400">
-            Free plan forever. Pro trial included. No credit card required.
+            Free plan forever. No credit card required.
           </p>
         </motion.div>
 

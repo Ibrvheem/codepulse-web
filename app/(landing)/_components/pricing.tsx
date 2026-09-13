@@ -41,7 +41,7 @@ export function PricingSection() {
             <span className="text-neutral-400">Pro when it earns it.</span>
           </h2>
           <p className="text-xl text-neutral-500 max-w-xl mx-auto">
-            Every new account gets a Pro trial. No credit card to begin.
+            Start free, upgrade when it earns it. No credit card to begin.
           </p>
         </motion.div>
 
@@ -103,7 +103,7 @@ export function PricingSection() {
                 size="lg"
                 className="w-full h-12 rounded-full bg-white text-neutral-900 hover:bg-neutral-200"
               >
-                Start your Pro trial
+                Get started free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
