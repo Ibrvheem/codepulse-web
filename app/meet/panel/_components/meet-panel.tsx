@@ -3,10 +3,18 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Script from "next/script";
+import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Copy, Loader2, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   adoptSession,
   clearSession,
@@ -204,22 +212,29 @@ function PanelBody() {
     <PanelShell>
       <div className="space-y-4">
         {allProjects.length > 1 ? (
-          <select
+          // Not a native <select>: its menu is drawn by the OS, so inside the
+          // Meet panel it spills over the add-on's own header.
+          <Select
             value={activeProjectId ?? ""}
-            onChange={(e) => setProjectId(e.target.value)}
-            className="w-full rounded-md border bg-background px-2 py-1.5 text-xs"
-            aria-label="Project"
+            onValueChange={setProjectId}
           >
-            {allProjects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger size="sm" className="w-full" aria-label="Project">
+              <SelectValue placeholder="Project" />
+            </SelectTrigger>
+            <SelectContent>
+              {allProjects.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : null}
 
         <div>
-          <p className="text-xs text-muted-foreground">{summary.date}</p>
+          <p className="text-xs text-muted-foreground">
+            {dayjs(summary.date).format("ddd, MMM D YYYY")}
+          </p>
           <h1 className="mt-1 text-sm font-semibold leading-snug">
             {summary.title}
           </h1>
