@@ -14,7 +14,7 @@ function Bar({ className }: { className?: string }) {
 
 export function PanelSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-4">
       <div className="space-y-3">
         <Bar className="h-2 w-20" />
         <Bar className="h-3.5 w-2/3" />
