@@ -8,6 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -21,6 +27,7 @@ import { PaginationControls } from "../../../_components/pagination-controls";
 import { BILLING_PATH } from "../../../_hooks/use-upgrade-toast";
 import { useBilling } from "../../../_hooks/use-billing";
 import { useProjectRecaps, useDeleteRecap } from "../_hooks/use-recaps";
+import { useUpdateBudget } from "../_hooks/use-update-budget";
 import { inVoice, useSummaryVoice } from "../_hooks/use-summary-voice";
 import { formatSpan, spanDays } from "../_lib/recap-range";
 import { VoiceToggle } from "./voice-toggle";
@@ -99,15 +106,47 @@ export function RecapsTab({ projectId }: { projectId: string }) {
   const { voice, setVoice, isReady } = useSummaryVoice(projectId);
   const { data: billing } = useBilling();
   const remove = useDeleteRecap(projectId);
+  const { data: budget } = useUpdateBudget(projectId);
 
   // Assume allowed until billing loads, so the tab never flashes the paywall.
   const canRecap = billing?.limits.recaps ?? true;
   const canSwitchVoice = billing?.limits.first_person_voice ?? true;
 
+  // The same budget the Summaries tab spends, worded the same way — building
+  // a recap and updating a summary both cost one unit.
+  const noBudget = budget != null && budget.remaining <= 0;
+  const dailyLimit = budget?.limit ?? billing?.limits.updates_per_day ?? 5;
+  const remainingLabel = budget
+    ? budget.remaining === 0
+      ? "No updates left today"
+      : `${budget.remaining} of ${budget.limit} updates left today`
+    : `Up to ${dailyLimit} ${dailyLimit === 1 ? "update" : "updates"} a day`;
+
   const newRecapButton = (
-    <NewRecapDialog projectId={projectId}>
-      <Button size="sm">New recap</Button>
-    </NewRecapDialog>
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-muted-foreground tabular-nums">
+        {remainingLabel}
+      </span>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {/* span so the tooltip still fires when the button is disabled */}
+            <span>
+              {/* A disabled trigger can't open the dialog, which is the point. */}
+              <NewRecapDialog projectId={projectId}>
+                <Button size="sm" disabled={noBudget}>
+                  New recap
+                </Button>
+              </NewRecapDialog>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            Shared with summary updates — building a recap uses one. The
+            counter resets with your day.
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
   );
 
   if (!canRecap) {

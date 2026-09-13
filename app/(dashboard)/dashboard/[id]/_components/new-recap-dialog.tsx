@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import ControlledInput from "@/components/molecules/controlled-input";
 import { useProject } from "../_hooks/use-project-data";
 import { useCreateRecap } from "../_hooks/use-recaps";
+import { useUpdateBudget } from "../_hooks/use-update-budget";
 import { useBilling } from "../../../_hooks/use-billing";
 import {
   formatSpan,
@@ -38,6 +39,7 @@ export function NewRecapDialog({
   const { data: project } = useProject(projectId);
   const { data: billing } = useBilling();
   const create = useCreateRecap(projectId, () => setOpen(false));
+  const { data: budget } = useUpdateBudget(projectId);
 
   const maxDays = billing?.limits.recap_max_days ?? DEFAULT_MAX_DAYS;
   // A one-day "this week" (it's Monday) is the daily summary's job, not a recap.
@@ -61,8 +63,11 @@ export function NewRecapDialog({
     form.setValue("end_date", range.end, { shouldValidate: true });
   };
 
+  // One daily budget covers recap builds and manual summary updates alike.
+  const noBudget = budget != null && budget.remaining <= 0;
+
   const onSubmit = form.handleSubmit((data) => {
-    if (tooLong) return;
+    if (tooLong || noBudget) return;
     create.mutate({ start: data.start_date, end: data.end_date });
   });
 
@@ -127,12 +132,16 @@ export function NewRecapDialog({
               type="submit"
               className="w-full"
               loading={create.isPending}
-              disabled={span < 2 || tooLong}
+              disabled={span < 2 || tooLong || noBudget}
             >
               {create.isPending ? "Writing your recap…" : "Build recap"}
             </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Takes a few seconds — we read every day in the span.
+            <p className="text-xs text-muted-foreground text-center tabular-nums">
+              {noBudget
+                ? "No updates left today — the counter resets with your day."
+                : budget
+                  ? `Takes a few seconds. Uses 1 of your ${budget.remaining} updates left today.`
+                  : "Takes a few seconds — we read every day in the span."}
             </p>
           </form>
         </Form>

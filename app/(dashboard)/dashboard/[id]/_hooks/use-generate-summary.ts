@@ -1,20 +1,10 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ApiError, summaries } from "@/lib/api-client";
-import type { SummaryUsage } from "@/lib/types";
-
-const usageKey = (projectId: string) => ["summary-usage", projectId];
-
-/** Reactive read of the cached usage counter (written by useGenerateSummary). */
-export function useSummaryUsage(projectId: string) {
-  return useQuery<SummaryUsage>({
-    queryKey: usageKey(projectId),
-    // Cache-only: the API reports usage on generate responses, not via a GET.
-    enabled: false,
-  }).data;
-}
+import type { UpdateUsage } from "@/lib/types";
+import { budgetKey, markBudgetSpent } from "./use-update-budget";
 
 export function useGenerateSummary(projectId: string) {
   const queryClient = useQueryClient();
@@ -23,10 +13,11 @@ export function useGenerateSummary(projectId: string) {
     mutationFn: () =>
       summaries.generate({ project_id: projectId, include_today: true }),
     onSuccess: (result) => {
-      queryClient.setQueryData<SummaryUsage>(usageKey(projectId), {
-        used: result.manual_runs_used,
-        limit: result.manual_runs_limit,
-        exhausted: result.manual_runs_used >= result.manual_runs_limit,
+      // The response carries the fresh count, so there's no need to refetch it.
+      queryClient.setQueryData<UpdateUsage>(budgetKey(projectId), {
+        used: result.updates_used,
+        limit: result.updates_limit,
+        remaining: Math.max(0, result.updates_limit - result.updates_used),
       });
       if (result.generated === 0) {
         toast.info("No activity captured yet today.");
@@ -42,11 +33,7 @@ export function useGenerateSummary(projectId: string) {
     onError: (error) => {
       if (error instanceof ApiError && error.status === 429) {
         // Expected, user-facing copy from the API — render as-is.
-        queryClient.setQueryData<SummaryUsage>(usageKey(projectId), (prev) => ({
-          used: prev?.limit ?? null,
-          limit: prev?.limit ?? null,
-          exhausted: true,
-        }));
+        markBudgetSpent(queryClient, projectId);
         toast.warning(error.message);
         return;
       }

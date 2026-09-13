@@ -106,7 +106,7 @@ export function BillingView() {
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               Unlimited projects, full history, weekly recaps, Copy as
-              standup, both voices, and 3 updates a day.
+              standup, both voices, and 5 updates a day.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -146,7 +146,7 @@ export function BillingView() {
           <ul className="space-y-1.5 text-muted-foreground">
             <li>1 project</li>
             <li>Last 7 days of summaries</li>
-            <li>1 manual update a day</li>
+            <li>1 update a day</li>
           </ul>
         </div>
         <div>
@@ -156,7 +156,7 @@ export function BillingView() {
           <ul className="space-y-1.5">
             <li>Unlimited projects</li>
             <li>Full history</li>
-            <li>3 manual updates a day</li>
+            <li>5 updates a day — summaries and recaps share them</li>
             <li>Recaps — a week, sprint or month as one summary</li>
             <li>Copy as standup — your day as a paste-ready update</li>
             <li>Both voices — “you” and “I”</li>
