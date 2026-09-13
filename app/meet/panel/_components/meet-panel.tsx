@@ -5,7 +5,7 @@ import Image from "next/image";
 import Script from "next/script";
 import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Copy, Loader2, RefreshCw } from "lucide-react";
+import { Check, Copy, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,8 @@ import {
   summaries as summariesApi,
 } from "@/lib/api-client";
 import type { User } from "@/lib/types";
+
+import { PanelSkeleton } from "./panel-skeleton";
 
 const HANDOFF_MESSAGE = "writelogs:meet-session";
 const CLOUD_PROJECT_NUMBER =
@@ -142,7 +144,13 @@ function PanelBody() {
     }
   }, [error]);
 
-  if (connected === null) return <PanelShell><Spinner /></PanelShell>;
+  if (connected === null) {
+    return (
+      <PanelShell>
+        <PanelSkeleton />
+      </PanelShell>
+    );
+  }
 
   if (!connected) {
     return (
@@ -169,13 +177,39 @@ function PanelBody() {
     );
   }
 
+  // Stays on screen in every connected state. Hiding it whenever a project has
+  // nothing to show would strand the user there with no way back.
+  const picker =
+    allProjects.length > 1 ? (
+      // Not a native <select>: its menu is drawn by the OS, so inside the Meet
+      // panel it spills over the add-on's own header.
+      <Select value={activeProjectId ?? ""} onValueChange={setProjectId}>
+        <SelectTrigger size="sm" className="w-full" aria-label="Project">
+          <SelectValue placeholder="Project" />
+        </SelectTrigger>
+        <SelectContent>
+          {allProjects.map((p) => (
+            <SelectItem key={p.id} value={p.id}>
+              {p.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    ) : null;
+
   if (projectsQuery.isPending || (activeProjectId && summaryQuery.isPending)) {
-    return <PanelShell><Spinner /></PanelShell>;
+    return (
+      <PanelShell>
+        {picker}
+        <PanelSkeleton />
+      </PanelShell>
+    );
   }
 
   if (error) {
     return (
       <PanelShell>
+        {picker}
         <Message
           title="Couldn't load your log"
           body={error instanceof Error ? error.message : "Try again in a moment."}
@@ -200,6 +234,7 @@ function PanelBody() {
   if (!summary) {
     return (
       <PanelShell>
+        {picker}
         <Message
           title="Nothing logged yet"
           body="Once you've coded with the extension running, your summary lands here."
@@ -211,25 +246,7 @@ function PanelBody() {
   return (
     <PanelShell>
       <div className="space-y-4">
-        {allProjects.length > 1 ? (
-          // Not a native <select>: its menu is drawn by the OS, so inside the
-          // Meet panel it spills over the add-on's own header.
-          <Select
-            value={activeProjectId ?? ""}
-            onValueChange={setProjectId}
-          >
-            <SelectTrigger size="sm" className="w-full" aria-label="Project">
-              <SelectValue placeholder="Project" />
-            </SelectTrigger>
-            <SelectContent>
-              {allProjects.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : null}
+        {picker}
 
         <div>
           <p className="text-xs text-muted-foreground">
@@ -318,14 +335,6 @@ function CopyStandup({
 
 function PanelShell({ children }: { children: React.ReactNode }) {
   return <div className="min-h-svh p-4">{children}</div>;
-}
-
-function Spinner() {
-  return (
-    <div className="flex min-h-[60svh] items-center justify-center text-muted-foreground">
-      <Loader2 className="size-5 animate-spin" />
-    </div>
-  );
 }
 
 function Message({
