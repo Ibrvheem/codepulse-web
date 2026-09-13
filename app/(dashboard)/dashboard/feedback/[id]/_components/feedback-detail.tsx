@@ -5,7 +5,6 @@ import Link from "next/link";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Button } from "@/components/ui/button";
-import { CornerAccents } from "@/components/ui/corner-accents";
 import { FadeIn } from "@/components/motion/fade-in";
 import { ErrorState } from "../../../../_components/query-states";
 import { useFeedbackMe } from "../../_hooks/use-feedback-me";
@@ -55,7 +54,6 @@ export function FeedbackDetail({ id }: { id: string }) {
 
       <FadeIn>
         <article className="relative border rounded-lg p-5 bg-card flex gap-4">
-          <CornerAccents />
           <div className="shrink-0 self-start">
             <VoteButton
               id={post.id}
