@@ -141,7 +141,7 @@ export function RecapsTab({ projectId }: { projectId: string }) {
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            Shared with summary updates — building a recap uses one. The
+            Shared with summary updates, so building a recap uses one. The
             counter resets with your day.
           </TooltipContent>
         </Tooltip>
@@ -161,7 +161,7 @@ export function RecapsTab({ projectId }: { projectId: string }) {
         />
         <p className="text-sm font-medium">Recaps are a Pro feature</p>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Roll a whole week — or a sprint, or a month — into one update you can
+          Roll a whole week, or a sprint, or a month, into one update you can
           paste into a review, an invoice, or a client email.
         </p>
         <div className="pt-1 flex justify-center">
@@ -199,7 +199,7 @@ export function RecapsTab({ projectId }: { projectId: string }) {
     content = (
       <EmptyState
         title="No recaps yet"
-        description="Pick a span of days — last week, a sprint, a month — and we'll roll those daily summaries into one update."
+        description="Pick a span of days: last week, a sprint, a month. We'll roll those daily summaries into one update."
       >
         {newRecapButton}
       </EmptyState>
@@ -246,7 +246,7 @@ export function RecapsTab({ projectId }: { projectId: string }) {
             <DialogTitle>Delete this recap?</DialogTitle>
             <DialogDescription>
               {pendingDelete &&
-                `${formatSpan(day(pendingDelete.start_date), day(pendingDelete.end_date))} — the daily summaries behind it stay put, and you can rebuild the same span any time.`}
+                `${formatSpan(day(pendingDelete.start_date), day(pendingDelete.end_date))}. The daily summaries behind it stay put, and you can rebuild the same span any time.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

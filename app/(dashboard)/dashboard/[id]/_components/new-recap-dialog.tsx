@@ -124,7 +124,7 @@ export function NewRecapDialog({
             </p>
             {tooLong && (
               <p className="text-xs text-destructive">
-                That&apos;s {span} days — a recap covers at most {maxDays}.
+                That&apos;s {span} days. A recap covers at most {maxDays}.
               </p>
             )}
 
@@ -138,10 +138,10 @@ export function NewRecapDialog({
             </Button>
             <p className="text-xs text-muted-foreground text-center tabular-nums">
               {noBudget
-                ? "No updates left today — the counter resets with your day."
+                ? "No updates left today. The counter resets with your day."
                 : budget
                   ? `Takes a few seconds. Uses 1 of your ${budget.remaining} updates left today.`
-                  : "Takes a few seconds — we read every day in the span."}
+                  : "Takes a few seconds, since we read every day in the span."}
             </p>
           </form>
         </Form>
