@@ -1,14 +1,24 @@
 export function LegalTitle({
   children,
   updated,
+  subtitle,
 }: {
   children: React.ReactNode;
-  updated: string;
+  /** Legal pages carry a revision date; support and help pages don't. */
+  updated?: string;
+  subtitle?: string;
 }) {
   return (
     <div className="mb-10">
       <h1 className="text-3xl font-semibold tracking-tight">{children}</h1>
-      <p className="mt-2 text-sm text-neutral-400">Last updated: {updated}</p>
+      {updated ? (
+        <p className="mt-2 text-sm text-neutral-400">Last updated: {updated}</p>
+      ) : null}
+      {subtitle ? (
+        <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">
+          {subtitle}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -19,6 +19,9 @@ export default function LegalLayout({
             WriteLogs
           </Link>
           <nav className="flex items-center gap-5 text-sm text-neutral-500">
+            <Link href="/support" className="hover:text-neutral-900">
+              Support
+            </Link>
             <Link href="/terms" className="hover:text-neutral-900">
               Terms
             </Link>

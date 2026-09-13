@@ -120,6 +120,12 @@ export function Footer() {
           <p>© {new Date().getFullYear()} WriteLogs</p>
           <div className="flex items-center gap-6">
             <Link
+              href="/support"
+              className="hover:text-neutral-600 transition-colors"
+            >
+              Support
+            </Link>
+            <Link
               href="/privacy"
               className="hover:text-neutral-600 transition-colors"
             >
