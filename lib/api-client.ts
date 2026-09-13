@@ -23,6 +23,7 @@ import {
   type ShareLink,
   type SharedSummary,
   type SummaryList,
+  type UpdateUsage,
   type GenerateSummaryResponse,
   type LogEntry,
   type Paginated,
@@ -471,6 +472,10 @@ export const summaries = {
 
   standup: async (id: string) =>
     (await request<{ text: string }>(`/summaries/${id}/standup`)).data.text,
+
+  /** The project's shared daily budget — recap builds draw it down too. */
+  usage: async (projectId: string) =>
+    (await request<UpdateUsage>(`/summaries/project/${projectId}/usage`)).data,
 
   generate: async (payload: { project_id: string; include_today?: boolean }) =>
     (await request<GenerateSummaryResponse>("/summaries/generate", {

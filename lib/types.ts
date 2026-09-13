@@ -120,19 +120,23 @@ export type Summary = z.infer<typeof summarySchema>;
 export const generateSummaryResponseSchema = z.object({
   generated: z.number(),
   summary_ids: z.array(z.string()),
-  manual_runs_used: z.number(),
-  manual_runs_limit: z.number(),
+  updates_used: z.number(),
+  updates_limit: z.number(),
 });
 export type GenerateSummaryResponse = z.infer<
   typeof generateSummaryResponseSchema
 >;
 
-/** Session-cached manual "Update summary" usage, keyed ["summary-usage", projectId]. */
-export type SummaryUsage = {
-  used: number | null;
-  limit: number | null;
-  exhausted: boolean;
-};
+/**
+ * A project's shared daily rebuild budget: manual summary updates and recap
+ * builds both draw it down, so both tabs show the same number.
+ */
+export const updateUsageSchema = z.object({
+  used: z.number(),
+  limit: z.number(),
+  remaining: z.number(),
+});
+export type UpdateUsage = z.infer<typeof updateUsageSchema>;
 
 export type Meta = z.infer<typeof metaSchema>;
 
@@ -143,7 +147,8 @@ export const planLimitsSchema = z.object({
   max_projects: z.number().nullable(),
   /** null = full history */
   history_days: z.number().nullable(),
-  manual_updates_per_day: z.number(),
+  /** On-demand rebuilds per day — daily updates and recaps share this. */
+  updates_per_day: z.number(),
   first_person_voice: z.boolean(),
   /** Multi-day recaps. Nullish on responses from an older API. */
   recaps: z.boolean().nullish(),

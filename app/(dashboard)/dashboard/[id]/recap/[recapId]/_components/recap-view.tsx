@@ -16,6 +16,7 @@ import { SummaryBullets } from "../../../_components/summary-bullets";
 import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useCreateRecap } from "../../../_hooks/use-recaps";
+import { useUpdateBudget } from "../../../_hooks/use-update-budget";
 import { formatSpan, spanDays } from "../../../_lib/recap-range";
 import { useRecap, useCopyRecap } from "../_hooks/use-recap";
 import { ShareRecap } from "./share-recap";
@@ -31,6 +32,7 @@ export function RecapView({
     useRecap(recapId);
   const copyRecap = useCopyRecap(recapId);
   const rebuild = useCreateRecap(projectId);
+  const { data: budget } = useUpdateBudget(projectId);
   const { voice, setVoice, isReady } = useSummaryVoice(projectId);
   const { data: billing } = useBilling();
   // Free plan: no first-person text and no copy endpoint — hide both controls
@@ -146,13 +148,18 @@ export function RecapView({
       {/* Rebuilding the same span replaces this recap in place, so any share
           link keeps working — useful once later days get their summaries. */}
       <div className="pt-2 border-t flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground tabular-nums">
           Rebuild to pick up days that have been summarized since.
+          {budget &&
+            (budget.remaining > 0
+              ? ` Uses 1 of your ${budget.remaining} updates left today.`
+              : " No updates left today.")}
         </p>
         <Button
           variant="outline"
           size="sm"
           loading={rebuild.isPending}
+          disabled={budget != null && budget.remaining <= 0}
           onClick={() => rebuild.mutate({ start, end })}
         >
           Rebuild

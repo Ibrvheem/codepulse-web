@@ -18,10 +18,8 @@ import { StaggerReveal, StaggerItem } from "@/components/motion/stagger-reveal";
 import { EmptyState, ErrorState } from "../../../_components/query-states";
 import { PaginationControls } from "../../../_components/pagination-controls";
 import { useProject, useProjectSummaries } from "../_hooks/use-project-data";
-import {
-  useGenerateSummary,
-  useSummaryUsage,
-} from "../_hooks/use-generate-summary";
+import { useGenerateSummary } from "../_hooks/use-generate-summary";
+import { useUpdateBudget } from "../_hooks/use-update-budget";
 import { inVoice, useSummaryVoice } from "../_hooks/use-summary-voice";
 import { useBilling } from "../../../_hooks/use-billing";
 import { BILLING_PATH } from "../../../_hooks/use-upgrade-toast";
@@ -96,7 +94,7 @@ export function SummariesTab({ projectId }: { projectId: string }) {
     useProjectSummaries(projectId, page);
   const { data: project } = useProject(projectId);
   const generate = useGenerateSummary(projectId);
-  const usage = useSummaryUsage(projectId);
+  const { data: budget } = useUpdateBudget(projectId);
   const { voice, setVoice, isReady } = useSummaryVoice(projectId);
   const { data: billingInfo } = useBilling();
   // Free plan: first-person text comes back empty, so the toggle has nothing
@@ -114,21 +112,16 @@ export function SummariesTab({ projectId }: { projectId: string }) {
     return <Badge variant="secondary">{dayjs(key).fromNow()}</Badge>;
   };
 
-  const limitReached =
-    usage?.exhausted ||
-    (usage?.used != null && usage.limit != null && usage.used >= usage.limit);
+  const limitReached = budget != null && budget.remaining <= 0;
 
-  // The API only reports usage on generate responses, so until the first
-  // update of the session we can state the daily allowance but not what's
-  // left of it.
-  const manualLimit =
-    usage?.limit ?? billingInfo?.limits.manual_updates_per_day ?? 3;
-  const remainingLabel =
-    usage?.used != null
-      ? `${Math.max(0, manualLimit - usage.used)} of ${manualLimit} updates left today`
-      : usage?.exhausted
-        ? "No updates left today"
-        : `Up to ${manualLimit} manual ${manualLimit === 1 ? "update" : "updates"} a day`;
+  // One budget covers manual summary updates and recap builds alike, so this
+  // is the same number the Recaps tab shows.
+  const dailyLimit = budget?.limit ?? billingInfo?.limits.updates_per_day ?? 5;
+  const remainingLabel = budget
+    ? budget.remaining === 0
+      ? "No updates left today"
+      : `${budget.remaining} of ${budget.limit} updates left today`
+    : `Up to ${dailyLimit} ${dailyLimit === 1 ? "update" : "updates"} a day`;
 
   // The update action only ever affects today's summary, so it lives on
   // today's card (or its placeholder) — never floating above the list.
@@ -153,8 +146,9 @@ export function SummariesTab({ projectId }: { projectId: string }) {
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            The counter resets daily — and summaries also update automatically
-            at the end of your day, which doesn&apos;t use your updates.
+            Shared with recap builds. The counter resets daily — and summaries
+            also update automatically at the end of your day, which
+            doesn&apos;t use your updates.
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

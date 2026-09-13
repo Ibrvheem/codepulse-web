@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ApiError, recaps } from "@/lib/api-client";
 import { useUpgradeToast } from "../../../_hooks/use-upgrade-toast";
+import { budgetKey, markBudgetSpent } from "./use-update-budget";
 import type { RecapRange } from "../_lib/recap-range";
 
 export function useProjectRecaps(projectId: string, page: number) {
@@ -32,12 +33,19 @@ export function useCreateRecap(projectId: string, onDone?: () => void) {
       }),
     onSuccess: (recap) => {
       queryClient.invalidateQueries({ queryKey: ["recaps", projectId] });
+      // A build costs a unit of the same budget the Summaries tab spends.
+      queryClient.invalidateQueries({ queryKey: budgetKey(projectId) });
       queryClient.setQueryData(["recap", recap.id], recap);
       onDone?.();
       router.push(`/dashboard/${projectId}/recap/${recap.id}`);
     },
     onError: (error) => {
       if (upgradeToast(error)) return;
+      if (error instanceof ApiError && error.status === 429) {
+        markBudgetSpent(queryClient, projectId);
+        toast.warning(error.message);
+        return;
+      }
       // 404 = the span has no day summaries yet; the API's copy says so.
       if (error instanceof ApiError && error.status === 404) {
         toast.info(error.message);
