@@ -233,4 +233,4 @@ moves by one. Both endpoints are idempotent, so a double-click is safe.
 - Errors: `ErrorState` with retry, same as projects. 429 → toast the API message.
 - Comments: "Team" badge (`text-primary bg-primary/10 border-primary/20`) when `is_admin`.
 - Author display: initials avatar like the topbar (no `profile_picture` yet for most users).
-- Keep the visual weight low: same `border rounded-lg p-4 bg-card` cards as projects; `CornerAccents` first child only on the post detail card.
+- Keep the visual weight low: same `border rounded-lg p-4 bg-card` cards as projects.
