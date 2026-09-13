@@ -8,6 +8,7 @@ import { useBilling } from "../../_hooks/use-billing";
 import { useUpgradePrompt } from "../../_hooks/use-upgrade-toast";
 import { useProjects } from "../_hooks/use-projects";
 import { CreateProjectDialog } from "./create-project-dialog";
+import { MeetPromo } from "./meet-promo";
 import { ProjectCard } from "./project-card";
 import { ProjectsSkeleton } from "./projects-skeleton";
 
@@ -62,6 +63,9 @@ export function ProjectsView() {
           {newProjectButton}
         </div>
       </div>
+
+      {/* Only once they have something to show in it. */}
+      {!isPending && !isError && data.data.length > 0 ? <MeetPromo /> : null}
 
       {isPending ? (
         <ProjectsSkeleton />
