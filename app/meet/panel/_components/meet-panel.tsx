@@ -211,6 +211,7 @@ function PanelBody() {
       <PanelShell>
         {picker}
         <Message
+          art="error"
           title="Couldn't load your log"
           body={error instanceof Error ? error.message : "Try again in a moment."}
           action={
@@ -236,6 +237,7 @@ function PanelBody() {
       <PanelShell>
         {picker}
         <Message
+          art="empty"
           title="Nothing logged yet"
           body="Once you've coded with the extension running, your summary lands here."
         />
@@ -337,17 +339,42 @@ function PanelShell({ children }: { children: React.ReactNode }) {
   return <div className="min-h-svh p-4">{children}</div>;
 }
 
+/** Art matches the dashboard's EmptyState and ErrorState, scaled for the panel. */
+const ART = {
+  empty: {
+    src: "/loggy/loggy-empty.png",
+    alt: "Loggy the mascot waiting patiently with a pencil and a blank page",
+    width: 84,
+    height: 112,
+  },
+  error: {
+    src: "/loggy/loggy-error.png",
+    alt: "Loggy the mascot scratching his head over a crumpled log sheet",
+    width: 78,
+    height: 101,
+  },
+} as const;
+
 function Message({
+  art,
   title,
   body,
   action,
 }: {
+  art: keyof typeof ART;
   title: string;
   body: string;
   action?: React.ReactNode;
 }) {
   return (
     <div className="space-y-3 py-8 text-center">
+      <Image
+        src={ART[art].src}
+        alt={ART[art].alt}
+        width={ART[art].width}
+        height={ART[art].height}
+        className="mx-auto"
+      />
       <p className="font-medium">{title}</p>
       <p className="text-sm text-muted-foreground">{body}</p>
       {action ? <div className="pt-1">{action}</div> : null}
