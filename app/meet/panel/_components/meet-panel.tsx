@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Script from "next/script";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Check, Copy, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ import {
   summaries as summariesApi,
 } from "@/lib/api-client";
 import type { User } from "@/lib/types";
+import { copyText } from "@/lib/utils";
 
 import { PanelSkeleton } from "./panel-skeleton";
 
@@ -289,25 +291,63 @@ function CopyStandup({
 }) {
   const [state, setState] = useState<"idle" | "busy" | "copied">("idle");
   const [note, setNote] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<string | null>(null);
+  const revealRef = useRef<HTMLTextAreaElement>(null);
+
+  // Fetched up front so the click itself does no network work: clipboard
+  // access needs the user gesture that started it, and an await in between
+  // can outlive that gesture.
+  const standupQuery = useQuery({
+    queryKey: ["meet", "standup", summaryId],
+    queryFn: () => summariesApi.standup(summaryId),
+    retry: false,
+  });
+
+  useEffect(() => {
+    setRevealed(null);
+    setNote(null);
+    setState("idle");
+  }, [summaryId]);
+
+  useEffect(() => {
+    if (revealed === null) return;
+    const el = revealRef.current;
+    if (!el) return;
+    el.focus();
+    el.select();
+  }, [revealed]);
+
+  const resolveText = async (): Promise<string> => {
+    if (standupQuery.data) return standupQuery.data;
+    if (standupQuery.error) {
+      // Standup text is a Pro feature; the plain summary still copies fine.
+      if (isUpgradeRequired(standupQuery.error)) {
+        setNote("Standup formatting is a Pro feature.");
+      }
+      return fallback;
+    }
+    try {
+      return await summariesApi.standup(summaryId);
+    } catch (err) {
+      if (isUpgradeRequired(err)) setNote("Standup formatting is a Pro feature.");
+      return fallback;
+    }
+  };
 
   const copy = async () => {
     setState("busy");
     setNote(null);
-    let text = fallback;
-    try {
-      text = await summariesApi.standup(summaryId);
-    } catch (err) {
-      // Standup text is a Pro feature; the plain summary still copies fine.
-      if (isUpgradeRequired(err)) setNote("Standup formatting is a Pro feature.");
-    }
-    try {
-      await navigator.clipboard.writeText(text);
+    const text = await resolveText();
+    if (await copyText(text)) {
+      setRevealed(null);
       setState("copied");
       setTimeout(() => setState("idle"), 1800);
-    } catch {
-      setState("idle");
-      setNote("Your browser blocked the clipboard here.");
+      return;
     }
+    // No clipboard access in this host. Hand the text over for a manual copy
+    // rather than a dead end.
+    setState("idle");
+    setRevealed(text);
   };
 
   return (
@@ -331,9 +371,30 @@ function CopyStandup({
         )}
       </Button>
       {note ? <p className="text-xs text-muted-foreground">{note}</p> : null}
+      {revealed !== null ? (
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground">
+            Clipboard access is off in this panel. The text is selected below,
+            so press {MODIFIER_KEY}+C to copy it.
+          </p>
+          <Textarea
+            ref={revealRef}
+            readOnly
+            value={revealed}
+            onFocus={(e) => e.currentTarget.select()}
+            className="min-h-32 text-xs"
+            aria-label="Standup text"
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
+
+const MODIFIER_KEY =
+  typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform)
+    ? "\u2318"
+    : "Ctrl";
 
 function PanelShell({
   children,

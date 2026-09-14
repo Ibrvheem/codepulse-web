@@ -15,10 +15,38 @@ export function formatDuration(ms: number): string {
 }
 
 export async function copyText(text: string): Promise<boolean> {
+  // The async Clipboard API is gated by the embedding page's Permissions
+  // Policy, which hosts like Google Meet's add-on iframe don't grant. The
+  // legacy command only needs a user gesture, so it's the fallback there.
   try {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
+    return legacyCopy(text);
+  }
+}
+
+function legacyCopy(text: string): boolean {
+  if (typeof document === "undefined" || typeof document.execCommand !== "function") {
     return false;
   }
+  const el = document.createElement("textarea");
+  el.value = text;
+  el.setAttribute("readonly", "");
+  el.style.position = "fixed";
+  el.style.top = "0";
+  el.style.left = "0";
+  el.style.opacity = "0";
+  el.style.pointerEvents = "none";
+  document.body.appendChild(el);
+  el.focus();
+  el.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  document.body.removeChild(el);
+  return ok;
 }
