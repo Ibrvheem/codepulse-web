@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   // www is the canonical host — the apex 307s, and X's card crawler
   // won't reliably follow redirects for images.
   metadataBase: new URL("https://www.writelogs.com"),
-  title: "WriteLogs — Automatic daily work logs for VS Code and AI editors",
+  title: "WriteLogs: Daily Standups & AI Work Logs for VS Code and Cursor",
   description:
     "An extension for VS Code, Cursor, Antigravity, and Devin Desktop that watches what you build and writes your daily work log for you. Automatic coding summaries — no timers, no forms, no log sheets.",
   keywords: [
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "WriteLogs",
     type: "website",
-    title: "WriteLogs — Automatic daily work logs for VS Code and AI editors",
+    title: "WriteLogs: Daily Standups & AI Work Logs for VS Code and Cursor",
     description:
       "An extension for VS Code, Cursor, Antigravity, and Devin Desktop that watches what you build and writes your daily work log for you.",
   },
