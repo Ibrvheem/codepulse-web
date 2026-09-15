@@ -6,7 +6,6 @@ import { ProblemSection } from "./_components/problem";
 import { SolutionSection } from "./_components/solution";
 import { EditorsSection } from "./_components/editors";
 import { SetupSection } from "./_components/setup";
-import { MeetSection } from "./_components/meet";
 import { PricingSection } from "./_components/pricing";
 import { Footer } from "./_components/footer";
 import { getFoundingSeats } from "./service";
@@ -100,7 +99,6 @@ export default async function LandingPage() {
       <SolutionSection />
       <EditorsSection />
       <SetupSection />
-      <MeetSection />
       <PricingSection />
       <Footer />
     </main>

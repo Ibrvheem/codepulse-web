@@ -14,7 +14,6 @@ import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useSummary, useCopyStandup } from "../_hooks/use-summary";
 import { ShareSummary } from "./share-summary";
-import { MEET_ADDON_URL } from "@/lib/meet-addon";
 
 export function SummaryView({
   projectId,
@@ -101,28 +100,17 @@ export function SummaryView({
               </div>
             )}
           </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="flex items-center gap-3">
-              <ShareSummary summaryId={summaryId} />
-              {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
-              {proVoice && (
-                <Button
-                  loading={copyStandup.isPending}
-                  onClick={() => copyStandup.mutate()}
-                >
-                  Copy as standup
-                </Button>
-              )}
-            </div>
-            {/* Where this text is wanted is usually the standup itself. */}
-            <a
-              href={MEET_ADDON_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Read it in Google Meet
-            </a>
+          <div className="flex items-center gap-3 shrink-0">
+            <ShareSummary summaryId={summaryId} />
+            {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
+            {proVoice && (
+              <Button
+                loading={copyStandup.isPending}
+                onClick={() => copyStandup.mutate()}
+              >
+                Copy as standup
+              </Button>
+            )}
           </div>
         </div>
       </div>
