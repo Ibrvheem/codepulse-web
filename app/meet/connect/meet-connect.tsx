@@ -54,11 +54,13 @@ export function MeetConnect() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-5 px-6 text-center">
       <Image
-        src="/loggy/loggy-head.png"
+        src={state === "signed-out" ? "/loggy/meet-illustration.png" : "/loggy/loggy-head.png"}
         alt=""
-        width={44}
-        height={45}
+        width={state === "signed-out" ? 1570 : 44}
+        height={state === "signed-out" ? 1002 : 45}
+        sizes="320px"
         priority
+        className={state === "signed-out" ? "w-full max-w-[280px]" : undefined}
       />
       {state === "working" ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -78,10 +80,13 @@ export function MeetConnect() {
 
       {state === "signed-out" ? (
         <div className="max-w-xs space-y-4">
-          <p className="font-medium">Sign in to connect Meet</p>
+          <p className="text-lg font-semibold leading-tight">
+            Your standup, already written.
+          </p>
           <p className="text-sm text-muted-foreground">
-            WriteLogs writes your daily work log from what you build in VS Code
-            or Cursor. Sign in and this window connects your account to Meet.
+            WriteLogs watches what you build in VS Code, Cursor, Windsurf or
+            Antigravity and writes your daily work log. Sign in and this
+            window connects your account to Meet.
           </p>
           <a
             href="/signin?return_to=/meet/connect"
