@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Script from "next/script";
 import dayjs from "dayjs";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Copy, RefreshCw } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -110,6 +110,16 @@ function PanelBody() {
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, []);
+
+  const queryClient = useQueryClient();
+  const disconnect = useCallback(() => {
+    clearSession();
+    // Drop the previous account's projects and logs so a different sign-in
+    // never sees them flash before its own load.
+    queryClient.removeQueries({ queryKey: ["meet"] });
+    setProjectId(null);
+    setConnected(false);
+  }, [queryClient]);
 
   const connect = useCallback(() => {
     window.open(
@@ -217,9 +227,19 @@ function PanelBody() {
       </div>
     ) : null;
 
+  const footer = (
+    <button
+      type="button"
+      onClick={disconnect}
+      className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+    >
+      Disconnect WriteLogs
+    </button>
+  );
+
   if (projectsQuery.isPending || (activeProjectId && summaryQuery.isPending)) {
     return (
-      <PanelShell header={picker}>
+      <PanelShell header={picker} footer={footer}>
         <PanelSkeleton />
       </PanelShell>
     );
@@ -227,7 +247,7 @@ function PanelBody() {
 
   if (error) {
     return (
-      <PanelShell header={picker}>
+      <PanelShell header={picker} footer={footer}>
         <Message
           art="error"
           title="Couldn't load your log"
@@ -252,7 +272,7 @@ function PanelBody() {
 
   if (!summary) {
     return (
-      <PanelShell header={picker}>
+      <PanelShell header={picker} footer={footer}>
         <Message
           art="empty"
           title="Nothing logged yet"
@@ -273,7 +293,7 @@ function PanelBody() {
   }
 
   return (
-    <PanelShell header={picker}>
+    <PanelShell header={picker} footer={footer}>
       <div className="space-y-4">
         <div>
           <p className="text-xs text-muted-foreground">
@@ -422,16 +442,19 @@ const MODIFIER_KEY =
 function PanelShell({
   children,
   header,
+  footer,
 }: {
   children: React.ReactNode;
   header?: React.ReactNode;
+  footer?: React.ReactNode;
 }) {
   return (
     // pt-8, not p-4: flush against Meet's header, the first control here sits
     // a few pixels under Meet's own back arrow and catches clicks meant for it.
-    <div className="min-h-svh px-4 pb-4 pt-8">
+    <div className="flex min-h-svh flex-col px-4 pb-4 pt-8">
       {header ? <div className="mb-5">{header}</div> : null}
-      {children}
+      <div className="flex-1">{children}</div>
+      {footer ? <div className="mt-6 text-center">{footer}</div> : null}
     </div>
   );
 }
