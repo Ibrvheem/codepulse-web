@@ -80,7 +80,8 @@ export function MeetConnect() {
         <div className="max-w-xs space-y-4">
           <p className="font-medium">Sign in to connect Meet</p>
           <p className="text-sm text-muted-foreground">
-            Sign in here, then press Connect in the Meet panel again.
+            WriteLogs writes your daily work log from what you build in VS Code
+            or Cursor. Sign in and this window connects your account to Meet.
           </p>
           <a
             href="/signin?return_to=/meet/connect"
@@ -88,6 +89,13 @@ export function MeetConnect() {
           >
             Sign in
           </a>
+          <p className="text-sm text-muted-foreground">
+            New to WriteLogs?{" "}
+            <a href="/signup" className="underline underline-offset-4">
+              Create a free account
+            </a>
+            , then come back and press Connect.
+          </p>
         </div>
       ) : null}
     </div>

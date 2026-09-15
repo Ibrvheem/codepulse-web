@@ -19,7 +19,11 @@ export function useSignin() {
   const mutation = useMutation({
     mutationFn: auth.signin,
     onSuccess: () => {
-      router.push("/dashboard");
+      // Same-origin paths only: the Meet connect popup sends users here with
+      // return_to=/meet/connect so it can finish the handoff itself.
+      const returnTo = new URLSearchParams(window.location.search).get("return_to");
+      const safe = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//");
+      router.push(safe ? returnTo : "/dashboard");
     },
     onError: (error, variables) => {
       // 403 = account exists but email is unverified — take them to the OTP
