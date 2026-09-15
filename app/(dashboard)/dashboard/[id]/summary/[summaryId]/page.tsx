@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SummaryView } from "./_components/summary-view";
 
-export const metadata: Metadata = { title: "Summary — WriteLogs" };
+export const metadata: Metadata = { title: "Summary" };
 
 export default async function SummaryDetailPage({
   params,

@@ -112,7 +112,7 @@ const FAQS: Faq[] = [
 ];
 
 export const metadata: Metadata = {
-  title: "WakaTime alternative — WriteLogs",
+  title: "WakaTime alternative",
   description: DESCRIPTION,
   alternates: { canonical: "/wakatime-alternative" },
   openGraph: {

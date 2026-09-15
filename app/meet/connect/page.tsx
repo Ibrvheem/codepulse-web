@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { MeetConnect } from "./meet-connect";
 
-export const metadata: Metadata = { title: "Connect WriteLogs" };
+export const metadata: Metadata = { title: { absolute: "Connect WriteLogs" } };
 
 export default function MeetConnectPage() {
   return (

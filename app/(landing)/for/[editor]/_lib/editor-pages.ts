@@ -27,7 +27,7 @@ export const EDITOR_PAGES: EditorPage[] = [
   {
     slug: "vscode",
     name: "VS Code",
-    metaTitle: "WriteLogs for VS Code — automatic daily work logs",
+    metaTitle: "VS Code daily work logs and standup notes, written for you",
     metaDescription:
       "A VS Code extension that watches what you change and writes your daily work log for you. No timers, no forms, no end-of-day recall.",
     h1: "Automatic work logs for VS Code",
@@ -82,7 +82,7 @@ export const EDITOR_PAGES: EditorPage[] = [
   {
     slug: "cursor",
     name: "Cursor",
-    metaTitle: "WriteLogs for Cursor — work logs that include what the AI wrote",
+    metaTitle: "Cursor daily work logs and standups that include what the AI wrote",
     metaDescription:
       "A Cursor extension that records what changed on disk, whether you typed it or accepted it from the model, and writes your daily work log.",
     h1: "Work logs for Cursor, including the code you didn't type",
@@ -137,7 +137,7 @@ export const EDITOR_PAGES: EditorPage[] = [
   {
     slug: "antigravity",
     name: "Antigravity",
-    metaTitle: "WriteLogs for Antigravity — daily logs for agent-driven work",
+    metaTitle: "Antigravity daily logs and standups for agent-driven work",
     metaDescription:
       "An Antigravity extension that records what changed while agents worked, so the work still shows up in your daily log and your standup.",
     h1: "Daily work logs for Antigravity",

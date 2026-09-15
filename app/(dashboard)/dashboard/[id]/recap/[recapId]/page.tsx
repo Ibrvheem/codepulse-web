@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { RecapView } from "./_components/recap-view";
 
-export const metadata: Metadata = { title: "Recap — WriteLogs" };
+export const metadata: Metadata = { title: "Recap" };
 
 export default async function RecapDetailPage({
   params,

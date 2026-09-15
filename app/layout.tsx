@@ -31,7 +31,12 @@ export const metadata: Metadata = {
   // www is the canonical host — the apex 307s, and X's card crawler
   // won't reliably follow redirects for images.
   metadataBase: new URL("https://www.writelogs.com"),
-  title: "WriteLogs: Daily Standups & AI Work Logs for VS Code and Cursor",
+  // Every page title carries the standup tagline so the brand and the search
+  // term travel together; pages set `title: { absolute }` to opt out.
+  title: {
+    default: "WriteLogs: Daily Standups & AI Work Logs for VS Code and Cursor",
+    template: "%s | WriteLogs: Daily Standups & AI Work Logs",
+  },
   description:
     "An extension for VS Code, Cursor, Antigravity, and Devin Desktop that watches what you build and writes your daily work log for you. Automatic coding summaries — no timers, no forms, no log sheets.",
   keywords: [

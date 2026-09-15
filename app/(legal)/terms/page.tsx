@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalTitle, Section } from "../_components/legal";
 
-export const metadata: Metadata = { title: "Terms of Service — WriteLogs" };
+export const metadata: Metadata = { title: "Terms of Service" };
 
 export default function TermsPage() {
   return (

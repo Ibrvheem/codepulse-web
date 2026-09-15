@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LegalTitle, Section } from "../_components/legal";
 
 export const metadata: Metadata = {
-  title: "Support — WriteLogs",
+  title: "Support",
   description:
     "Get help with WriteLogs: the editor extension, daily summaries, the Google Meet panel, and billing.",
   alternates: { canonical: "/support" },
