@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-
 import { EditorGrid } from "@/components/editor-links";
-import { buttonVariants } from "@/components/ui/button";
-import { MEET_ADDON_URL } from "@/lib/meet-addon";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Get the extension" };
 
@@ -58,37 +53,6 @@ export default function ExtensionPage() {
         Using a different editor? Search for &quot;WriteLogs&quot; in its
         Extensions panel.
       </p>
-
-      <div className="mt-16 border-t pt-10">
-        <div className="grid items-center gap-8 sm:grid-cols-2">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight">
-              Bring it to your standup
-            </h2>
-            <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
-              Add WriteLogs to Google Meet and your latest log opens in the side
-              panel during the call. Connect once, then switch projects and copy
-              a standup-ready version without leaving the meeting.
-            </p>
-            <a
-              href={MEET_ADDON_URL}
-              target="_blank"
-              rel="noreferrer"
-              className={cn(buttonVariants({ variant: "outline" }), "mt-5")}
-            >
-              Add to Meet
-            </a>
-          </div>
-
-          <Image
-            src="/meet-panel.jpg"
-            alt="The WriteLogs side panel open during a meeting"
-            width={2400}
-            height={1559}
-            className="h-auto w-full rounded-lg border"
-          />
-        </div>
-      </div>
     </div>
   );
 }
