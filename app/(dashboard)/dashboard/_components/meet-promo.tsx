@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { X } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { MEET_ADDON_URL } from "@/lib/meet-addon";
@@ -38,7 +39,17 @@ export function MeetPromo() {
   if (!show) return null;
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
+    <div className="relative bg-card border border-border rounded-lg overflow-hidden">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={dismiss}
+        className="absolute right-2 top-2 z-10 size-7 text-muted-foreground"
+      >
+        <X className="size-4" />
+        <span className="sr-only">Dismiss</span>
+      </Button>
+
       <div className="grid items-center gap-6 p-6 sm:grid-cols-[1fr_auto]">
         <div className="max-w-md">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -52,24 +63,14 @@ export function MeetPromo() {
             the side panel when the call starts. Switch projects and copy a
             standup-ready version without leaving the meeting.
           </p>
-          <div className="mt-5 flex items-center gap-1">
-            <a
-              href={MEET_ADDON_URL}
-              target="_blank"
-              rel="noreferrer"
-              className={cn(buttonVariants({ size: "sm" }))}
-            >
-              Add to Meet
-            </a>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={dismiss}
-              className="text-muted-foreground"
-            >
-              Not now
-            </Button>
-          </div>
+          <a
+            href={MEET_ADDON_URL}
+            target="_blank"
+            rel="noreferrer"
+            className={cn(buttonVariants({ size: "sm" }), "mt-5")}
+          >
+            Add to Meet
+          </a>
         </div>
 
         <Image
