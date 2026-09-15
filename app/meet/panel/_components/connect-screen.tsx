@@ -12,10 +12,22 @@ import { StaggerReveal, StaggerItem } from "@/components/motion/stagger-reveal";
  * story (editors in, standup out), the three steps say it in words, and the
  * two links cover both "I have an account" and "I don't".
  */
-const STEPS = [
+const EDITORS = ["VS Code", "Cursor", "Windsurf", "Antigravity"];
+
+const STEPS: { title: string; body: React.ReactNode }[] = [
   {
     title: "Install WriteLogs in your editor",
-    body: "VS Code, Cursor, Windsurf or Antigravity. Takes a minute.",
+    body: (
+      <>
+        {EDITORS.map((name, i) => (
+          <span key={name}>
+            <span className="font-semibold text-foreground">{name}</span>
+            {i < EDITORS.length - 2 ? ", " : i === EDITORS.length - 2 ? " or " : ""}
+          </span>
+        ))}
+        . Takes a minute.
+      </>
+    ),
   },
   {
     title: "Code like you normally do",
