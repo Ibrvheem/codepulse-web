@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Copy, RefreshCw } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -26,7 +26,7 @@ import {
   summaries as summariesApi,
 } from "@/lib/api-client";
 import type { User } from "@/lib/types";
-import { copyText } from "@/lib/utils";
+import { cn, copyText } from "@/lib/utils";
 
 import { PanelSkeleton } from "./panel-skeleton";
 
@@ -166,14 +166,27 @@ function PanelBody() {
             className="mx-auto"
           />
           <div className="space-y-1">
-            <p className="font-medium">Connect WriteLogs</p>
+            <p className="font-medium">Your standup notes, written for you</p>
             <p className="text-sm text-muted-foreground">
-              One time, then your latest log shows up here every standup.
+              WriteLogs watches what you build in VS Code or Cursor and writes
+              your daily work log. Connect once and your latest log is here for
+              every standup, ready to read out or copy.
             </p>
           </div>
           <Button onClick={connect} className="w-full">
             Connect
           </Button>
+          <p className="text-xs text-muted-foreground">
+            New to WriteLogs?{" "}
+            <a
+              href="/signup"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-4"
+            >
+              Create a free account
+            </a>
+          </p>
         </div>
       </PanelShell>
     );
@@ -243,7 +256,17 @@ function PanelBody() {
         <Message
           art="empty"
           title="Nothing logged yet"
-          body="Once you've coded with the extension running, your summary lands here."
+          body="Install the WriteLogs extension in VS Code or Cursor. It watches what you build and writes your log, and the summary lands here."
+          action={
+            <a
+              href="/dashboard/extension"
+              target="_blank"
+              rel="noreferrer"
+              className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+            >
+              Get the extension
+            </a>
+          }
         />
       </PanelShell>
     );
