@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ProjectDetailView } from "./_components/project-detail-view";
 
-export const metadata: Metadata = { title: "Project — WriteLogs" };
+export const metadata: Metadata = { title: "Project" };
 
 export default async function ProjectDetailPage({
   params,

@@ -21,10 +21,10 @@ export async function generateMetadata({
   const { token } = await params;
   const summary = await getShared(token);
   const robots = { index: false, follow: false };
-  if (!summary) return { title: "Shared summary — WriteLogs", robots };
+  if (!summary) return { title: "Shared summary", robots };
   return {
     robots,
-    title: `${summary.title} — WriteLogs`,
+    title: summary.title,
     description: summary.message,
     openGraph: { title: summary.title, description: summary.message },
     twitter: { card: "summary_large_image" },

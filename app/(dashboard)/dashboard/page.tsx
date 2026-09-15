@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ProjectsView } from "./_components/projects-view";
 
-export const metadata: Metadata = { title: "Projects — WriteLogs" };
+export const metadata: Metadata = { title: "Projects" };
 
 export default function DashboardPage() {
   return <ProjectsView />;

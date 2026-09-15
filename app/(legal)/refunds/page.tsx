@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalTitle, Section } from "../_components/legal";
 
-export const metadata: Metadata = { title: "Refund Policy — WriteLogs" };
+export const metadata: Metadata = { title: "Refund Policy" };
 
 export default function RefundsPage() {
   return (

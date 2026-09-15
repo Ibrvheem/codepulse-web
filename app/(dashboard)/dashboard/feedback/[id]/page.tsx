@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { FeedbackDetail } from "./_components/feedback-detail";
 
-export const metadata: Metadata = { title: "Feedback — WriteLogs" };
+export const metadata: Metadata = { title: "Feedback" };
 
 export default async function FeedbackPostPage({
   params,
