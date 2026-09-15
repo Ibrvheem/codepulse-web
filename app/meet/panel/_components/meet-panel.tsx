@@ -28,6 +28,7 @@ import {
 import type { User } from "@/lib/types";
 import { cn, copyText } from "@/lib/utils";
 
+import { ConnectScreen } from "./connect-screen";
 import { PanelSkeleton } from "./panel-skeleton";
 
 const HANDOFF_MESSAGE = "writelogs:meet-session";
@@ -167,37 +168,7 @@ function PanelBody() {
   if (!connected) {
     return (
       <PanelShell>
-        <div className="space-y-4 text-center">
-          <Image
-            src="/loggy/loggy-head.png"
-            alt=""
-            width={40}
-            height={41}
-            className="mx-auto"
-          />
-          <div className="space-y-1">
-            <p className="font-medium">Your standup notes, written for you</p>
-            <p className="text-sm text-muted-foreground">
-              WriteLogs watches what you build in VS Code or Cursor and writes
-              your daily work log. Connect once and your latest log is here for
-              every standup, ready to read out or copy.
-            </p>
-          </div>
-          <Button onClick={connect} className="w-full">
-            Connect
-          </Button>
-          <p className="text-xs text-muted-foreground">
-            New to WriteLogs?{" "}
-            <a
-              href="/signup"
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-4"
-            >
-              Create a free account
-            </a>
-          </p>
-        </div>
+        <ConnectScreen onConnect={connect} />
       </PanelShell>
     );
   }
