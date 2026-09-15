@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   // Every page title carries the standup tagline so the brand and the search
   // term travel together; pages set `title: { absolute }` to opt out.
   title: {
-    default: "WriteLogs: Daily Standups & AI Work Logs for VS Code and Cursor",
-    template: "%s | WriteLogs: Daily Standups & AI Work Logs",
+    default: "WriteLogs: Daily Standup Notes & AI Work Logs for VS Code and Cursor",
+    template: "%s | WriteLogs: Daily Standup Notes & AI Work Logs",
   },
   description:
     "An extension for VS Code, Cursor, Antigravity, and Devin Desktop that watches what you build and writes your daily work log for you. Automatic coding summaries — no timers, no forms, no log sheets.",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "WriteLogs",
     type: "website",
-    title: "WriteLogs: Daily Standups & AI Work Logs for VS Code and Cursor",
+    title: "WriteLogs: Daily Standup Notes & AI Work Logs for VS Code and Cursor",
     description:
       "An extension for VS Code, Cursor, Antigravity, and Devin Desktop that watches what you build and writes your daily work log for you.",
   },
