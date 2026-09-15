@@ -1,14 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
+import { isAuthenticated } from "@/lib/api-client";
+
+// The session lives in localStorage, so the server can't know it: render the
+// signed-out CTA on the server and swap after hydration without a mismatch.
+const noopSubscribe = () => () => {};
+
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const signedIn = useSyncExternalStore(noopSubscribe, isAuthenticated, () => false);
+  const cta = signedIn
+    ? { href: "/dashboard", label: "Dashboard →" }
+    : { href: "/signup", label: "Get started →" };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,10 +70,10 @@ export function Navbar() {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-6 text-[15px]">
             <Link
-              href="/signup"
+              href={cta.href}
               className="text-neutral-900 font-medium hover:opacity-70"
             >
-              Get started →
+              {cta.label}
             </Link>
           </div>
 
@@ -107,11 +117,11 @@ export function Navbar() {
               </Link>
               <div className="pt-4 border-t border-neutral-100 space-y-4">
                 <Link
-                  href="/signup"
+                  href={cta.href}
                   className="block text-neutral-900 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Get started →
+                  {cta.label}
                 </Link>
               </div>
             </div>

@@ -131,6 +131,9 @@ export function Topbar() {
             <DropdownMenuItem asChild>
               <Link href="/dashboard/feedback">Feedback</Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/">Website</Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={logout.isPending}
