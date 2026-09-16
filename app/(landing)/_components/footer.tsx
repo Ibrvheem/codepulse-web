@@ -38,7 +38,7 @@ const EDITOR_LINKS = EDITOR_PAGES.map((page) => ({
 const GUIDE_LINKS = [
   { href: "/daily-standup-update", label: "Daily standup updates" },
   { href: "/wakatime-alternative", label: "WriteLogs vs WakaTime" },
-  { href: "/pieces-alternative", label: "WriteLogs vs Pieces" },
+  { href: "/automate-daily-standup", label: "Automate your daily standup" },
 ];
 
 function LinkColumn({
