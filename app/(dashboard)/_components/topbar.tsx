@@ -29,6 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBilling } from "../_hooks/use-billing";
+import { BILLING_PATH } from "../_hooks/use-upgrade-toast";
 
 export function Topbar() {
   const router = useRouter();
@@ -105,6 +106,16 @@ export function Topbar() {
               </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href={BILLING_PATH}>
+                Billing
+                {billing && (
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {billing.plan === "pro" ? "Pro" : "Free"}
+                  </span>
+                )}
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
