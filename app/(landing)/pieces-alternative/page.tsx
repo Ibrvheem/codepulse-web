@@ -36,7 +36,7 @@ const ROWS: { label: string; writelogs: string; pieces: string }[] = [
   },
   {
     label: "What it watches",
-    writelogs: "Your code editor, nothing else",
+    writelogs: "Your coding work, from your editor",
     pieces: "Apps you focus on, your clipboard, and meeting audio if you opt in",
   },
   {
@@ -74,7 +74,7 @@ const ROWS: { label: string; writelogs: string; pieces: string }[] = [
 const PIECES_FITS = [
   {
     title: "You want one memory for all your work",
-    body: "Research, email, chats and meetings, not just code. Pieces is built to remember all of it, and WriteLogs never sees any of it.",
+    body: "Research, email, chats and meetings, not just code. Pieces is built to remember all of it. WriteLogs is focused on the work you ship.",
   },
   {
     title: "You work in JetBrains or Xcode",
@@ -97,7 +97,7 @@ const WRITELOGS_FITS = [
   },
   {
     title: "You would rather nothing watched your whole screen",
-    body: "WriteLogs only sees your editor: file paths, commits and what changed. It never records other apps, your clipboard or your meetings, and sensitive files like .env are never tracked at all.",
+    body: "WriteLogs records your coding activity, like file paths, commits and what changed. It never records your screen, your clipboard or your meetings, and sensitive files like .env are never tracked at all.",
   },
   {
     title: "Your standup happens on Google Meet",
@@ -112,11 +112,11 @@ const WRITELOGS_FITS = [
 const FAQS: Faq[] = [
   {
     q: "Is WriteLogs a replacement for Pieces?",
-    a: "Only if all you wanted from Pieces was your standup update. Pieces is a memory for everything you do on your computer; WriteLogs is deliberately narrower and only writes up your coding work.",
+    a: "Only if all you wanted from Pieces was your standup update. Pieces is a memory for everything you do on your computer; WriteLogs is deliberately narrower and exists to write up the work you ship.",
   },
   {
     q: "Does WriteLogs record my screen, clipboard or meetings?",
-    a: "No. The extension only sends coding activity metadata from your editor, such as file paths, branches, commits and what changed. The privacy policy lists exactly what is collected and what never is.",
+    a: "No. The extension sends coding activity metadata, such as file paths, branches, commits and what changed, and never your screen, clipboard or meeting audio. The privacy policy lists exactly what is collected and what never is.",
   },
   {
     q: "Does WriteLogs keep my data on my device?",
@@ -194,7 +194,7 @@ export default function PiecesAlternativePage() {
         <Prose
           paragraphs={[
             "Pieces is an AI memory for your whole working life. A desktop app captures what you do across your apps, from research and email to code and meetings, and lets you search it, ask about it, and generate artifacts from it, including standup updates.",
-            "WriteLogs starts from the other end. It is an editor extension that only looks at your code, and it exists to answer one question well: what did you do yesterday?",
+            "WriteLogs starts from the other end. It starts from your editor, and it exists to answer one question well: what did you do yesterday?",
             "Both save you from reconstructing your day from memory. The difference is how much of your day they see, and what they give you back.",
           ]}
         />
@@ -230,7 +230,7 @@ export default function PiecesAlternativePage() {
               "Replaced the retry logic in the webhook handler.",
               "Started validation on the signup form. Not finished.",
             ]}
-            meta="Your whole standup, written from your editor alone."
+            meta="Your standup, written from the work itself."
           />
         </div>
       </Section>
