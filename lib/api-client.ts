@@ -46,6 +46,8 @@ const REFRESH_TOKEN_KEY = "writelogs.refresh_token";
 const USER_KEY = "writelogs.user";
 
 export const SESSION_EXPIRED_MESSAGE = "Your session has expired. Sign in again.";
+const UNREACHABLE_MESSAGE =
+  "Can't reach the WriteLogs API. Check your connection and try again.";
 
 export class ApiError extends Error {
   status: number;
@@ -199,36 +201,61 @@ async function publicRequest<T>(
       headers: { "Content-Type": "application/json", ...init?.headers },
     });
   } catch {
-    throw new ApiError(
-      "Can't reach the WriteLogs API. Check your connection and try again.",
-      0,
-    );
+    throw new ApiError(UNREACHABLE_MESSAGE, 0);
   }
   const body = await parseEnvelope<T>(res);
   if (!res.ok || !body.success) throw new ApiError(body.message, res.status);
   return body;
 }
 
-// Single-flight refresh so concurrent 401s trigger exactly one refresh call.
-let refreshPromise: Promise<boolean> | null = null;
+type RefreshResult = "refreshed" | "rejected" | "unreachable";
 
-async function refreshAccessToken(): Promise<boolean> {
+// Single-flight refresh so concurrent 401s in this tab trigger one call.
+let refreshPromise: Promise<RefreshResult> | null = null;
+
+/**
+ * Runs the refresh under a lock shared by every tab on this origin.
+ *
+ * The refresh token lives in localStorage, shared by all tabs, but each tab
+ * refreshes on its own (every page load does it up front). Unserialised, two
+ * tabs present the same token at once and race its rotation. The server now
+ * tolerates that, but taking turns means each tab reads the token the previous
+ * one just stored instead of spending a stale one.
+ */
+function withRefreshLock<T>(fn: () => Promise<T>): Promise<T> {
+  const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
+  // request() resolves with whatever the callback resolves with; its typings
+  // just don't unwrap a promise-returning callback.
+  return locks
+    ? (locks.request("writelogs-refresh", fn) as Promise<Awaited<T>> as Promise<T>)
+    : fn();
+}
+
+async function refreshAccessToken(): Promise<RefreshResult> {
   if (!refreshPromise) {
-    refreshPromise = (async () => {
+    refreshPromise = withRefreshLock(async (): Promise<RefreshResult> => {
+      // Read inside the lock: another tab may have rotated it while we waited.
       const refresh_token = getRefreshToken();
-      if (!refresh_token) return false;
+      if (!refresh_token) return "rejected";
       try {
         const body = await publicRequest<AuthTokens>("/auth/refresh", {
           method: "POST",
           body: JSON.stringify({ refresh_token }),
         });
         storeSession(body.data);
-        return true;
-      } catch {
-        clearSession();
-        return false;
+        return "refreshed";
+      } catch (err) {
+        // Only the API refusing the token ends the session. A dropped
+        // connection, a 5xx or rate limiting says nothing about the session,
+        // and signing someone out for it is how offline blips became logouts.
+        const status = err instanceof ApiError ? err.status : 0;
+        if (status >= 400 && status < 500 && status !== 429) {
+          clearSession();
+          return "rejected";
+        }
+        return "unreachable";
       }
-    })().finally(() => {
+    }).finally(() => {
       refreshPromise = null;
     });
   }
@@ -243,7 +270,11 @@ async function request<T>(
 ): Promise<Envelope<T>> {
   // After a reload the access token is gone but the refresh token survives —
   // mint a new access token up front instead of eating a guaranteed 401.
-  if (!accessToken && getRefreshToken()) await refreshAccessToken();
+  if (!accessToken && getRefreshToken()) {
+    if ((await refreshAccessToken()) === "unreachable") {
+      throw new ApiError(UNREACHABLE_MESSAGE, 0);
+    }
+  }
   if (!accessToken) throw new ApiError(SESSION_EXPIRED_MESSAGE, 401);
 
   let res: Response;
@@ -257,15 +288,13 @@ async function request<T>(
       },
     });
   } catch {
-    throw new ApiError(
-      "Can't reach the WriteLogs API. Check your connection and try again.",
-      0,
-    );
+    throw new ApiError(UNREACHABLE_MESSAGE, 0);
   }
 
   if (res.status === 401 && !isRetry) {
-    const refreshed = await refreshAccessToken();
-    if (refreshed) return request<T>(path, init, true);
+    const result = await refreshAccessToken();
+    if (result === "refreshed") return request<T>(path, init, true);
+    if (result === "unreachable") throw new ApiError(UNREACHABLE_MESSAGE, 0);
     throw new ApiError(SESSION_EXPIRED_MESSAGE, 401);
   }
 
