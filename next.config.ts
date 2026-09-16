@@ -2,6 +2,17 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        // Retired comparison page. Naming a bigger competitor did more for
+        // them than for us, so its traffic goes to the unbranded guide.
+        source: "/pieces-alternative",
+        destination: "/automate-daily-standup",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
