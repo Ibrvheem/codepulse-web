@@ -9,6 +9,13 @@ import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9308";
 
+/**
+ * GitHub sign-in is hidden for now. The button is the only way into the flow,
+ * and the flow creates an account on first use, so hiding it here stops new
+ * GitHub sign-ups. The API route still works; flip this to bring it back.
+ */
+const SHOW_GITHUB = false;
+
 function GoogleIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
@@ -71,21 +78,23 @@ function OauthButtonsInner({ returnTo }: { returnTo?: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
+      <div className={cn("grid gap-3", SHOW_GITHUB ? "grid-cols-2" : "grid-cols-1")}>
         <a
           href={href("google")}
           className={cn(buttonVariants({ variant: "outline" }), "w-full")}
         >
           <GoogleIcon className="size-4" />
-          Google
+          {SHOW_GITHUB ? "Google" : "Continue with Google"}
         </a>
-        <a
-          href={href("github")}
-          className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-        >
-          <GithubIcon className="size-4" />
-          GitHub
-        </a>
+        {SHOW_GITHUB ? (
+          <a
+            href={href("github")}
+            className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+          >
+            <GithubIcon className="size-4" />
+            GitHub
+          </a>
+        ) : null}
       </div>
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-border" />
