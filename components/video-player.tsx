@@ -117,11 +117,17 @@ export function VideoPlayer({ src, poster, title, caption, className }: Props) {
   }, []);
 
   const onBarDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
     setScrubbing(true);
     const r = ratioFromEvent(e.clientX);
     setCurrent(r * duration);
     seekTo(r * duration);
+    // Capture last: it throws if the pointer id is already gone, and the seek
+    // matters more than keeping the drag alive.
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* drag still works without capture, it just stops at the edge */
+    }
   };
 
   const onBarMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -325,11 +331,12 @@ export function VideoPlayer({ src, poster, title, caption, className }: Props) {
                   className="absolute inset-y-0 left-0 rounded-full bg-white/25"
                   style={{ width: `${bufferedPct}%` }}
                 />
+                {/* No transition here. The width is already re-set every
+                    animation frame, and a CSS transition restarts from the
+                    current value each time, so the fill renders behind the
+                    thumb and crawls for a second after a seek. */}
                 <div
-                  className={cn(
-                    "absolute inset-y-0 left-0 rounded-full bg-white",
-                    scrubbing ? "" : "transition-[width] duration-100 ease-linear",
-                  )}
+                  className="absolute inset-y-0 left-0 rounded-full bg-white"
                   style={{ width: `${progress}%` }}
                 />
                 <span
