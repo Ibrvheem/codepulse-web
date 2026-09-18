@@ -195,3 +195,39 @@
 .cta-btn:hover::after {
   transform: translateX(100%);
 }
+
+/* demo player: volume slider. The native track is unstyleable across browsers,
+   so both vendor pseudo-elements are reset to the same thin white rail. */
+.wl-volume {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+.wl-volume::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 999px;
+  background: oklch(1 0 0 / 0.3);
+}
+.wl-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  margin-top: -3.5px;
+  border-radius: 999px;
+  background: #fff;
+}
+.wl-volume::-moz-range-track {
+  height: 3px;
+  border-radius: 999px;
+  background: oklch(1 0 0 / 0.3);
+}
+.wl-volume::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Navbar } from "./_components/navbar";
 import { Hero } from "./_components/hero";
+import { DemoSection } from "./_components/demo";
 import { ProblemSection } from "./_components/problem";
 import { SolutionSection } from "./_components/solution";
 import { EditorsSection } from "./_components/editors";
@@ -51,6 +52,21 @@ const jsonLd = {
       ],
     },
     {
+      "@type": "VideoObject",
+      "@id": `${SITE}/#demo-video`,
+      name: "WriteLogs, end to end",
+      description:
+        "A one-minute walkthrough: WriteLogs watches a coding session in VS Code, writes the day up, and has the summary open in the Google Meet side panel before standup starts.",
+      thumbnailUrl: [
+        "https://g7fmczfexytl55tg.public.blob.vercel-storage.com/demo/writelogs-demo-poster.webp",
+      ],
+      contentUrl:
+        "https://g7fmczfexytl55tg.public.blob.vercel-storage.com/demo/writelogs-demo-1080.mp4",
+      uploadDate: "2026-09-18",
+      duration: "PT53S",
+      publisher: { "@id": `${SITE}/#organization` },
+    },
+    {
       "@type": "WebSite",
       "@id": `${SITE}/#website`,
       name: "WriteLogs",
@@ -96,6 +112,7 @@ export default async function LandingPage() {
       />
       <Navbar />
       <Hero seats={seats} />
+      <DemoSection />
       <ProblemSection />
       <SolutionSection />
       <EditorsSection />
