@@ -38,15 +38,7 @@ export function PromoClaim({ code }: { code: string }) {
     if (!authed && promo?.available) savePendingPromo(promo.code);
   }, [promo]);
 
-  if (isPending || signedIn === null) {
-    return (
-      <div className="space-y-3">
-        <Skeleton className="h-7 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-9 w-full mt-6" />
-      </div>
-    );
-  }
+  if (isPending || signedIn === null) return <PromoSkeleton />;
 
   if (isError || !promo.available) {
     return (
@@ -123,5 +115,57 @@ export function PromoClaim({ code }: { code: string }) {
         </p>
       )}
     </FadeIn>
+  );
+}
+
+/** Invisible text on a shimmer: it takes exactly the space, and the line breaks, of the real text. */
+function Ghost({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="bg-accent animate-pulse rounded-md text-transparent select-none [box-decoration-break:clone]">
+      {children}
+    </span>
+  );
+}
+
+/**
+ * The loaded page's own markup with the text ghosted, so every line wraps
+ * where the real one will and nothing moves when it arrives. The headline
+ * uses the one-month wording; the buttons are the signed-out pair, the
+ * likely case for someone opening a shared link.
+ */
+function PromoSkeleton() {
+  return (
+    <div aria-busy="true" aria-label="Loading">
+      <div className="space-y-1.5 mb-6">
+        <h1 className="text-xl font-semibold tracking-tight">
+          <Ghost>{grantHeadline(30)}</Ghost>
+        </h1>
+        <p className="text-sm">
+          <Ghost>
+            No card needed and nothing renews. When it ends you&apos;re on the
+            free plan, unless you choose to upgrade.
+          </Ghost>
+        </p>
+      </div>
+
+      <ul className="border rounded-lg p-4 bg-card space-y-2.5 text-sm mb-6">
+        {PRO_FEATURES.map((f) => (
+          <li key={f} className="flex gap-3">
+            <span className="mt-2 size-1.5 rounded-full bg-muted shrink-0" />
+            <span>
+              <Ghost>{f}</Ghost>
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <Skeleton className="h-9 w-full" />
+      <p className="mt-4 text-sm text-center">
+        <Ghost>Already have an account? Sign in</Ghost>
+      </p>
+      <p className="mt-6 text-xs text-center">
+        <Ghost>Pro is added to your account as soon as you&apos;re in.</Ghost>
+      </p>
+    </div>
   );
 }
