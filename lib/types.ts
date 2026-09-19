@@ -169,6 +169,18 @@ export const billingSchema = z.object({
 });
 export type Billing = z.infer<typeof billingSchema>;
 
+/** A promo link (writelogs.com/promo/<code>): Pro for `grant_days`, no card. */
+export type Promo = {
+  code: string;
+  grant_days: number;
+  expires_at: string | null;
+  available: boolean;
+  /** Why it can't be claimed, when `available` is false. */
+  reason: string | null;
+};
+
+export type PromoRedemption = { grant_days: number; trial_ends_at: string };
+
 export type BillingCheckout = {
   environment: "sandbox" | "production";
   client_token: string;

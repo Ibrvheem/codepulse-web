@@ -20,6 +20,8 @@ import {
   type FeedbackStatus,
   type FeedbackVoteResult,
   type PlanLimits,
+  type Promo,
+  type PromoRedemption,
   type ShareLink,
   type SharedSummary,
   type SummaryList,
@@ -475,6 +477,20 @@ export const billing = {
   portal: async () =>
     (await request<{ url: string }>("/billing/portal", { method: "POST" }))
       .data.url,
+
+  /** Public: what a promo link grants. Throws ApiError 404 for an unknown code. */
+  promo: async (code: string) =>
+    (await publicRequest<Promo>(`/billing/promo/${encodeURIComponent(code)}`))
+      .data,
+
+  /** Claim a promo link for the signed-in user; extends their Pro grant. */
+  redeemPromo: async (code: string) =>
+    (
+      await request<PromoRedemption>("/billing/promo/redeem", {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      })
+    ).data,
 };
 
 export const summaries = {
