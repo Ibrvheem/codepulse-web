@@ -5,6 +5,7 @@ import { AuthGuard } from "./_components/auth-guard";
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 import { Topbar } from "./_components/topbar";
 import { TrialBanner } from "./_components/trial-banner";
+import { PendingPromo } from "./_components/pending-promo";
 
 export default function DashboardLayout({
   children,
@@ -16,6 +17,7 @@ export default function DashboardLayout({
       <div className="min-h-svh bg-background">
         <Topbar />
         <TrialBanner />
+        <PendingPromo />
         <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
       </div>
     </AuthGuard>
