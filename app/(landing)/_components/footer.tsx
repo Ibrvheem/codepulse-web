@@ -22,6 +22,7 @@ function XLogo({ className }: { className?: string }) {
 
 const PRODUCT_LINKS = [
   { href: "/#get-extension", label: "Get the extension" },
+  { href: "/setup", label: "Set it up (2 min)" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/signup", label: "Get started" },
