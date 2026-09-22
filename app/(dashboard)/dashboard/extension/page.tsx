@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 import { EditorGrid } from "@/components/editor-links";
+import { VideoPlayer } from "@/components/video-player";
+import { HOWTO_POSTER, HOWTO_VIDEO } from "@/app/(landing)/setup/_components/setup-video";
 import { buttonVariants } from "@/components/ui/button";
 import { MEET_ADDON_URL } from "@/lib/meet-addon";
 import { cn } from "@/lib/utils";
@@ -35,6 +37,17 @@ export default function ExtensionPage() {
         One extension, every VS Code-based editor. Install it where you code
         and your work logs itself.
       </p>
+
+      {/* The same walkthrough as writelogs.com/setup, for anyone who would
+          rather watch it than read the steps. */}
+      <div className="mt-8">
+        <VideoPlayer
+          src={HOWTO_VIDEO}
+          poster={HOWTO_POSTER}
+          title="Setting up WriteLogs"
+          caption="1:26 · sound on"
+        />
+      </div>
 
       <div className="mt-12">
         <EditorGrid />
