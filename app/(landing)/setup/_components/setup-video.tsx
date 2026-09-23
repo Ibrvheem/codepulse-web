@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 
 import { VideoPlayer } from "@/components/video-player";
 
-const BLOB = "https://g7fmczfexytl55tg.public.blob.vercel-storage.com/howto";
+// Every video lives under the one demo/ prefix in the blob store.
+const BLOB = "https://g7fmczfexytl55tg.public.blob.vercel-storage.com/demo";
 
 export const HOWTO_VIDEO = `${BLOB}/writelogs-howto-1080.mp4`;
 export const HOWTO_POSTER = `${BLOB}/writelogs-howto-poster.webp`;
