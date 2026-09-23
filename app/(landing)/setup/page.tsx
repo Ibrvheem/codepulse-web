@@ -18,7 +18,7 @@ import { HOWTO_POSTER, HOWTO_VIDEO, SetupVideo } from "./_components/setup-video
 const SITE = "https://www.writelogs.com";
 const TITLE = "How to set up WriteLogs";
 const DESCRIPTION =
-  "Watch the whole setup: install the extension, create a project, copy your key, paste it into your editor. About two minutes, and then your daily work log writes itself.";
+  "A one-minute walkthrough of the whole setup: install the extension, create a project, copy your key, paste it into your editor. Then your daily work log writes itself.";
 
 /**
  * The page the setup video lives on, and the one to send anyone who signed up
@@ -55,7 +55,7 @@ const STEPS = [
 const FAQS: Faq[] = [
   {
     q: "How long does setup take?",
-    a: "About two minutes: install the extension, create a project, copy the key, paste it in. Nothing else to configure.",
+    a: "The walkthrough above is about a minute, and doing it yourself takes about two: install the extension, create a project, copy the key, paste it in. Nothing else to configure.",
   },
   {
     q: "Do I need a credit card?",
@@ -123,7 +123,7 @@ export default function SetupPage() {
       <Hero
         eyebrow="Setup"
         title="Set up WriteLogs in about two minutes"
-        subtitle="Install the extension, create a project, paste your key. Then code like you normally do and your work log writes itself."
+        subtitle="Install the extension, create a project, paste your key. The walkthrough below covers all of it in about a minute."
       />
 
       <SetupVideo />
