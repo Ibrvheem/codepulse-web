@@ -6,15 +6,28 @@ import dayjs from "dayjs";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EASE_OUT } from "@/components/motion/stagger-reveal";
-import { formatDuration } from "@/lib/utils";
 import type { SummaryTask, SummaryVoice } from "@/lib/types";
 import { inVoice } from "../_hooks/use-summary-voice";
+import { AreaHeading } from "./area-heading";
 
 /**
  * A daily task, or a recap theme — which adds the days it spanned. One
  * component renders both; the daily summaries simply have no `days`.
  */
 type Bullet = SummaryTask & { days?: string[] | null };
+
+/** Bullets in the order they arrived, split into the areas they belong to. */
+function byArea(tasks: Bullet[]): { area: string; tasks: Bullet[] }[] {
+  const groups = new Map<string, Bullet[]>();
+  for (const task of tasks) {
+    const area = task.area?.trim() ?? "";
+    groups.set(area, [...(groups.get(area) ?? []), task]);
+  }
+  // Anything without an area trails the rest rather than leading it.
+  return [...groups.entries()]
+    .sort(([a], [b]) => (a === "" ? 1 : b === "" ? -1 : 0))
+    .map(([area, tasks]) => ({ area, tasks }));
+}
 
 const STAGGER_MS = 40;
 /** Past this many bullets the stagger stops growing, so long lists don't drag. */
@@ -38,9 +51,6 @@ function TaskBullet({
       task.tags.length > 0 ||
       days.length > 0,
   );
-  const minutes =
-    task.time_minutes >= 1 ? `~${formatDuration(task.time_minutes * 60_000)}` : null;
-
   // Bullets arrive without a trailing period — leave them that way.
   const label = inVoice(voice, task.task, task.task_first_person);
 
@@ -49,7 +59,6 @@ function TaskBullet({
       <span className="mt-[9px] size-1.5 rounded-full bg-foreground/70 shrink-0" />
       <span className="flex-1 min-w-0 text-sm text-left">{label}</span>
       <span className="flex items-center gap-2 shrink-0 text-xs text-muted-foreground tabular-nums">
-        {minutes && <span>{minutes}</span>}
         {hasDetails && (
           <ChevronRight
             className={`size-3.5 transition-transform duration-200 ease-out ${
@@ -136,16 +145,54 @@ function TaskBullet({
 export function SummaryBullets({
   tasks,
   voice,
+  projectId,
 }: {
   tasks: Bullet[];
   voice: SummaryVoice;
+  /** Enables renaming a group heading in place. */
+  projectId: string;
 }) {
   if (tasks.length === 0) return null;
+  const groups = byArea(tasks);
+  // Headings have to earn their space. Two areas holding one bullet each is
+  // not a grouping, it is the same list with labels in between, so anything
+  // short of two real groups renders as a plain list.
+  const worthGrouping =
+    groups.filter((g) => g.area && g.tasks.length >= 2).length >= 2;
+  if (!worthGrouping) {
+    return (
+      <ul className="space-y-0.5">
+        {tasks.map((task, index) => (
+          <TaskBullet key={task.id} task={task} voice={voice} index={index} />
+        ))}
+      </ul>
+    );
+  }
+
+  let index = 0;
   return (
-    <ul className="space-y-0.5">
-      {tasks.map((task, index) => (
-        <TaskBullet key={task.id} task={task} voice={voice} index={index} />
+    <div className="space-y-5">
+      {groups.map(({ area, tasks: inArea }) => (
+        <div key={area || "other"}>
+          {area ? (
+            <AreaHeading area={area} projectId={projectId} />
+          ) : (
+            <p className="text-sm font-medium text-muted-foreground mb-1.5">
+              Everything else
+            </p>
+          )}
+          <ul className="space-y-0.5">
+            {inArea.map((task) => (
+              <TaskBullet
+                key={task.id}
+                task={task}
+                voice={voice}
+                index={index++}
+              />
+            ))}
+          </ul>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }

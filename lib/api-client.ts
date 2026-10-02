@@ -31,6 +31,8 @@ import {
   type Paginated,
   type PatKey,
   type Project,
+  type ProjectArea,
+  type RenameAreaResult,
   type Recap,
   type SharedRecap,
   type SigninResponse,
@@ -534,6 +536,19 @@ export const summaries = {
   generate: async (payload: { project_id: string; include_today?: boolean }) =>
     (await request<GenerateSummaryResponse>("/summaries/generate", {
       method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+};
+
+export const areas = {
+  /** Every name this project uses for a part of its product, most used first. */
+  listByProject: async (projectId: string) =>
+    (await request<ProjectArea[]>(`/areas/project/${projectId}`)).data,
+
+  /** Renaming onto an existing name merges the two. */
+  rename: async (projectId: string, payload: { from: string; to: string }) =>
+    (await request<RenameAreaResult>(`/areas/project/${projectId}`, {
+      method: "PATCH",
       body: JSON.stringify(payload),
     })).data,
 };

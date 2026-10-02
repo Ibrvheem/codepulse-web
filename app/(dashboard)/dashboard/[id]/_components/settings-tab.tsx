@@ -17,6 +17,7 @@ import { useProject } from "../_hooks/use-project-data";
 import { useSummaryTime } from "../_hooks/use-summary-time";
 import { useDeleteProject } from "../_hooks/use-delete-project";
 import { DayEndSelect } from "./day-end-select";
+import { AreasPanel } from "./areas-panel";
 
 /** One labelled setting: text on the left, control on the right. */
 function SettingRow({
@@ -114,6 +115,12 @@ export function SettingsTab({ projectId }: { projectId: string }) {
             disabled={!dayEnd.isReady}
           />
         </SettingRow>
+      </Section>
+
+      <Section title="Areas">
+        <div className="py-4">
+          <AreasPanel projectId={projectId} />
+        </div>
       </Section>
 
       <Section title="Danger zone" destructive>

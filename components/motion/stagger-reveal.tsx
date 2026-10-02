@@ -5,6 +5,8 @@ import { motion, useReducedMotion } from "framer-motion";
 
 /** Strong ease-out — matches --ease-out-strong in globals.css. */
 export const EASE_OUT = [0.23, 1, 0.32, 1] as const;
+/** Strong ease-in-out, for something morphing in place rather than arriving. */
+export const EASE_IN_OUT = [0.77, 0, 0.175, 1] as const;
 
 const STAGGER_MS = 60;
 /** Items mounting within this window of the container count as the first batch. */

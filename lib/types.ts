@@ -95,6 +95,8 @@ export const summaryTaskSchema = z.object({
   /** Standup line, no pronoun. Empty on summaries generated before Aug 25 2026. */
   task_first_person: z.string().nullish(),
   description: z.string(),
+  /** Part of the product this bullet belongs to. Empty on older summaries. */
+  area: z.string().nullish(),
   files: z.array(z.string()),
   time_minutes: z.number(),
   tags: z.array(z.string()),
@@ -113,6 +115,8 @@ export const summarySchema = z.object({
   status: z.string(),
   logs_count: z.number(),
   tasks: z.array(summaryTaskSchema),
+  /** Only on the single-summary read, not the list. */
+  project: z.object({ name: z.string() }).nullish(),
   created_at: z.string(),
 });
 export type Summary = z.infer<typeof summarySchema>;
@@ -196,6 +200,20 @@ export type SummaryList = Paginated<Summary> & {
   limits?: PlanLimits;
 };
 
+export const projectAreaSchema = z.object({
+  name: z.string(),
+  uses: z.number(),
+});
+/** A name the project uses for a part of its product ("Billing"). */
+export type ProjectArea = z.infer<typeof projectAreaSchema>;
+
+export type RenameAreaResult = {
+  renamed: string;
+  /** folded into an area that already existed */
+  merged: boolean;
+  bullets: number;
+};
+
 // ---------------------------------------------------------------------------
 // Recaps — one summary across a span of days ("what did I do last week")
 // ---------------------------------------------------------------------------
@@ -221,6 +239,8 @@ export const recapSchema = z.object({
   areas: z.array(z.string()).nullish(),
   logs_count: z.number(),
   tasks: z.array(recapTaskSchema),
+  /** Only on the single-summary read, not the list. */
+  project: z.object({ name: z.string() }).nullish(),
   created_at: z.string(),
 });
 export type Recap = z.infer<typeof recapSchema>;
