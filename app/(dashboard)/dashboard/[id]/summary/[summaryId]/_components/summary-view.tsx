@@ -10,6 +10,7 @@ import { isUpgradeRequired } from "@/lib/api-client";
 import { ErrorState, UpgradeState } from "../../../../../_components/query-states";
 import { useBilling } from "../../../../../_hooks/use-billing";
 import { SummaryBullets } from "../../../_components/summary-bullets";
+import { DownloadMenu } from "../../../_components/download-menu";
 import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useSummary, useCopyStandup } from "../_hooks/use-summary";
@@ -104,6 +105,19 @@ export function SummaryView({
           <div className="flex flex-col items-end gap-2 shrink-0">
             <div className="flex items-center gap-3">
               <ShareSummary summaryId={summaryId} />
+            <DownloadMenu
+              source={{
+                period: dayjs(summary.date).format("YYYY-MM-DD"),
+                project: summary.project?.name ?? "summary",
+                title: summary.title,
+                message: inVoice(
+                  voice,
+                  summary.message,
+                  summary.message_first_person,
+                ),
+                tasks: summary.tasks,
+              }}
+            />
               {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
               {proVoice && (
                 <Button
@@ -137,7 +151,11 @@ export function SummaryView({
           <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {voice === "i" ? "What I did" : "What you did"}
           </h2>
-          <SummaryBullets tasks={summary.tasks} voice={voice} />
+          <SummaryBullets
+            tasks={summary.tasks}
+            voice={voice}
+            projectId={projectId}
+          />
         </div>
       )}
     </FadeIn>

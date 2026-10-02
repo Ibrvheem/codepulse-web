@@ -13,6 +13,7 @@ import {
 } from "../../../../../_components/query-states";
 import { useBilling } from "../../../../../_hooks/use-billing";
 import { SummaryBullets } from "../../../_components/summary-bullets";
+import { DownloadMenu } from "../../../_components/download-menu";
 import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useCreateRecap } from "../../../_hooks/use-recaps";
@@ -116,6 +117,19 @@ export function RecapView({
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <ShareRecap recapId={recapId} />
+            <DownloadMenu
+              source={{
+                period: `${start} to ${end}`,
+                project: recap.project?.name ?? "recap",
+                title: recap.title || formatSpan(start, end),
+                message: inVoice(
+                  voice,
+                  recap.message,
+                  recap.message_first_person,
+                ),
+                tasks: recap.tasks,
+              }}
+            />
             {/* Copied text is always the "I" voice — independent of the toggle. */}
             {proVoice && (
               <Button
@@ -141,7 +155,11 @@ export function RecapView({
           <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {voice === "i" ? "What I did" : "What you did"}
           </h2>
-          <SummaryBullets tasks={recap.tasks} voice={voice} />
+          <SummaryBullets
+            tasks={recap.tasks}
+            voice={voice}
+            projectId={projectId}
+          />
         </div>
       )}
 
