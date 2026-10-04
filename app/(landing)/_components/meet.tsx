@@ -1,20 +1,22 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
+import { VideoPlayer } from "@/components/video-player";
 import { MEET_ADDON_URL } from "@/lib/meet-addon";
+import { MEET_POSTER, MEET_VIDEO } from "@/lib/videos";
 
 const POINTS = [
   {
-    title: "Your log, already open",
+    title: "Open before you are",
     detail:
-      "Yesterday's summary sits in the side panel when the call starts. Nothing to search for, nothing to remember.",
+      "Yesterday's summary is in the side panel when the call starts. Nothing to search for, nothing to remember.",
   },
   {
     title: "Every project",
     detail:
-      "Switch between projects in the panel if your standup covers more than one.",
+      "Switch between projects in the panel, mid-call, if your standup covers more than one.",
   },
   {
     title: "One click to paste",
@@ -32,30 +34,29 @@ export function MeetSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          className="text-center mb-12 lg:mb-14"
         >
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-neutral-900 leading-[1.08] tracking-[-0.03em]">
             Ready before the call starts.
           </h2>
           <p className="mt-5 text-lg md:text-xl text-neutral-500 leading-relaxed max-w-xl mx-auto">
-            Add WriteLogs to Google Meet and your daily log is in the side
-            panel, waiting, every standup.
+            Add WriteLogs to Google Meet and your daily log is in the side panel,
+            waiting, every standup. Here is the whole setup, end to end.
           </p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="rounded-xl overflow-hidden shadow-sm"
+          className="max-w-5xl mx-auto"
         >
-          <Image
-            src="/meet-panel.jpg"
-            alt="The WriteLogs side panel open during a meeting, showing the day's summary and tasks"
-            width={2400}
-            height={1559}
-            className="w-full h-auto"
+          <VideoPlayer
+            src={MEET_VIDEO}
+            poster={MEET_POSTER}
+            title="WriteLogs in Google Meet"
+            caption="1:11 · sound on"
           />
         </motion.div>
 
@@ -76,7 +77,7 @@ export function MeetSection() {
           ))}
         </div>
 
-        <div className="mt-14 text-center">
+        <div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-5">
           <a
             href={MEET_ADDON_URL}
             target="_blank"
@@ -85,6 +86,12 @@ export function MeetSection() {
           >
             Add WriteLogs to Meet
           </a>
+          <Link
+            href="/google-meet"
+            className="text-[15px] font-medium text-neutral-900 hover:opacity-70 transition-opacity"
+          >
+            How the add-on works &rarr;
+          </Link>
         </div>
       </div>
     </section>

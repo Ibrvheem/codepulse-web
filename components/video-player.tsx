@@ -286,7 +286,9 @@ export function VideoPlayer({ src, poster, title, caption, className }: Props) {
                 className="absolute inset-0 animate-ping rounded-full bg-white/40 motion-reduce:animate-none"
               />
             )}
-            <svg viewBox="0 0 24 24" className="relative ml-1 size-7 fill-current">
+            {/* No optical nudge: the path's centroid already sits on the
+                viewBox centre, so a margin only pushes it off. */}
+            <svg viewBox="0 0 24 24" className="relative size-7 fill-current">
               <path d="M8 5.5v13a1 1 0 0 0 1.53.85l10.2-6.5a1 1 0 0 0 0-1.7L9.53 4.65A1 1 0 0 0 8 5.5Z" />
             </svg>
           </span>

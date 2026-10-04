@@ -3,7 +3,7 @@ import Image from "next/image";
 
 import { EditorGrid } from "@/components/editor-links";
 import { VideoPlayer } from "@/components/video-player";
-import { HOWTO_POSTER, HOWTO_VIDEO } from "@/app/(landing)/setup/_components/setup-video";
+import { HOWTO_POSTER, HOWTO_VIDEO } from "@/lib/videos";
 import { buttonVariants } from "@/components/ui/button";
 import { MEET_ADDON_URL } from "@/lib/meet-addon";
 import { cn } from "@/lib/utils";
