@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     })),
     { url: `${BASE}/setup`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/google-meet`, changeFrequency: "monthly", priority: 0.8 },
     {
       url: `${BASE}/daily-standup-update`,
       changeFrequency: "monthly",

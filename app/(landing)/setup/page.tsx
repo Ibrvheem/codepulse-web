@@ -13,7 +13,8 @@ import {
   faqJsonLd,
   type Faq,
 } from "../_components/marketing";
-import { HOWTO_POSTER, HOWTO_VIDEO, SetupVideo } from "./_components/setup-video";
+import { HOWTO_POSTER, HOWTO_VIDEO } from "@/lib/videos";
+import { SetupVideo } from "./_components/setup-video";
 
 const SITE = "https://www.writelogs.com";
 const TITLE = "How to set up WriteLogs";
@@ -49,6 +50,10 @@ const STEPS = [
   {
     title: "Read your summary",
     body: "When your workday ends, WriteLogs writes it up: what you built, what you fixed, and the small things you'd forget by morning. It's on your dashboard and in your inbox before standup.",
+  },
+  {
+    title: "Optional: add it to Google Meet",
+    body: "If you do standup on Meet, install the add-on from the Workspace Marketplace and your summary opens in the meeting side panel. One click, same Google account, and you never go looking for it mid-call.",
   },
 ];
 
@@ -144,6 +149,11 @@ export default function SetupPage() {
 
       <RelatedLinks
         items={[
+          {
+            href: "/google-meet",
+            title: "WriteLogs for Google Meet",
+            note: "Put your summary in the meeting side panel, open before standup starts.",
+          },
           {
             href: "/daily-standup-update",
             title: "Writing a daily standup update",

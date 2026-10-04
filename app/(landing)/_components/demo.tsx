@@ -3,8 +3,7 @@
 import { motion } from "framer-motion";
 
 import { VideoPlayer } from "@/components/video-player";
-
-const BLOB = "https://g7fmczfexytl55tg.public.blob.vercel-storage.com/demo";
+import { DEMO_POSTER, DEMO_VIDEO } from "@/lib/videos";
 
 export function DemoSection() {
   return (
@@ -33,8 +32,8 @@ export function DemoSection() {
           transition={{ duration: 0.7, delay: 0.1 }}
         >
           <VideoPlayer
-            src={`${BLOB}/writelogs-demo-1080.mp4`}
-            poster={`${BLOB}/writelogs-demo-poster.webp`}
+            src={DEMO_VIDEO}
+            poster={DEMO_POSTER}
             title="WriteLogs, end to end"
             caption="53 seconds · sound on"
           />
