@@ -30,12 +30,14 @@ import {
 } from "@/components/ui/tooltip";
 import { useBilling } from "../_hooks/use-billing";
 import { BILLING_PATH } from "../_hooks/use-upgrade-toast";
+import { useFeedbackMe } from "../dashboard/feedback/_hooks/use-feedback-me";
 
 export function Topbar() {
   const router = useRouter();
   const user = getStoredUser();
   const { theme, setTheme } = useTheme();
   const { data: billing } = useBilling();
+  const { data: me } = useFeedbackMe();
 
   const logout = useMutation({
     mutationFn: auth.logout,
@@ -142,6 +144,11 @@ export function Topbar() {
             <DropdownMenuItem asChild>
               <Link href="/dashboard/feedback">Feedback</Link>
             </DropdownMenuItem>
+            {me?.is_admin && (
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/creators">Creators</Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link href="/">Website</Link>
             </DropdownMenuItem>

@@ -176,6 +176,11 @@ export default function AutomateDailyStandupPage() {
       <RelatedLinks
         items={[
           {
+            href: "/git-log-to-standup",
+            title: "Turn your git log into a standup",
+            note: "Free tool. Paste git log, get an update you can read out.",
+          },
+          {
             href: "/daily-standup-update",
             title: "How to write a daily standup update",
             note: "The three questions, and what a good answer sounds like.",

@@ -344,3 +344,142 @@ export type FeedbackVoteResult = {
   vote_count: number;
   has_voted: boolean;
 };
+
+// ---------------------------------------------------------------------------
+// Creator acquisition (admin only)
+// ---------------------------------------------------------------------------
+
+export const creatorStatusSchema = z.enum([
+  "DISCOVERED",
+  "SHORTLISTED",
+  "CONTACTED",
+  "REPLIED",
+  "TRIAL_SENT",
+  "ACTIVATED",
+  "SHARED",
+  "CONVERTED",
+  "REJECTED",
+]);
+export type CreatorStatus = z.infer<typeof creatorStatusSchema>;
+export type CreatorSort = "score" | "new";
+
+export type CreatorPost = {
+  title?: string;
+  url?: string;
+  text?: string;
+  posted_at?: string;
+  reactions?: number;
+  comments?: number;
+};
+
+/** Only what the creator lists publicly. */
+export type CreatorContact = {
+  email?: string;
+  website?: string;
+  twitter?: string;
+  github?: string;
+};
+
+export type ReferralStats = {
+  /** Times the link was opened. */
+  clicks: number;
+  /** Accounts that claimed it. */
+  signups: number;
+  /** Of those, sent editor activity. */
+  activations: number;
+  /** Summaries and recaps they shared publicly. */
+  shares: number;
+  /** Of those, on a paid plan. */
+  paid: number;
+};
+
+export type CreatorReferral = ReferralStats & {
+  code: string;
+  url: string;
+  grant_days: number;
+};
+
+export type CreatorScoreDimension =
+  | "developer_relevance"
+  | "actively_building"
+  | "documents_publicly"
+  | "audience_relevance"
+  | "recent_activity"
+  | "engagement"
+  | "writelogs_fit";
+
+export type Creator = {
+  id: string;
+  platform: string;
+  username: string;
+  name: string;
+  profile_url: string;
+  avatar_url: string | null;
+  followers: number | null;
+  bio: string;
+  recent_posts: CreatorPost[];
+  engagement: string | null;
+  current_project: string | null;
+  /** Where they were found, e.g. "devto: #100daysofcode". */
+  source: string;
+  contact: CreatorContact;
+  status: CreatorStatus;
+  /** 0-100, null until scored. */
+  score: number | null;
+  /** The 0-10 grades the score is weighted from. */
+  score_breakdown: Record<CreatorScoreDimension, number> | null;
+  score_reason: string | null;
+  fit_reason: string | null;
+  scored_at: string | null;
+  /** A background score is in flight; poll until it clears. */
+  scoring: boolean;
+  outreach_draft: string | null;
+  notes: string | null;
+  contacted_at: string | null;
+  referral: CreatorReferral | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreatorProvider = { id: string; label: string; hint: string };
+
+export type CreatorOverview = {
+  funnel: {
+    discovered: number;
+    high_fit: number;
+    contacted: number;
+    trials: number;
+    activated: number;
+    shared: number;
+    converted: number;
+  };
+  by_status: Record<CreatorStatus, number>;
+  /** Every creator link summed. */
+  referrals: ReferralStats;
+  todays_prospects: Creator[];
+  providers: CreatorProvider[];
+  high_fit_score: number;
+};
+
+export type CreatorDiscovery = { found: number; added: number };
+
+/** The free "paste your git log" tool: a standup written from commits alone. */
+export const gitStandupTaskSchema = z.object({
+  task: z.string(),
+  area: z.string(),
+  files: z.array(z.string()),
+});
+export const gitStandupSchema = z.object({
+  title: z.string(),
+  message: z.string(),
+  tasks: z.array(gitStandupTaskSchema),
+  commits: z.number(),
+  vague_commits: z.number(),
+  vague_example: z.string().nullable(),
+  files: z.number(),
+  gap: z
+    .object({ minutes: z.number(), before: z.string(), after: z.string() })
+    .nullable(),
+  messages_only: z.boolean(),
+});
+export type GitStandup = z.infer<typeof gitStandupSchema>;

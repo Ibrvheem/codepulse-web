@@ -41,6 +41,7 @@ const GUIDE_LINKS = [
   { href: "/daily-standup-update", label: "Daily standup updates" },
   { href: "/wakatime-alternative", label: "WriteLogs vs WakaTime" },
   { href: "/automate-daily-standup", label: "Automate your daily standup" },
+  { href: "/git-log-to-standup", label: "Git log to standup (free tool)" },
 ];
 
 function LinkColumn({
