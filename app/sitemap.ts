@@ -29,6 +29,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    {
+      url: `${BASE}/git-log-to-standup`,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     { url: `${BASE}/privacy`, changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/terms`, changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/refunds`, changeFrequency: "monthly", priority: 0.3 },

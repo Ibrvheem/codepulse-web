@@ -12,6 +12,11 @@ import {
   type Billing,
   type BillingCheckout,
   type CreatedPatKey,
+  type Creator,
+  type CreatorDiscovery,
+  type CreatorOverview,
+  type CreatorSort,
+  type CreatorStatus,
   type FeedbackCategory,
   type FeedbackComment,
   type FeedbackMe,
@@ -27,6 +32,7 @@ import {
   type SummaryList,
   type UpdateUsage,
   type GenerateSummaryResponse,
+  type GitStandup,
   type LogEntry,
   type Paginated,
   type PatKey,
@@ -485,6 +491,13 @@ export const billing = {
     (await publicRequest<Promo>(`/billing/promo/${encodeURIComponent(code)}`))
       .data,
 
+  /** Public: count one visit to a promo link. Feeds referral click counts. */
+  promoClick: async (code: string) => {
+    await publicRequest(`/billing/promo/${encodeURIComponent(code)}/click`, {
+      method: "POST",
+    });
+  },
+
   /** Claim a promo link for the signed-in user; extends their Pro grant. */
   redeemPromo: async (code: string) =>
     (
@@ -693,4 +706,89 @@ export const feedback = {
       method: "PATCH",
       body: JSON.stringify(payload),
     })).data,
+};
+
+/** Admin only: every call 403s for anyone outside ADMIN_EMAILS. */
+export const creators = {
+  overview: async () =>
+    (await request<CreatorOverview>("/creators/overview")).data,
+
+  list: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: CreatorStatus;
+    q?: string;
+    sort?: CreatorSort;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.status) query.set("status", params.status);
+    if (params?.q) query.set("q", params.q);
+    if (params?.sort) query.set("sort", params.sort);
+    const qs = query.toString();
+    const body = await request<Creator[]>(`/creators${qs ? `?${qs}` : ""}`);
+    return { data: body.data, meta: body.meta! } satisfies Paginated<Creator>;
+  },
+
+  get: async (id: string) => (await request<Creator>(`/creators/${id}`)).data,
+
+  /** Searches one source and adds anyone new; scoring follows in the background. */
+  discover: async (payload: { provider: string; query: string; limit?: number }) =>
+    (await request<CreatorDiscovery>("/creators/discover", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+
+  create: async (payload: {
+    platform: string;
+    username: string;
+    profile_url: string;
+    name?: string;
+    followers?: number;
+    bio?: string;
+    posts?: string;
+    email?: string;
+  }) =>
+    (await request<Creator>("/creators", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).data,
+
+  update: async (
+    id: string,
+    payload: { status?: CreatorStatus; notes?: string; outreach_draft?: string },
+  ) =>
+    (await request<Creator>(`/creators/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    })).data,
+
+  score: async (id: string) =>
+    (await request<Creator>(`/creators/${id}/score`, { method: "POST" })).data,
+
+  /** Drafts a message for review. Nothing is ever sent by the API. */
+  outreach: async (id: string) =>
+    (await request<Creator>(`/creators/${id}/outreach`, { method: "POST" }))
+      .data,
+
+  /** Creates the referral link if there isn't one. */
+  referral: async (id: string) =>
+    (await request<Creator>(`/creators/${id}/referral`, { method: "POST" }))
+      .data,
+
+  /** Referral link plus the move to Trial sent. */
+  trial: async (id: string) =>
+    (await request<Creator>(`/creators/${id}/trial`, { method: "POST" })).data,
+};
+
+/** Free tools on the marketing site. Public: no account, nothing stored. */
+export const tools = {
+  gitStandup: async (log: string) =>
+    (
+      await publicRequest<GitStandup>("/tools/git-standup", {
+        method: "POST",
+        body: JSON.stringify({ log }),
+      })
+    ).data,
 };
