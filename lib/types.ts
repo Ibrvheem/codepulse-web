@@ -483,3 +483,32 @@ export const gitStandupSchema = z.object({
   messages_only: z.boolean(),
 });
 export type GitStandup = z.infer<typeof gitStandupSchema>;
+
+/** One project week in numbers, the source of the "your week" roast. */
+export const weekSchema = z.object({
+  start: z.string(),
+  end: z.string(),
+  project_name: z.string(),
+  author_name: z.string(),
+  shipped: z.number(),
+  days_active: z.number(),
+  days: z.array(
+    z.object({ day: z.string(), tasks: z.number(), commits: z.number() }),
+  ),
+  commits: z.number(),
+  vague_commits: z.number(),
+  top_commit_message: z
+    .object({ message: z.string(), count: z.number() })
+    .nullable(),
+  late_commits: z.number(),
+  weekend_commits: z.number(),
+  files: z.number(),
+  top_file: z.object({ path: z.string(), edits: z.number() }).nullable(),
+  areas: z.array(z.object({ area: z.string(), tasks: z.number() })),
+  longest_task: z.string().nullable(),
+  /** This week's persona's lines, written for this week. Null: use stock lines. */
+  roast: z
+    .object({ persona_id: z.string(), lines: z.record(z.string(), z.string()) })
+    .nullable(),
+});
+export type Week = z.infer<typeof weekSchema>;
