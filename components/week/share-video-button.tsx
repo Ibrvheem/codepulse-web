@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import type { WeekVideo } from "@/lib/types";
@@ -23,8 +24,22 @@ export function ShareVideoButton({
   const share = async () => {
     if (!video?.url) return;
     track("week_video_share_clicked");
+    let blob: Blob;
     try {
-      const blob = await (await fetch(video.url)).blob();
+      const res = await fetch(video.url);
+      if (!res.ok) throw new Error(`video ${res.status}`);
+      blob = await res.blob();
+    } catch {
+      // The file could not be read in the browser (storage CORS, network):
+      // open it directly so the person still gets their video.
+      track("week_video_fetch_failed");
+      toast.info(
+        "Opening the video in a new tab. Save it from there to post it.",
+      );
+      window.open(video.url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    try {
       const file = new File([blob], fileName, { type: "video/mp4" });
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], text });
