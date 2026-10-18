@@ -33,6 +33,7 @@ import {
   type UpdateUsage,
   type GenerateSummaryResponse,
   type GitStandup,
+  type Week,
   type LogEntry,
   type Paginated,
   type PatKey,
@@ -791,4 +792,27 @@ export const tools = {
         body: JSON.stringify({ log }),
       })
     ).data,
+};
+
+/** A project's week in numbers, and a public link to it. */
+export const weeks = {
+  /** `day` is any day in the wanted week; omit for this week. */
+  get: async (projectId: string, day?: string) =>
+    (
+      await request<Week>(
+        `/weeks/project/${projectId}${day ? `?day=${day}` : ""}`,
+      )
+    ).data,
+
+  share: async (projectId: string, day?: string) =>
+    (
+      await request<ShareLink>(
+        `/weeks/project/${projectId}/share${day ? `?day=${day}` : ""}`,
+        { method: "POST" },
+      )
+    ).data,
+
+  /** Public, unauthenticated: the /w/[token] page and its image. */
+  shared: async (token: string) =>
+    (await publicRequest<Week>(`/weeks/shared/${token}`)).data,
 };
