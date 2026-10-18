@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WeekStory } from "@/components/week/week-story";
 import { ShareVideoButton } from "@/components/week/share-video-button";
+import { personaFor } from "@/lib/week-personas";
 import { shareText, weekLabel } from "@/lib/week-roast";
+import type { Week } from "@/lib/types";
 import { ErrorState } from "../../../_components/query-states";
 import {
-  useRenderWeekVideo,
   useShareWeek,
   useWeek,
   useWeekToken,
@@ -28,7 +30,6 @@ function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
   const share = useShareWeek(projectId, day);
   const { data: week } = useWeek(projectId, day);
   const { data: video } = useWeekVideo(projectId, day);
-  const render = useRenderWeekVideo(projectId, day);
 
   const copy = async () => {
     const link = await share.mutateAsync();
@@ -39,30 +40,14 @@ function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
       toast.info(link.url);
     }
   };
-  const post = async () => {
-    const link = await share.mutateAsync();
-    if (!week) return;
-    const url = `https://x.com/intent/post?text=${encodeURIComponent(shareText(week, link.url))}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row">
       <ShareVideoButton
         video={video}
-        rendering={render.isPending}
-        onRender={() => render.mutate()}
         text={week ? shareText(week, "https://writelogs.com") : ""}
         fileName={`writelogs-week-${week?.start ?? "roast"}.mp4`}
       />
-      <Button
-        variant="outline"
-        onClick={post}
-        disabled={share.isPending}
-        className="flex-1"
-      >
-        Post link on X
-      </Button>
       <Button
         variant="outline"
         onClick={copy}
@@ -71,6 +56,27 @@ function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
       >
         Copy link
       </Button>
+    </div>
+  );
+}
+
+/** Before Friday: who is coming, and when. Nothing to tap. */
+function Waiting({ week }: { week: Week }) {
+  const persona = personaFor(week.start);
+  return (
+    <div className="mx-auto flex w-full max-w-[380px] flex-col items-center rounded-[2rem] border border-dashed px-8 py-16 text-center">
+      <Image
+        src="/loggy/loggy-tired.png"
+        alt=""
+        width={96}
+        height={96}
+        className="mb-6"
+      />
+      <p className="font-medium">{persona.name} is still watching.</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Your roast lands Friday at 5pm, your time. Keep shipping. Or don&apos;t.{" "}
+        {persona.name.replace("The ", "The ")} will have thoughts either way.
+      </p>
     </div>
   );
 }
@@ -139,6 +145,8 @@ export function WeekTab({ projectId }: { projectId: string }) {
         <div className="mx-auto w-full max-w-[380px]">
           <Skeleton className="aspect-[9/16] w-full rounded-[2rem]" />
         </div>
+      ) : !week.roast ? (
+        <Waiting week={week} />
       ) : (
         <WeekStory
           key={`${week.start}:${link?.token ?? ""}`}

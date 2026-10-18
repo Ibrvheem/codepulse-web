@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { weeks } from "@/lib/api-client";
 import { track } from "@/lib/analytics";
@@ -43,17 +43,5 @@ export function useWeekVideo(projectId: string, day?: string) {
     queryFn: () => weeks.video(projectId, day),
     refetchInterval: (query) =>
       query.state.data?.status === "rendering" ? 4000 : false,
-  });
-}
-
-export function useRenderWeekVideo(projectId: string, day?: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: () => weeks.renderVideo(projectId, day),
-    onSuccess: (video) => {
-      queryClient.setQueryData(videoKey(projectId, day), video);
-      track("week_video_requested", { project_id: projectId });
-    },
-    onError: (error) => toast.error(error.message),
   });
 }

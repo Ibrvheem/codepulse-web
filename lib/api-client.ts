@@ -889,16 +889,7 @@ export const weeks = {
       )
     ).data,
 
-  /** Start rendering; returns at once. Poll `video` until ready. */
-  renderVideo: async (projectId: string, day?: string) =>
-    (
-      await request<WeekVideo>(
-        `/weeks/project/${projectId}/video${day ? `?day=${day}` : ""}`,
-        { method: "POST" },
-      )
-    ).data,
-
-  /** A shared week's video, if its owner rendered one. Public. */
+  /** A shared week's video, once the Friday job has rendered it. Public. */
   sharedVideo: async (token: string) =>
     (await publicRequest<WeekVideo>(`/weeks/shared/${token}/video`)).data,
 };
