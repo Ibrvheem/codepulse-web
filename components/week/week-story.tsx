@@ -211,8 +211,6 @@ export function WeekStory({
   const [startedAt, setStartedAt] = useState(() => Date.now());
   // The slide whose audio has finished. Voiced slides hold until then.
   const [spokenIndex, setSpokenIndex] = useState(-1);
-  // How far through its line the current slide's voice is, 0..1.
-  const [audioProgress, setAudioProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const last = index === slides.length - 1;
   const playing = started && !last;
@@ -223,15 +221,11 @@ export function WeekStory({
   // `now` is 0 until the clock's first tick, on the server and on the first
   // client render alike, so both render the bar at 0% and hydration matches.
   const elapsed = onClock && now > 0 ? Math.max(0, now - startedAt) : 0;
-  const progress = onClock
-    ? Math.min(1, elapsed / AUTO_ADVANCE_MS)
-    : audioProgress;
 
   const go = (next: number) => {
     const clamped = Math.max(0, Math.min(slides.length - 1, next));
     setIndex(clamped);
     setStartedAt(Date.now());
-    setAudioProgress(0);
   };
   if (onClock && elapsed >= AUTO_ADVANCE_MS) {
     go(index + 1);
@@ -257,32 +251,7 @@ export function WeekStory({
         transition={{ duration: 0.45, ease: EASE_OUT }}
         className="relative aspect-[9/16] w-full select-none overflow-hidden rounded-[2rem] shadow-2xl"
       >
-        <div className="absolute inset-x-0 top-0 z-20 flex gap-1 px-4 pt-4">
-          {slides.map((s, i) => (
-            <div
-              key={s.key}
-              className="h-[3px] flex-1 overflow-hidden rounded-full bg-current opacity-90"
-              style={{ backgroundColor: `${palette.fg}33` }}
-            >
-              <div
-                className="h-full"
-                style={{
-                  backgroundColor: palette.fg,
-                  width:
-                    i < index
-                      ? "100%"
-                      : i === index
-                        ? last
-                          ? "100%"
-                          : `${progress * 100}%`
-                        : "0%",
-                }}
-              />
-            </div>
-          ))}
-        </div>
-
-        <p className="absolute left-6 top-9 z-20 text-[11px] font-semibold tracking-tight opacity-70">
+        <p className="absolute left-6 top-6 z-20 text-[11px] font-semibold tracking-tight opacity-70">
           WriteLogs
         </p>
 
@@ -316,12 +285,6 @@ export function WeekStory({
               autoPlay={started}
               muted={muted}
               preload="auto"
-              onTimeUpdate={(e) => {
-                const el = e.currentTarget;
-                if (el.duration > 0) {
-                  setAudioProgress(Math.min(1, el.currentTime / el.duration));
-                }
-              }}
               onEnded={() => setSpokenIndex(index)}
               onError={() => setSpokenIndex(index)}
             />
@@ -332,7 +295,7 @@ export function WeekStory({
               type="button"
               aria-label={muted ? "Unmute" : "Mute"}
               onClick={() => setMuted((m) => !m)}
-              className="absolute right-5 top-8 z-30 opacity-70 transition-opacity hover:opacity-100"
+              className="absolute right-5 top-5 z-30 opacity-70 transition-opacity hover:opacity-100"
             >
               {muted ? (
                 <VolumeX className="size-4" />

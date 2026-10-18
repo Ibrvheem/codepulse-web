@@ -15,6 +15,10 @@ import { readVoice, writeVoice } from "@/lib/voice-store";
  * synthesised exactly once, ever; memory and the CDN are just faster paths.
  */
 
+// A long line can take ElevenLabs 20 seconds or more; Vercel's default
+// function limit is shorter than that and would cut the voice off.
+export const maxDuration = 60;
+
 const ELEVENLABS = "https://api.elevenlabs.io/v1/text-to-speech";
 // Only v3 understands audio tags like [sighs]; older models read them aloud.
 // v3 does not yet accept previous_text/next_text for continuity between
