@@ -4,14 +4,15 @@ import { createHash } from "crypto";
 import { weeks } from "@/lib/api-client";
 import { personaById, personaFor } from "@/lib/week-personas";
 import { slidesFor } from "@/lib/week-roast";
+import { readVoice, writeVoice } from "@/lib/voice-store";
 
 /**
  * The voice for one slide of a shared week, as MP3.
  *
  * Takes the week's share token rather than free text, so the only lines
  * anyone can have synthesised are lines a real week produced. The key stays
- * on the server. Audio is cached per line in memory and at the CDN, so the
- * intro and sign-off, which every user of a persona shares, cost once.
+ * on the server. Every line is kept in R2 under a hash of its text, so it is
+ * synthesised exactly once, ever; memory and the CDN are just faster paths.
  */
 
 const ELEVENLABS = "https://api.elevenlabs.io/v1/text-to-speech";
@@ -36,6 +37,12 @@ async function synthesise(
   const key = createHash("sha1").update(`${voiceId}:${text}`).digest("hex");
   const hit = cache.get(key);
   if (hit) return hit;
+  // Paid for once: anything synthesised before is in R2 under its hash.
+  const stored = await readVoice(key);
+  if (stored) {
+    cache.set(key, stored);
+    return stored;
+  }
 
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) throw new Error("ELEVENLABS_API_KEY is not set");
@@ -61,6 +68,7 @@ async function synthesise(
     );
   }
   const audio = await res.arrayBuffer();
+  await writeVoice(key, audio);
   if (cache.size >= MAX_CACHE) {
     const oldest = cache.keys().next().value;
     if (oldest) cache.delete(oldest);
