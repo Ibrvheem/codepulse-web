@@ -82,7 +82,7 @@ function Waiting({ week }: { week: Week }) {
 }
 
 export function WeekTab({ projectId }: { projectId: string }) {
-  // undefined = this week; otherwise any day inside the wanted week.
+  // undefined = the latest roasted week; otherwise any day inside the wanted week.
   const [day, setDay] = useState<string | undefined>(undefined);
   const {
     data: week,
@@ -127,14 +127,14 @@ export function WeekTab({ projectId }: { projectId: string }) {
           <Button
             variant="outline"
             size="sm"
-            disabled={!week || !day}
-            onClick={() => {
-              if (!week) return;
-              const next = shiftDay(week.start, 7);
-              setDay(
-                next > new Date().toISOString().slice(0, 10) ? undefined : next,
-              );
-            }}
+            // With no day picked the API shows the latest roasted week, which
+            // can be behind today, so "Next" is allowed whenever a later week
+            // has started.
+            disabled={
+              !week ||
+              shiftDay(week.start, 7) > new Date().toISOString().slice(0, 10)
+            }
+            onClick={() => week && setDay(shiftDay(week.start, 7))}
           >
             Next
           </Button>
