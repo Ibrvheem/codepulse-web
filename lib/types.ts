@@ -512,3 +512,11 @@ export const weekSchema = z.object({
     .nullable(),
 });
 export type Week = z.infer<typeof weekSchema>;
+
+/** A week's rendered video: ready with a URL, still rendering, failed, or never asked for. */
+export const weekVideoSchema = z.object({
+  status: z.enum(["ready", "rendering", "failed", "none"]),
+  url: z.string().optional(),
+  reason: z.string().optional(),
+});
+export type WeekVideo = z.infer<typeof weekVideoSchema>;

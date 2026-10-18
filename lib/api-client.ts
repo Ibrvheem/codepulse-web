@@ -34,6 +34,7 @@ import {
   type GenerateSummaryResponse,
   type GitStandup,
   type Week,
+  type WeekVideo,
   type LogEntry,
   type Paginated,
   type PatKey,
@@ -50,13 +51,13 @@ import {
 import type { Meta } from "./schemas";
 import { identifyUser, resetAnalytics } from "./analytics";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9308";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9308";
 
 const REFRESH_TOKEN_KEY = "writelogs.refresh_token";
 const USER_KEY = "writelogs.user";
 
-export const SESSION_EXPIRED_MESSAGE = "Your session has expired. Sign in again.";
+export const SESSION_EXPIRED_MESSAGE =
+  "Your session has expired. Sign in again.";
 const UNREACHABLE_MESSAGE =
   "Can't reach the WriteLogs API. Check your connection and try again.";
 
@@ -179,8 +180,7 @@ export function getStoredUser(): User | null {
 
 async function parseEnvelope<T>(res: Response): Promise<Envelope<T>> {
   const body = (await res.json().catch(() => null)) as
-    | (Partial<Envelope<T>> & { message?: string | string[] })
-    | null;
+    (Partial<Envelope<T>> & { message?: string | string[] }) | null;
 
   if (body && typeof body === "object" && "success" in body) {
     return body as Envelope<T>;
@@ -238,7 +238,9 @@ function withRefreshLock<T>(fn: () => Promise<T>): Promise<T> {
   // request() resolves with whatever the callback resolves with; its typings
   // just don't unwrap a promise-returning callback.
   return locks
-    ? (locks.request("writelogs-refresh", fn) as Promise<Awaited<T>> as Promise<T>)
+    ? (locks.request("writelogs-refresh", fn) as Promise<
+        Awaited<T>
+      > as Promise<T>)
     : fn();
 }
 
@@ -331,10 +333,13 @@ export const auth = {
     email: string;
     full_name: string;
     password: string;
-  }) => (await publicRequest<Record<string, never>>("/auth/signup", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  })).message,
+  }) =>
+    (
+      await publicRequest<Record<string, never>>("/auth/signup", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).message,
 
   signin: async (payload: { email: string; password: string }) => {
     const body = await publicRequest<SigninResponse>("/auth/signin", {
@@ -366,31 +371,42 @@ export const auth = {
   },
 
   resendOtp: async (payload: { email: string }) =>
-    (await publicRequest<Record<string, never>>("/auth/resend-otp", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).message,
+    (
+      await publicRequest<Record<string, never>>("/auth/resend-otp", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).message,
 
   forgotPassword: async (payload: { email: string }) =>
-    (await publicRequest<Record<string, never>>("/auth/forgot-password", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).message,
+    (
+      await publicRequest<Record<string, never>>("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).message,
 
   verifyResetOtp: async (payload: { email: string; otp: string }) =>
-    (await publicRequest<{ reset_token: string }>("/auth/verify-reset-otp", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await publicRequest<{ reset_token: string }>("/auth/verify-reset-otp", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   // Authenticated by the short-lived reset token from verifyResetOtp, not the
   // session — so it goes through publicRequest with an explicit header.
-  resetPassword: async (payload: { reset_token: string; new_password: string }) =>
-    (await publicRequest<Record<string, never>>("/auth/reset-password", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${payload.reset_token}` },
-      body: JSON.stringify({ new_password: payload.new_password }),
-    })).message,
+  resetPassword: async (payload: {
+    reset_token: string;
+    new_password: string;
+  }) =>
+    (
+      await publicRequest<Record<string, never>>("/auth/reset-password", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${payload.reset_token}` },
+        body: JSON.stringify({ new_password: payload.new_password }),
+      })
+    ).message,
 
   logout: async () => {
     const refresh_token = getRefreshToken();
@@ -418,10 +434,12 @@ export const projects = {
     summary_time?: string;
     repo_url?: string;
   }) =>
-    (await request<Project>("/projects", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<Project>("/projects", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   update: async (
     id: string,
@@ -431,15 +449,19 @@ export const projects = {
       name?: string;
     },
   ) =>
-    (await request<Project>(`/projects/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<Project>(`/projects/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   remove: async (id: string) =>
-    (await request<Record<string, never>>(`/projects/${id}`, {
-      method: "DELETE",
-    })).message,
+    (
+      await request<Record<string, never>>(`/projects/${id}`, {
+        method: "DELETE",
+      })
+    ).message,
 
   logs: async (id: string, params?: { page?: number; limit?: number }) => {
     const body = await request<LogEntry[]>(
@@ -450,7 +472,10 @@ export const projects = {
 };
 
 export const pat = {
-  list: async (projectId: string, params?: { page?: number; limit?: number }) => {
+  list: async (
+    projectId: string,
+    params?: { page?: number; limit?: number },
+  ) => {
     const body = await request<PatKey[]>(
       `/pat/project/${projectId}${paginated(params)}`,
     );
@@ -462,10 +487,12 @@ export const pat = {
     name?: string;
     expires_in_days?: number;
   }) =>
-    (await request<CreatedPatKey>("/pat", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<CreatedPatKey>("/pat", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   revoke: async (id: string) =>
     (await request<PatKey>(`/pat/${id}`, { method: "DELETE" })).data,
@@ -484,8 +511,8 @@ export const billing = {
     (await request<BillingCheckout>("/billing/checkout")).data,
 
   portal: async () =>
-    (await request<{ url: string }>("/billing/portal", { method: "POST" }))
-      .data.url,
+    (await request<{ url: string }>("/billing/portal", { method: "POST" })).data
+      .url,
 
   /** Public: what a promo link grants. Throws ApiError 404 for an unknown code. */
   promo: async (code: string) =>
@@ -548,10 +575,12 @@ export const summaries = {
     (await request<UpdateUsage>(`/summaries/project/${projectId}/usage`)).data,
 
   generate: async (payload: { project_id: string; include_today?: boolean }) =>
-    (await request<GenerateSummaryResponse>("/summaries/generate", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<GenerateSummaryResponse>("/summaries/generate", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 };
 
 export const areas = {
@@ -561,10 +590,12 @@ export const areas = {
 
   /** Renaming onto an existing name merges the two. */
   rename: async (projectId: string, payload: { from: string; to: string }) =>
-    (await request<RenameAreaResult>(`/areas/project/${projectId}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<RenameAreaResult>(`/areas/project/${projectId}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 };
 
 export const recaps = {
@@ -591,10 +622,12 @@ export const recaps = {
     start_date: string;
     end_date: string;
   }) =>
-    (await request<Recap>("/recaps", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<Recap>("/recaps", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   remove: async (id: string) => {
     await request(`/recaps/${id}`, { method: "DELETE" });
@@ -635,8 +668,13 @@ export const feedback = {
     if (params?.sort) query.set("sort", params.sort);
     if (params?.mine) query.set("mine", "true");
     const qs = query.toString();
-    const body = await request<FeedbackPost[]>(`/feedback${qs ? `?${qs}` : ""}`);
-    return { data: body.data, meta: body.meta! } satisfies Paginated<FeedbackPost>;
+    const body = await request<FeedbackPost[]>(
+      `/feedback${qs ? `?${qs}` : ""}`,
+    );
+    return {
+      data: body.data,
+      meta: body.meta!,
+    } satisfies Paginated<FeedbackPost>;
   },
 
   get: async (id: string) =>
@@ -647,19 +685,23 @@ export const feedback = {
     body: string;
     category?: FeedbackCategory;
   }) =>
-    (await request<FeedbackPost>("/feedback", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<FeedbackPost>("/feedback", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   update: async (
     id: string,
     payload: { title?: string; body?: string; category?: FeedbackCategory },
   ) =>
-    (await request<FeedbackPost>(`/feedback/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<FeedbackPost>(`/feedback/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   remove: async (id: string) =>
     (await request<{ id: string }>(`/feedback/${id}`, { method: "DELETE" }))
@@ -667,13 +709,17 @@ export const feedback = {
 
   // Both idempotent — a double-click lands on the same state.
   vote: async (id: string) =>
-    (await request<FeedbackVoteResult>(`/feedback/${id}/vote`, {
-      method: "POST",
-    })).data,
+    (
+      await request<FeedbackVoteResult>(`/feedback/${id}/vote`, {
+        method: "POST",
+      })
+    ).data,
   unvote: async (id: string) =>
-    (await request<FeedbackVoteResult>(`/feedback/${id}/vote`, {
-      method: "DELETE",
-    })).data,
+    (
+      await request<FeedbackVoteResult>(`/feedback/${id}/vote`, {
+        method: "DELETE",
+      })
+    ).data,
 
   /** Oldest first. */
   comments: async (id: string, params?: { page?: number; limit?: number }) => {
@@ -687,26 +733,31 @@ export const feedback = {
   },
 
   addComment: async (id: string, payload: { body: string }) =>
-    (await request<FeedbackComment>(`/feedback/${id}/comments`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<FeedbackComment>(`/feedback/${id}/comments`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   removeComment: async (id: string, commentId: string) =>
-    (await request<{ id: string }>(
-      `/feedback/${id}/comments/${commentId}`,
-      { method: "DELETE" },
-    )).message,
+    (
+      await request<{ id: string }>(`/feedback/${id}/comments/${commentId}`, {
+        method: "DELETE",
+      })
+    ).message,
 
   /** Admin only. Planned / In progress / Done email the author server-side. */
   setStatus: async (
     id: string,
     payload: { status: FeedbackStatus; note?: string },
   ) =>
-    (await request<FeedbackPost>(`/feedback/${id}/status`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<FeedbackPost>(`/feedback/${id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 };
 
 /** Admin only: every call 403s for anyone outside ADMIN_EMAILS. */
@@ -735,11 +786,17 @@ export const creators = {
   get: async (id: string) => (await request<Creator>(`/creators/${id}`)).data,
 
   /** Searches one source and adds anyone new; scoring follows in the background. */
-  discover: async (payload: { provider: string; query: string; limit?: number }) =>
-    (await request<CreatorDiscovery>("/creators/discover", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+  discover: async (payload: {
+    provider: string;
+    query: string;
+    limit?: number;
+  }) =>
+    (
+      await request<CreatorDiscovery>("/creators/discover", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   create: async (payload: {
     platform: string;
@@ -751,19 +808,27 @@ export const creators = {
     posts?: string;
     email?: string;
   }) =>
-    (await request<Creator>("/creators", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<Creator>("/creators", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   update: async (
     id: string,
-    payload: { status?: CreatorStatus; notes?: string; outreach_draft?: string },
+    payload: {
+      status?: CreatorStatus;
+      notes?: string;
+      outreach_draft?: string;
+    },
   ) =>
-    (await request<Creator>(`/creators/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    })).data,
+    (
+      await request<Creator>(`/creators/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      })
+    ).data,
 
   score: async (id: string) =>
     (await request<Creator>(`/creators/${id}/score`, { method: "POST" })).data,
@@ -815,4 +880,25 @@ export const weeks = {
   /** Public, unauthenticated: the /w/[token] page and its image. */
   shared: async (token: string) =>
     (await publicRequest<Week>(`/weeks/shared/${token}`)).data,
+
+  /** Is the week's video ready? Never starts a render. */
+  video: async (projectId: string, day?: string) =>
+    (
+      await request<WeekVideo>(
+        `/weeks/project/${projectId}/video${day ? `?day=${day}` : ""}`,
+      )
+    ).data,
+
+  /** Start rendering; returns at once. Poll `video` until ready. */
+  renderVideo: async (projectId: string, day?: string) =>
+    (
+      await request<WeekVideo>(
+        `/weeks/project/${projectId}/video${day ? `?day=${day}` : ""}`,
+        { method: "POST" },
+      )
+    ).data,
+
+  /** A shared week's video, if its owner rendered one. Public. */
+  sharedVideo: async (token: string) =>
+    (await publicRequest<WeekVideo>(`/weeks/shared/${token}/video`)).data,
 };

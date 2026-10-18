@@ -5,9 +5,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WeekStory } from "@/components/week/week-story";
+import { ShareVideoButton } from "@/components/week/share-video-button";
 import { shareText, weekLabel } from "@/lib/week-roast";
 import { ErrorState } from "../../../_components/query-states";
-import { useShareWeek, useWeek, useWeekToken } from "../_hooks/use-week";
+import {
+  useRenderWeekVideo,
+  useShareWeek,
+  useWeek,
+  useWeekToken,
+  useWeekVideo,
+} from "../_hooks/use-week";
 
 const MS_PER_DAY = 86_400_000;
 
@@ -20,6 +27,8 @@ function shiftDay(day: string, days: number): string {
 function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
   const share = useShareWeek(projectId, day);
   const { data: week } = useWeek(projectId, day);
+  const { data: video } = useWeekVideo(projectId, day);
+  const render = useRenderWeekVideo(projectId, day);
 
   const copy = async () => {
     const link = await share.mutateAsync();
@@ -39,8 +48,20 @@ function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row">
-      <Button onClick={post} disabled={share.isPending} className="flex-1">
-        Post on X
+      <ShareVideoButton
+        video={video}
+        rendering={render.isPending}
+        onRender={() => render.mutate()}
+        text={week ? shareText(week, "https://writelogs.com") : ""}
+        fileName={`writelogs-week-${week?.start ?? "roast"}.mp4`}
+      />
+      <Button
+        variant="outline"
+        onClick={post}
+        disabled={share.isPending}
+        className="flex-1"
+      >
+        Post link on X
       </Button>
       <Button
         variant="outline"
