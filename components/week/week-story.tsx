@@ -211,21 +211,33 @@ export function WeekStory({
   const [startedAt, setStartedAt] = useState(() => Date.now());
   // The slide whose audio has finished. Voiced slides hold until then.
   const [spokenIndex, setSpokenIndex] = useState(-1);
+  // How far through its line the current slide's voice is, 0..1.
+  const [audioProgress, setAudioProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const last = index === slides.length - 1;
   const playing = started && !last;
-  const now = useNow(playing);
+  // Voiced slides are paced by the audio itself; the clock only runs the
+  // silent ones, so the bar can never finish before the voice has started.
+  const onClock = playing && (!voiced || muted);
+  const now = useNow(onClock);
   // `now` is 0 until the clock's first tick, on the server and on the first
   // client render alike, so both render the bar at 0% and hydration matches.
-  const elapsed = playing && now > 0 ? Math.max(0, now - startedAt) : 0;
-  const waitingForVoice = voiced && !muted && spokenIndex < index;
+  const elapsed = onClock && now > 0 ? Math.max(0, now - startedAt) : 0;
+  const progress = onClock
+    ? Math.min(1, elapsed / AUTO_ADVANCE_MS)
+    : audioProgress;
 
   const go = (next: number) => {
     const clamped = Math.max(0, Math.min(slides.length - 1, next));
     setIndex(clamped);
     setStartedAt(Date.now());
+    setAudioProgress(0);
   };
-  if (playing && elapsed >= AUTO_ADVANCE_MS && !waitingForVoice) {
+  if (onClock && elapsed >= AUTO_ADVANCE_MS) {
+    go(index + 1);
+  }
+  // A voiced slide moves on the moment its line ends.
+  if (playing && voiced && !muted && spokenIndex === index) {
     go(index + 1);
   }
   const start = () => {
@@ -262,7 +274,7 @@ export function WeekStory({
                       : i === index
                         ? last
                           ? "100%"
-                          : `${Math.min(100, (elapsed / AUTO_ADVANCE_MS) * 100)}%`
+                          : `${progress * 100}%`
                         : "0%",
                 }}
               />
@@ -304,6 +316,12 @@ export function WeekStory({
               autoPlay={started}
               muted={muted}
               preload="auto"
+              onTimeUpdate={(e) => {
+                const el = e.currentTarget;
+                if (el.duration > 0) {
+                  setAudioProgress(Math.min(1, el.currentTime / el.duration));
+                }
+              }}
               onEnded={() => setSpokenIndex(index)}
               onError={() => setSpokenIndex(index)}
             />
@@ -371,7 +389,7 @@ export function WeekStory({
         </span>
       </div>
 
-      {last && footer ? <div className="mt-4">{footer}</div> : null}
+      {footer ? <div className="mt-4">{footer}</div> : null}
     </div>
   );
 }
