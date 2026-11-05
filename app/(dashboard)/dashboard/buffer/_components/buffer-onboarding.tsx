@@ -14,7 +14,7 @@ const STEPS = [
   },
   {
     title: "Add a channel",
-    body: "X, LinkedIn, Threads, Bluesky or Mastodon. Buffer's free plan allows three.",
+    body: "In Buffer, use Connect channels in the sidebar. The free plan allows three.",
   },
   {
     title: "Post any day",
@@ -172,7 +172,7 @@ export function BufferOnboarding({
               className="group self-start px-3.5 has-[>svg]:px-3.5"
             >
               <a
-                href="https://publish.buffer.com/channels/connect"
+                href="https://publish.buffer.com"
                 target="_blank"
                 rel="noreferrer"
               >
