@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ExternalLink, Lock, RefreshCw, Unplug } from "lucide-react";
+import { Lock, Unplug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -18,7 +17,8 @@ import {
 } from "@/components/ui/select";
 import { FadeIn } from "@/components/motion/fade-in";
 import type { BufferChannel, BufferTone } from "@/lib/types";
-import { EmptyState, ErrorState } from "../../../_components/query-states";
+import { ErrorState } from "../../../_components/query-states";
+import { BufferOnboarding } from "./buffer-onboarding";
 import {
   useBufferStatus,
   useConnectBuffer,
@@ -84,31 +84,6 @@ function Row({
       </div>
       {children && <div className={stacked ? "" : "shrink-0"}>{children}</div>}
     </div>
-  );
-}
-
-/** One numbered step on the connect page. */
-function Step({
-  n,
-  title,
-  children,
-}: {
-  n: number;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <li className="flex gap-3">
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium tabular-nums">
-        {n}
-      </span>
-      <span className="space-y-0.5">
-        <span className="block font-medium">{title}</span>
-        <span className="block text-xs text-muted-foreground max-w-prose">
-          {children}
-        </span>
-      </span>
-    </li>
   );
 }
 
@@ -246,64 +221,11 @@ export function BufferView() {
       )}
 
       {data.configured && !data.connected && (
-        <div className="space-y-6">
-          <div className="border rounded-lg p-5 bg-card space-y-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <Image
-                src="/loggy/loggy-connect.png"
-                alt="Loggy plugging a cable into a socket"
-                width={132}
-                height={100}
-                className="shrink-0 self-center"
-              />
-              <div className="space-y-1">
-                <p className="text-sm font-medium">
-                  Connect your Buffer account
-                </p>
-                <p className="text-xs text-muted-foreground max-w-prose">
-                  Buffer is where your posts queue up for X, LinkedIn, Threads,
-                  Bluesky, Mastodon and more. Link it once and WriteLogs can
-                  write posts from your log and hand them to Buffer.
-                </p>
-              </div>
-            </div>
-            <ol className="space-y-3 text-sm">
-              <Step n={1} title="Approve WriteLogs in Buffer">
-                Press the button below. Buffer asks you to allow WriteLogs to
-                read your channels and create posts. Nothing is ever published
-                without you choosing to.
-              </Step>
-              <Step n={2} title="Pick where posts go">
-                You land back here with your channels listed. Every channel you
-                tick gets its own post, written inside that network's limit.
-              </Step>
-              <Step n={3} title="Post any day or week">
-                Open a day or a recap and press Post this day. Read it, fix a
-                word, send it to Buffer as a draft, to the queue, or right now.
-              </Step>
-            </ol>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Button
-                loading={connect.isPending}
-                onClick={() => connect.mutate(returnTo)}
-              >
-                Connect Buffer
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                No Buffer account yet?{" "}
-                <a
-                  href="https://buffer.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline underline-offset-4"
-                >
-                  The free plan
-                </a>{" "}
-                is enough: connect a channel there first, then come back.
-              </p>
-            </div>
-          </div>
-        </div>
+        <BufferOnboarding
+          stage="connect"
+          onConnect={() => connect.mutate(returnTo)}
+          connecting={connect.isPending}
+        />
       )}
 
       {data.connected && (
@@ -327,51 +249,11 @@ export function BufferView() {
           )}
 
           {!hasChannels ? (
-            <EmptyState
-              image={{
-                src: "/loggy/loggy-megaphone.png",
-                alt: "Loggy holding a megaphone, looking for someone to tell",
-                width: 137,
-                height: 140,
-              }}
-              title="Buffer is connected, but it has no channels yet"
-              description="A channel is a social account Buffer posts to, like your X, LinkedIn, Threads or Bluesky. WriteLogs can't write a post until there is at least one to write it for."
-            >
-              <div className="w-full max-w-md space-y-4 text-left">
-                <ol className="space-y-3 text-sm">
-                  <Step n={1} title="Open Buffer and add a channel">
-                    Connect the account you post from. Buffer's free plan allows
-                    three.
-                  </Step>
-                  <Step n={2} title="Come back and check again">
-                    We fetch your channels fresh and list them here.
-                  </Step>
-                  <Step n={3} title="Tick the ones posts should go to">
-                    Then open any day or recap and press Post this day.
-                  </Step>
-                </ol>
-                <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-                  <Button asChild>
-                    <a
-                      href="https://publish.buffer.com/channels/connect"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <ExternalLink className="size-3.5" />
-                      Add a channel in Buffer
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    loading={status.isRefetching}
-                    onClick={() => status.refetch()}
-                  >
-                    <RefreshCw className="size-3.5" />
-                    Check again
-                  </Button>
-                </div>
-              </div>
-            </EmptyState>
+            <BufferOnboarding
+              stage="channels"
+              onRecheck={() => status.refetch()}
+              rechecking={status.isRefetching}
+            />
           ) : (
             <Section title="Channels">
               <Row
