@@ -47,9 +47,9 @@ function TaskBullet({
   const days = task.days ?? [];
   const hasDetails = Boolean(
     task.description.trim() ||
-      task.files.length > 0 ||
-      task.tags.length > 0 ||
-      days.length > 0,
+    task.files.length > 0 ||
+    task.tags.length > 0 ||
+    days.length > 0,
   );
   // Bullets arrive without a trailing period — leave them that way.
   const label = inVoice(voice, task.task, task.task_first_person);
@@ -104,7 +104,9 @@ function TaskBullet({
           <motion.div
             key="details"
             initial={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            animate={reduceMotion ? { opacity: 1 } : { height: "auto", opacity: 1 }}
+            animate={
+              reduceMotion ? { opacity: 1 } : { height: "auto", opacity: 1 }
+            }
             exit={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: EASE_OUT }}
             className="overflow-hidden"
@@ -127,7 +129,11 @@ function TaskBullet({
               {task.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {task.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-[10px]">
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="text-[10px]"
+                    >
                       {tag}
                     </Badge>
                   ))}

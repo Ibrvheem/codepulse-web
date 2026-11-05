@@ -484,6 +484,22 @@ export const gitStandupSchema = z.object({
 });
 export type GitStandup = z.infer<typeof gitStandupSchema>;
 
+/** One slide of the hook-first roast, built by the API. */
+export const storyBeatSchema = z.object({
+  /** "hook", a fact key such as "late", or "verdict" */
+  key: z.string(),
+  eyebrow: z.string(),
+  hero: z.string(),
+  /** what the persona says, audio tags kept for the voice */
+  speech: z.string(),
+  /** what the persona says, as captions */
+  caption: z.string(),
+  /** Loggy's reaction: /loggy/loggy-<pose>.png */
+  pose: z.string(),
+  score: z.number().optional(),
+});
+export type StoryBeat = z.infer<typeof storyBeatSchema>;
+
 /** One project week in numbers, the source of the "your week" roast. */
 export const weekSchema = z.object({
   start: z.string(),
@@ -510,6 +526,18 @@ export const weekSchema = z.object({
   roast: z
     .object({ persona_id: z.string(), lines: z.record(z.string(), z.string()) })
     .nullable(),
+  /** This week's persona, the same for everyone. Set by an admin in the API. */
+  persona: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      tagline: z.string(),
+      voice_id: z.string().nullable(),
+      stability: z.number(),
+    })
+    .optional(),
+  /** The roast as hook, beats and verdict. Null for older weeks. */
+  story: z.array(storyBeatSchema).nullable().optional(),
 });
 export type Week = z.infer<typeof weekSchema>;
 

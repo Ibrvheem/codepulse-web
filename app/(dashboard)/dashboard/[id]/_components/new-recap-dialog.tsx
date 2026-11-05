@@ -44,7 +44,8 @@ export function NewRecapDialog({
   const maxDays = billing?.limits.recap_max_days ?? DEFAULT_MAX_DAYS;
   // A one-day "this week" (it's Monday) is the daily summary's job, not a recap.
   const presets = recapPresets(project).filter(
-    (preset) => spanDays(preset.range) >= 2 && spanDays(preset.range) <= maxDays,
+    (preset) =>
+      spanDays(preset.range) >= 2 && spanDays(preset.range) <= maxDays,
   );
   const fallback = presets[0]?.range ?? { start: "", end: "" };
 
@@ -73,7 +74,8 @@ export function NewRecapDialog({
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
-    if (next) form.reset({ start_date: fallback.start, end_date: fallback.end });
+    if (next)
+      form.reset({ start_date: fallback.start, end_date: fallback.end });
   };
 
   return (

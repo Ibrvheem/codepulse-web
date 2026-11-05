@@ -4,7 +4,13 @@ import { createHash } from "crypto";
 import { weeks } from "@/lib/api-client";
 import { personaById, personaFor } from "@/lib/week-personas";
 import { slidesFor } from "@/lib/week-roast";
-import { readVoice, writeVoice } from "@/lib/voice-store";
+import {
+  readTiming,
+  readVoice,
+  writeTiming,
+  writeVoice,
+  type WordTiming,
+} from "@/lib/voice-store";
 
 /**
  * The voice for one slide of a shared week, as MP3.
@@ -33,25 +39,85 @@ function v3Stability(value: number): 0 | 0.5 | 1 {
   return value < 0.4 ? 0 : value < 0.75 ? 0.5 : 1;
 }
 
+/**
+ * Spoken words with their times, from ElevenLabs' per-character alignment.
+ * Audio tags like [sighs] are performed, not said, so they are skipped.
+ */
+function wordsFrom(alignment: {
+  characters: string[];
+  character_start_times_seconds: number[];
+  character_end_times_seconds: number[];
+}): WordTiming[] {
+  const words: WordTiming[] = [];
+  let text = "";
+  let start = 0;
+  let end = 0;
+  let inTag = false;
+  const flush = () => {
+    if (text) words.push({ text, start, end });
+    text = "";
+  };
+  alignment.characters.forEach((ch, i) => {
+    if (ch === "[") inTag = true;
+    if (inTag) {
+      if (ch === "]") inTag = false;
+      flush();
+      return;
+    }
+    if (/\s/.test(ch)) return flush();
+    if (!text) start = alignment.character_start_times_seconds[i];
+    text += ch;
+    end = alignment.character_end_times_seconds[i];
+  });
+  flush();
+  return words;
+}
+
+const timings = new Map<string, WordTiming[]>();
+
+function remember(key: string, audio: ArrayBuffer, words?: WordTiming[]) {
+  if (cache.size >= MAX_CACHE) {
+    const oldest = cache.keys().next().value;
+    if (oldest) {
+      cache.delete(oldest);
+      timings.delete(oldest);
+    }
+  }
+  cache.set(key, audio);
+  if (words) timings.set(key, words);
+}
+
+/**
+ * A line's audio and, when asked for, when each word is said. Both are
+ * synthesised together and stored together, so the timings always match
+ * the exact audio that plays. Lines stored before timings existed are
+ * synthesised again the first time their timings are wanted.
+ */
 async function synthesise(
   voiceId: string,
   text: string,
   stability: number,
-): Promise<ArrayBuffer> {
+  needTiming = false,
+): Promise<{ audio: ArrayBuffer; words: WordTiming[] | null }> {
   const key = createHash("sha1").update(`${voiceId}:${text}`).digest("hex");
   const hit = cache.get(key);
-  if (hit) return hit;
+  if (hit && (!needTiming || timings.has(key))) {
+    return { audio: hit, words: timings.get(key) ?? null };
+  }
   // Paid for once: anything synthesised before is in R2 under its hash.
-  const stored = await readVoice(key);
-  if (stored) {
-    cache.set(key, stored);
-    return stored;
+  const [stored, storedWords] = await Promise.all([
+    readVoice(key),
+    readTiming(key),
+  ]);
+  if (stored && (!needTiming || storedWords)) {
+    remember(key, stored, storedWords ?? undefined);
+    return { audio: stored, words: storedWords };
   }
 
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) throw new Error("ELEVENLABS_API_KEY is not set");
   const res = await fetch(
-    `${ELEVENLABS}/${voiceId}?output_format=mp3_44100_192`,
+    `${ELEVENLABS}/${voiceId}/with-timestamps?output_format=mp3_44100_192`,
     {
       method: "POST",
       headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
@@ -63,7 +129,7 @@ async function synthesise(
           similarity_boost: 0.85,
         },
       }),
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(40_000),
     },
   );
   if (!res.ok) {
@@ -71,14 +137,17 @@ async function synthesise(
       `ElevenLabs ${res.status}: ${(await res.text()).slice(0, 200)}`,
     );
   }
-  const audio = await res.arrayBuffer();
-  await writeVoice(key, audio);
-  if (cache.size >= MAX_CACHE) {
-    const oldest = cache.keys().next().value;
-    if (oldest) cache.delete(oldest);
-  }
-  cache.set(key, audio);
-  return audio;
+  const body = (await res.json()) as {
+    audio_base64: string;
+    alignment?: Parameters<typeof wordsFrom>[0];
+  };
+  const bytes = Buffer.from(body.audio_base64, "base64");
+  const audio = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(audio).set(bytes);
+  const words = body.alignment ? wordsFrom(body.alignment) : [];
+  await Promise.all([writeVoice(key, audio), writeTiming(key, words)]);
+  remember(key, audio, words);
+  return { audio, words };
 }
 
 export async function GET(
@@ -101,22 +170,49 @@ export async function GET(
   // `persona` lets the dashboard preview a character that isn't this
   // week's; the share page never passes it.
   const override = new URL(request.url).searchParams.get("persona");
-  const persona = (override && personaById(override)) || personaFor(week.start);
-  if (!persona.voice_id) {
+
+  // Hook-format roasts: the API built the slides and names the voice.
+  let voiceId: string | undefined;
+  let stability: number;
+  let speech: string | undefined;
+  if (week.story && week.persona && !override) {
+    voiceId = week.persona.voice_id ?? undefined;
+    stability = week.persona.stability;
+    speech = week.story[index]?.speech;
+  } else {
+    const persona =
+      (override && personaById(override)) || personaFor(week.start);
+    voiceId = persona.voice_id;
+    stability = persona.delivery.stability;
+    speech = slidesFor(week, persona)[index]?.speech;
+  }
+  if (!voiceId) {
     return NextResponse.json({ error: "No voice yet" }, { status: 404 });
   }
-  const slides = slidesFor(week, persona);
-  const current = slides[index];
-  if (!current) {
+  if (!speech) {
     return NextResponse.json({ error: "No such slide" }, { status: 404 });
   }
 
   try {
-    const audio = await synthesise(
-      persona.voice_id,
-      current.speech,
-      persona.delivery.stability,
+    // `?timing=1`: when each word is said, for captions that keep pace.
+    const wantTiming = new URL(request.url).searchParams.get("timing") === "1";
+    const { audio, words } = await synthesise(
+      voiceId,
+      speech,
+      stability,
+      wantTiming,
     );
+    if (wantTiming) {
+      return NextResponse.json(
+        { words: words ?? [] },
+        {
+          headers: {
+            "Cache-Control":
+              "public, max-age=86400, s-maxage=604800, immutable",
+          },
+        },
+      );
+    }
     return new NextResponse(audio, {
       headers: {
         "Content-Type": "audio/mpeg",

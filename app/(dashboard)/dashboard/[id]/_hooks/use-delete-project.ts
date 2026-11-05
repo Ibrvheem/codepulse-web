@@ -13,7 +13,13 @@ export function useDeleteProject(projectId: string) {
     toast.success("Project deleted");
     queryClient.invalidateQueries({ queryKey: ["projects"] });
     // Drop everything cached under the deleted project.
-    for (const key of ["project", "summaries", "logs", "keys", "summary-usage"]) {
+    for (const key of [
+      "project",
+      "summaries",
+      "logs",
+      "keys",
+      "summary-usage",
+    ]) {
       queryClient.removeQueries({ queryKey: [key, projectId] });
     }
     router.push("/dashboard");

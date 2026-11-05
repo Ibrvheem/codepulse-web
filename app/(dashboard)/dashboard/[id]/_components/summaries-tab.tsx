@@ -147,8 +147,8 @@ export function SummariesTab({ projectId }: { projectId: string }) {
           </TooltipTrigger>
           <TooltipContent>
             Shared with recap builds. The counter resets daily, and summaries
-            also update automatically at the end of your day, which
-            doesn&apos;t use your updates.
+            also update automatically at the end of your day, which doesn&apos;t
+            use your updates.
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -273,8 +273,8 @@ export function SummariesTab({ projectId }: { projectId: string }) {
                   {data.locked === 1 ? "summary is" : "summaries are"} locked
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  The free plan keeps the last 7 days — upgrade to see your
-                  full history.
+                  The free plan keeps the last 7 days — upgrade to see your full
+                  history.
                 </p>
               </div>
               <Link href={BILLING_PATH} className="shrink-0">

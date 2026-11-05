@@ -104,8 +104,8 @@ export function SettingsTab({ projectId }: { projectId: string }) {
           description={
             <>
               Your summary is written and emailed right after this time (
-              {project?.timezone}). Anything you do later counts toward the
-              next day.
+              {project?.timezone}). Anything you do later counts toward the next
+              day.
             </>
           }
         >
@@ -139,16 +139,17 @@ export function SettingsTab({ projectId }: { projectId: string }) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (nameMatches && !deleteProject.isPending) deleteProject.mutate();
+              if (nameMatches && !deleteProject.isPending)
+                deleteProject.mutate();
             }}
             className="space-y-4"
           >
             <DialogHeader>
               <DialogTitle>Delete {project?.name}?</DialogTitle>
               <DialogDescription>
-                This disconnects all its keys and removes the project from
-                your dashboard. Captured activity and summaries are retained
-                on our side.
+                This disconnects all its keys and removes the project from your
+                dashboard. Captured activity and summaries are retained on our
+                side.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2">

@@ -228,7 +228,11 @@ export function RecapsTab({ projectId }: { projectId: string }) {
         {canSwitchVoice ? (
           <span className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Voice</span>
-            <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
+            <VoiceToggle
+              value={voice}
+              onChange={setVoice}
+              disabled={!isReady}
+            />
           </span>
         ) : (
           <span />

@@ -46,8 +46,14 @@ export function ProjectDetailView({
     TABS.includes(initialTab as Tab) ? (initialTab as Tab) : "summaries",
   );
   const reduceMotion = useReducedMotion();
-  const { data: project, isPending, isError, error, refetch, isRefetching } =
-    useProject(projectId);
+  const {
+    data: project,
+    isPending,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useProject(projectId);
 
   if (isError) {
     return (
