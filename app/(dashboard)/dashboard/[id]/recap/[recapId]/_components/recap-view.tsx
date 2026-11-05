@@ -14,6 +14,7 @@ import {
 import { useBilling } from "../../../../../_hooks/use-billing";
 import { SummaryBullets } from "../../../_components/summary-bullets";
 import { DownloadMenu } from "../../../_components/download-menu";
+import { PostToBuffer } from "../../../_components/post-to-buffer";
 import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useCreateRecap } from "../../../_hooks/use-recaps";
@@ -29,8 +30,14 @@ export function RecapView({
   projectId: string;
   recapId: string;
 }) {
-  const { data: recap, isPending, isError, error, refetch, isRefetching } =
-    useRecap(recapId);
+  const {
+    data: recap,
+    isPending,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useRecap(recapId);
   const copyRecap = useCopyRecap(recapId);
   const rebuild = useCreateRecap(projectId);
   const { data: budget } = useUpdateBudget(projectId);
@@ -117,6 +124,10 @@ export function RecapView({
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <ShareRecap recapId={recapId} />
+            <PostToBuffer
+              source={{ recap_id: recapId }}
+              label="Share this week"
+            />
             <DownloadMenu
               source={{
                 period: `${start} to ${end}`,

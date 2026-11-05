@@ -520,3 +520,96 @@ export const weekVideoSchema = z.object({
   reason: z.string().optional(),
 });
 export type WeekVideo = z.infer<typeof weekVideoSchema>;
+
+// ---------------------------------------------------------------------------
+// Buffer
+// ---------------------------------------------------------------------------
+
+export const bufferToneSchema = z.enum(["dev_log", "founder", "client"]);
+export type BufferTone = z.infer<typeof bufferToneSchema>;
+
+export const bufferModeSchema = z.enum(["draft", "queue", "now"]);
+export type BufferMode = z.infer<typeof bufferModeSchema>;
+
+export const bufferChannelSchema = z.object({
+  id: z.string(),
+  /** "twitter", "linkedin", ... */
+  service: z.string(),
+  /** the handle or page name */
+  name: z.string(),
+  display_name: z.string().nullish(),
+  avatar: z.string().nullish(),
+  is_locked: z.boolean(),
+  is_disconnected: z.boolean(),
+  /** "X", "LinkedIn": the name a user recognises */
+  label: z.string(),
+  /** Buffer's hard character limit for this network */
+  limit: z.number(),
+});
+export type BufferChannel = z.infer<typeof bufferChannelSchema>;
+
+/** The user's Buffer link. `connected: false` carries only `configured`. */
+export const bufferStatusSchema = z.object({
+  connected: z.boolean(),
+  /** false when the server has no Buffer app credentials */
+  configured: z.boolean(),
+  needs_reauth: z.boolean().optional(),
+  organization_id: z.string().optional(),
+  channels: z.array(bufferChannelSchema).optional(),
+  channel_ids: z.array(z.string()).optional(),
+  tone: bufferToneSchema.optional(),
+  auto_draft: z.boolean().optional(),
+  connected_at: z.string().optional(),
+});
+export type BufferStatus = z.infer<typeof bufferStatusSchema>;
+
+export const bufferComposedPostSchema = z.object({
+  channel_id: z.string(),
+  service: z.string(),
+  label: z.string(),
+  name: z.string(),
+  limit: z.number(),
+  text: z.string(),
+});
+export type BufferComposedPost = z.infer<typeof bufferComposedPostSchema>;
+
+export const bufferComposeResultSchema = z.object({
+  source: z.object({
+    kind: z.enum(["day", "period"]),
+    title: z.string(),
+    period: z.string(),
+  }),
+  tone: bufferToneSchema,
+  posts: z.array(bufferComposedPostSchema),
+});
+export type BufferComposeResult = z.infer<typeof bufferComposeResultSchema>;
+
+export const bufferPublishResultSchema = z.object({
+  mode: bufferModeSchema,
+  sent: z.number(),
+  results: z.array(
+    z.object({
+      channel_id: z.string(),
+      service: z.string(),
+      label: z.string(),
+      ok: z.boolean(),
+      buffer_post_id: z.string().optional(),
+      status: z.string().nullish(),
+      error: z.string().optional(),
+    }),
+  ),
+});
+export type BufferPublishResult = z.infer<typeof bufferPublishResultSchema>;
+
+/** A post already created in Buffer from one summary or recap. */
+export const bufferPostSchema = z.object({
+  id: z.string(),
+  channel_id: z.string(),
+  service: z.string(),
+  label: z.string(),
+  mode: bufferModeSchema,
+  origin: z.enum(["manual", "auto"]),
+  text: z.string(),
+  created_at: z.string(),
+});
+export type BufferPost = z.infer<typeof bufferPostSchema>;

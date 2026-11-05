@@ -142,6 +142,9 @@ export function Topbar() {
               <Link href="/dashboard/extension">Install the extension</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
+              <Link href="/dashboard/buffer">Post with Buffer</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/dashboard/feedback">Feedback</Link>
             </DropdownMenuItem>
             {me?.is_admin && (

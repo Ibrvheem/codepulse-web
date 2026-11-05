@@ -7,10 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/motion/fade-in";
 import { isUpgradeRequired } from "@/lib/api-client";
-import { ErrorState, UpgradeState } from "../../../../../_components/query-states";
+import {
+  ErrorState,
+  UpgradeState,
+} from "../../../../../_components/query-states";
 import { useBilling } from "../../../../../_hooks/use-billing";
 import { SummaryBullets } from "../../../_components/summary-bullets";
 import { DownloadMenu } from "../../../_components/download-menu";
+import { PostToBuffer } from "../../../_components/post-to-buffer";
 import { VoiceToggle } from "../../../_components/voice-toggle";
 import { inVoice, useSummaryVoice } from "../../../_hooks/use-summary-voice";
 import { useSummary, useCopyStandup } from "../_hooks/use-summary";
@@ -24,8 +28,14 @@ export function SummaryView({
   projectId: string;
   summaryId: string;
 }) {
-  const { data: summary, isPending, isError, error, refetch, isRefetching } =
-    useSummary(summaryId);
+  const {
+    data: summary,
+    isPending,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useSummary(summaryId);
   const copyStandup = useCopyStandup(summaryId);
   const { voice, setVoice, isReady } = useSummaryVoice(projectId);
   const { data: billing } = useBilling();
@@ -98,26 +108,34 @@ export function SummaryView({
             {proVoice && (
               <div className="mt-3 flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Voice</span>
-                <VoiceToggle value={voice} onChange={setVoice} disabled={!isReady} />
+                <VoiceToggle
+                  value={voice}
+                  onChange={setVoice}
+                  disabled={!isReady}
+                />
               </div>
             )}
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
             <div className="flex items-center gap-3">
               <ShareSummary summaryId={summaryId} />
-            <DownloadMenu
-              source={{
-                period: dayjs(summary.date).format("YYYY-MM-DD"),
-                project: summary.project?.name ?? "summary",
-                title: summary.title,
-                message: inVoice(
-                  voice,
-                  summary.message,
-                  summary.message_first_person,
-                ),
-                tasks: summary.tasks,
-              }}
-            />
+              <PostToBuffer
+                source={{ summary_id: summaryId }}
+                label="Post this day"
+              />
+              <DownloadMenu
+                source={{
+                  period: dayjs(summary.date).format("YYYY-MM-DD"),
+                  project: summary.project?.name ?? "summary",
+                  title: summary.title,
+                  message: inVoice(
+                    voice,
+                    summary.message,
+                    summary.message_first_person,
+                  ),
+                  tasks: summary.tasks,
+                }}
+              />
               {/* Standup text is always the "I" voice with bullets — independent of the toggle. */}
               {proVoice && (
                 <Button
