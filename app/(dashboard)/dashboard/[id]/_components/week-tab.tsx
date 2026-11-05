@@ -95,6 +95,9 @@ export function WeekTab({ projectId }: { projectId: string }) {
   // The voice route takes the week's share token, so it is minted up front.
   // Signed, not stored: fetching it shares nothing until the link is posted.
   const { data: link } = useWeekToken(projectId, day);
+  // The rendered roast is the real thing; the story player is the stand-in
+  // while it renders (and for weeks rendered before videos existed).
+  const { data: video } = useWeekVideo(projectId, day);
 
   if (isError) {
     return (
@@ -147,6 +150,18 @@ export function WeekTab({ projectId }: { projectId: string }) {
         </div>
       ) : !week.roast ? (
         <Waiting week={week} />
+      ) : video?.status === "ready" && video.url ? (
+        <div className="mx-auto w-full max-w-[380px] space-y-4">
+          <video
+            key={video.url}
+            src={video.url}
+            controls
+            playsInline
+            preload="metadata"
+            className="aspect-[9/16] w-full rounded-[2rem] bg-black shadow-2xl"
+          />
+          <ShareRow projectId={projectId} day={day} />
+        </div>
       ) : (
         <WeekStory
           key={`${week.start}:${link?.token ?? ""}`}
