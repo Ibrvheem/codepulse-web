@@ -254,8 +254,12 @@ export function PostToBuffer({
         variant="outline"
         size="sm"
         onClick={() => {
-          if (status.data && !ready) router.push(connectHref);
-          else setOpen(true);
+          // Nothing to post to yet: the connect page explains what to do.
+          if (status.data && (!ready || usable.length === 0)) {
+            router.push(connectHref);
+          } else {
+            setOpen(true);
+          }
         }}
       >
         <Send className="size-3.5" />
