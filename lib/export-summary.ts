@@ -42,7 +42,14 @@ function csvCell(value: string | number): string {
 
 // No time column: per-task minutes are a model estimate, not a measurement,
 // so they are not exported.
-const CSV_COLUMNS = ["Area", "Task", "Detail", "Tags", "Files", "Days"] as const;
+const CSV_COLUMNS = [
+  "Area",
+  "Task",
+  "Detail",
+  "Tags",
+  "Files",
+  "Days",
+] as const;
 
 export function toCsv(source: ExportSource): string {
   const rows = source.tasks.map((task) =>
@@ -94,11 +101,19 @@ export function toMarkdown(source: ExportSource): string {
     lines.push("");
   }
 
-  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
+  return (
+    lines
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trimEnd() + "\n"
+  );
 }
 
 /** Safe, readable file name: "writelogs-api-2026-09-13.csv". */
-export function exportFilename(source: ExportSource, extension: string): string {
+export function exportFilename(
+  source: ExportSource,
+  extension: string,
+): string {
   const slug = (value: string) =>
     value
       .toLowerCase()

@@ -456,3 +456,17 @@ export function personaFor(weekStart: string): Persona {
 export function personaById(id: string): Persona | undefined {
   return PERSONAS.find((p) => p.id === id);
 }
+
+/**
+ * The persona a week was actually roasted by. The API decides it (an admin
+ * can schedule one for a week) and sends it with the week; the rotation here
+ * is only the fallback for weeks fetched before it did.
+ */
+export function personaOf(week: {
+  start: string;
+  persona?: { id: string } | null;
+}): Persona {
+  return (
+    (week.persona && personaById(week.persona.id)) || personaFor(week.start)
+  );
+}

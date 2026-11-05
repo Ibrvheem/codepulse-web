@@ -7,7 +7,13 @@
  *
  * Deliberately no time and no AI split: the week is about what shipped.
  */
-import { personaFor, spoken, type Ctx, type LineKey } from "./week-personas";
+import {
+  personaFor,
+  personaOf,
+  spoken,
+  type Ctx,
+  type LineKey,
+} from "./week-personas";
 import type { Week } from "./types";
 
 export type Slide = {
@@ -61,10 +67,7 @@ export function weekLabel(week: Week): string {
   return `${fmt(week.start)} to ${fmt(week.end)}`;
 }
 
-export function slidesFor(
-  week: Week,
-  persona = personaFor(week.start),
-): Slide[] {
+export function slidesFor(week: Week, persona = personaOf(week)): Slide[] {
   const seed = `${week.start}:${week.project_name}:${persona.id}`;
   const busiest = [...week.days].sort((a, b) => b.tasks - a.tasks)[0];
   const quiet = week.days.filter((d) => d.tasks === 0 && !isWeekendDay(d.day));
@@ -222,10 +225,7 @@ export function slidesFor(
 }
 
 /** The static last slide: the one people screenshot. */
-export function finalSlide(
-  week: Week,
-  persona = personaFor(week.start),
-): Slide {
+export function finalSlide(week: Week, persona = personaOf(week)): Slide {
   const signoff =
     (week.roast?.persona_id === persona.id && week.roast.lines.signoff) ||
     persona.lines.signoff[0]({} as Ctx);

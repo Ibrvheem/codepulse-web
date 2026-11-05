@@ -65,7 +65,10 @@ export function resetAnalytics(): void {
  * site), where there is no user to identify. Silently dropped when PostHog
  * is not loaded or is blocked.
  */
-export function track(event: string, properties?: Record<string, unknown>): void {
+export function track(
+  event: string,
+  properties?: Record<string, unknown>,
+): void {
   try {
     if (!ready()) return;
     posthog.capture(event, properties);

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 
 import { weeks } from "@/lib/api-client";
-import { personaById, personaFor } from "@/lib/week-personas";
+import { personaById, personaOf } from "@/lib/week-personas";
 import { slidesFor } from "@/lib/week-roast";
 import {
   readTiming,
@@ -180,8 +180,7 @@ export async function GET(
     stability = week.persona.stability;
     speech = week.story[index]?.speech;
   } else {
-    const persona =
-      (override && personaById(override)) || personaFor(week.start);
+    const persona = (override && personaById(override)) || personaOf(week);
     voiceId = persona.voice_id;
     stability = persona.delivery.stability;
     speech = slidesFor(week, persona)[index]?.speech;
