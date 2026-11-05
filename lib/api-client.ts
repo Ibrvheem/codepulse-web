@@ -11,6 +11,12 @@ import {
   type AuthTokens,
   type Billing,
   type BillingCheckout,
+  type BufferComposeResult,
+  type BufferMode,
+  type BufferPost,
+  type BufferPublishResult,
+  type BufferStatus,
+  type BufferTone,
   type CreatedPatKey,
   type Creator,
   type CreatorDiscovery,
@@ -892,4 +898,69 @@ export const weeks = {
   /** A shared week's video, once the Friday job has rendered it. Public. */
   sharedVideo: async (token: string) =>
     (await publicRequest<WeekVideo>(`/weeks/shared/${token}/video`)).data,
+};
+
+/** Buffer: post what you shipped, written from your work log. */
+export const buffer = {
+  /** Connection, channels and settings. Refreshes the channel list from Buffer. */
+  status: async () => (await request<BufferStatus>("/buffer")).data,
+
+  /** Where to send the browser to connect; lands back on /dashboard/buffer. */
+  connectUrl: async (returnTo?: string) =>
+    (
+      await request<{ url: string }>(
+        `/buffer/connect-url${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ""}`,
+      )
+    ).data.url,
+
+  updateSettings: async (payload: {
+    channel_ids?: string[];
+    tone?: BufferTone;
+    auto_draft?: boolean;
+  }) =>
+    (
+      await request<BufferStatus>("/buffer/settings", {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      })
+    ).data,
+
+  disconnect: async () => {
+    await request("/buffer", { method: "DELETE" });
+  },
+
+  /** One post per chosen channel, written from a summary or a recap. */
+  compose: async (payload: {
+    summary_id?: string;
+    recap_id?: string;
+    tone?: BufferTone;
+  }) =>
+    (
+      await request<BufferComposeResult>("/buffer/compose", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
+
+  /** Create the posts in Buffer as drafts, queued, or published now. */
+  publish: async (payload: {
+    summary_id?: string;
+    recap_id?: string;
+    mode: BufferMode;
+    items: { channel_id: string; text: string }[];
+  }) =>
+    (
+      await request<BufferPublishResult>("/buffer/posts", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    ).data,
+
+  /** Posts already made in Buffer for this summary or recap. */
+  posts: async (ref: { summary_id?: string; recap_id?: string }) => {
+    const query = new URLSearchParams();
+    if (ref.summary_id) query.set("summary_id", ref.summary_id);
+    if (ref.recap_id) query.set("recap_id", ref.recap_id);
+    return (await request<BufferPost[]>(`/buffer/posts?${query}`)).data;
+  },
 };
