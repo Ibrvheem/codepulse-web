@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Check, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import {
   useMutation,
   useQueries,
@@ -12,6 +12,8 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +35,6 @@ import { buffer } from "@/lib/api-client";
 import type { BufferChannel, BufferMode, BufferTone } from "@/lib/types";
 import {
   useBufferStatus,
-  useConnectBuffer,
   useUpdateBufferSettings,
 } from "../../buffer/_hooks/use-buffer";
 import { TONE_LABELS } from "../../buffer/_components/buffer-view";
@@ -75,14 +76,11 @@ function ChannelChip({
   disabled?: boolean;
   onToggle: () => void;
 }) {
+  const id = `buffer-chip-${channel.id}`;
   return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={picked}
-      disabled={disabled}
-      onClick={onToggle}
-      className={`flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-xs transition-colors disabled:opacity-50 ${
+    <Label
+      htmlFor={id}
+      className={`flex h-8 cursor-pointer items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-xs font-normal leading-normal transition-colors has-disabled:cursor-not-allowed has-disabled:opacity-50 ${
         picked
           ? "border-foreground/40 bg-muted/40"
           : "text-muted-foreground hover:bg-muted/30"
@@ -102,17 +100,14 @@ function ChannelChip({
       <span className="max-w-32 truncate font-normal text-muted-foreground">
         {channel.display_name || channel.name}
       </span>
-      <span
-        className={`flex size-4 items-center justify-center rounded-full border ${
-          picked
-            ? "border-foreground bg-foreground text-background"
-            : "border-border"
-        }`}
-        aria-hidden
-      >
-        {picked && <Check className="size-2.5" />}
-      </span>
-    </button>
+      <Checkbox
+        id={id}
+        checked={picked}
+        disabled={disabled}
+        onCheckedChange={onToggle}
+        className="rounded-full"
+      />
+    </Label>
   );
 }
 
@@ -147,10 +142,11 @@ export function PostToBuffer({
   const [edits, setEdits] = useState<Record<string, string>>({});
 
   const status = useBufferStatus();
-  const connect = useConnectBuffer();
   const saveSettings = useUpdateBufferSettings();
   const connected = Boolean(status.data?.connected);
   const ready = connected && !status.data?.needs_reauth;
+  /** The connect page, which brings the user back here once Buffer is linked. */
+  const connectHref = `/dashboard/buffer?return_to=${encodeURIComponent(pathname)}`;
   const existing = useQuery({
     queryKey: postsKey(source),
     queryFn: () => buffer.posts(source),
@@ -254,7 +250,14 @@ export function PostToBuffer({
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => {
+          if (status.data && !ready) router.push(connectHref);
+          else setOpen(true);
+        }}
+      >
         <Send className="size-3.5" />
         {label}
         {already.length > 0 && (
@@ -285,38 +288,27 @@ export function PostToBuffer({
             </div>
           )}
 
-          {status.data && !connected && (
+          {status.data && !ready && (
             <div className="space-y-3 py-2">
               {connectError && (
                 <p className="text-sm text-destructive">{connectError}</p>
               )}
               <p className="text-sm text-muted-foreground">
-                {status.data.configured
-                  ? "You'll approve WriteLogs in Buffer and land right back here. We only read your channels and create posts."
-                  : "Buffer isn't set up on this server yet."}
+                {!status.data.configured
+                  ? "Buffer isn't set up on this server yet."
+                  : status.data.needs_reauth
+                    ? "Buffer stopped accepting our access. Reconnect to keep posting."
+                    : "Connect Buffer first. It takes one click and you land right back here."}
               </p>
               {status.data.configured && (
-                <Button
-                  loading={connect.isPending}
-                  onClick={() => connect.mutate(pathname)}
-                >
-                  Connect Buffer
+                <Button asChild>
+                  <Link href={connectHref}>
+                    {status.data.needs_reauth
+                      ? "Reconnect Buffer"
+                      : "Connect Buffer"}
+                  </Link>
                 </Button>
               )}
-            </div>
-          )}
-
-          {status.data?.connected && status.data.needs_reauth && (
-            <div className="space-y-3 py-2">
-              <p className="text-sm text-muted-foreground">
-                Buffer stopped accepting our access. Reconnect to keep posting.
-              </p>
-              <Button
-                loading={connect.isPending}
-                onClick={() => connect.mutate(pathname)}
-              >
-                Reconnect Buffer
-              </Button>
             </div>
           )}
 

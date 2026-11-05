@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { Check, Lock, Unplug } from "lucide-react";
-import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
+import { Lock, Unplug } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -19,7 +19,6 @@ import { FadeIn } from "@/components/motion/fade-in";
 import type { BufferChannel, BufferTone } from "@/lib/types";
 import { ErrorState } from "../../../_components/query-states";
 import {
-  BUFFER_KEY,
   useBufferStatus,
   useConnectBuffer,
   useDisconnectBuffer,
@@ -87,6 +86,31 @@ function Row({
   );
 }
 
+/** One numbered step on the connect page. */
+function Step({
+  n,
+  title,
+  children,
+}: {
+  n: number;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <li className="flex gap-3">
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium tabular-nums">
+        {n}
+      </span>
+      <span className="space-y-0.5">
+        <span className="block font-medium">{title}</span>
+        <span className="block text-xs text-muted-foreground max-w-prose">
+          {children}
+        </span>
+      </span>
+    </li>
+  );
+}
+
 /** One channel: avatar, network, handle, and whether posts go there. */
 function ChannelToggle({
   channel,
@@ -105,14 +129,11 @@ function ChannelToggle({
     : channel.is_locked
       ? "Locked on your Buffer plan"
       : null;
+  const id = `buffer-channel-${channel.id}`;
   return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={picked}
-      disabled={disabled || unusable}
-      onClick={onToggle}
-      className={`flex w-full items-center gap-3 rounded-md border px-3 py-2.5 text-left transition-colors disabled:opacity-50 ${
+    <Label
+      htmlFor={id}
+      className={`flex w-full cursor-pointer items-center gap-3 rounded-md border px-3 py-2.5 font-normal leading-normal transition-colors has-disabled:cursor-not-allowed has-disabled:opacity-50 ${
         picked && !unusable
           ? "border-foreground/40 bg-muted/40"
           : "hover:bg-muted/30"
@@ -139,49 +160,36 @@ function ChannelToggle({
           {why ?? `Up to ${channel.limit.toLocaleString()} characters`}
         </span>
       </span>
-      <span
-        className={`flex size-5 items-center justify-center rounded-full border ${
-          picked && !unusable
-            ? "border-foreground bg-foreground text-background"
-            : "border-border"
-        }`}
-        aria-hidden
-      >
-        {unusable ? (
-          <Lock className="size-3" />
-        ) : picked ? (
-          <Check className="size-3" />
-        ) : null}
-      </span>
-    </button>
+      {unusable ? (
+        <Lock className="size-4 text-muted-foreground" aria-hidden />
+      ) : (
+        <Checkbox
+          id={id}
+          checked={picked}
+          disabled={disabled}
+          onCheckedChange={onToggle}
+        />
+      )}
+    </Label>
   );
 }
 
 export function BufferView() {
-  const router = useRouter();
   const params = useSearchParams();
-  const queryClient = useQueryClient();
   const status = useBufferStatus();
   const connect = useConnectBuffer();
   const update = useUpdateBufferSettings();
   const disconnect = useDisconnectBuffer();
-  const handledParams = useRef(false);
-
-  // Coming back from Buffer: say what happened once, then clean the URL.
-  useEffect(() => {
-    if (handledParams.current) return;
-    const connected = params.get("buffer") === "connected";
-    const error = params.get("error");
-    if (!connected && !error) return;
-    handledParams.current = true;
-    if (connected) {
-      toast.success("Buffer connected. Pick where your posts should go.");
-      queryClient.invalidateQueries({ queryKey: BUFFER_KEY });
-    } else if (error) {
-      toast.error(error);
-    }
-    router.replace("/dashboard/buffer");
-  }, [params, queryClient, router]);
+  // Where the user came from (a day or recap page); Buffer sends them back there.
+  const rawReturn = params.get("return_to");
+  const returnTo =
+    rawReturn && rawReturn.startsWith("/") && !rawReturn.startsWith("//")
+      ? rawReturn
+      : undefined;
+  // Back from Buffer's consent screen. A full redirect brought us here, so the
+  // status query is fresh and the notice comes straight from the URL.
+  const justConnected = params.get("buffer") === "connected";
+  const connectError = params.get("error");
 
   if (status.isPending) {
     return (
@@ -218,6 +226,17 @@ export function BufferView() {
         </p>
       </div>
 
+      {justConnected && data.connected && (
+        <div className="border rounded-lg p-4 bg-card text-sm">
+          Buffer connected. Pick where your posts should go.
+        </div>
+      )}
+      {connectError && !data.connected && (
+        <div className="border border-destructive/40 rounded-lg p-4 bg-card text-sm">
+          {connectError}
+        </div>
+      )}
+
       {!data.configured && (
         <div className="border rounded-lg p-4 bg-card text-sm text-muted-foreground">
           Buffer isn&apos;t set up on this server yet.
@@ -225,21 +244,52 @@ export function BufferView() {
       )}
 
       {data.configured && !data.connected && (
-        <div className="border rounded-lg p-5 bg-card space-y-4">
-          <div className="space-y-1">
-            <p className="text-sm font-medium">Connect your Buffer account</p>
-            <p className="text-xs text-muted-foreground max-w-prose">
-              You&apos;ll approve WriteLogs in Buffer and come straight back
-              here. We ask only to read your channels and create posts. Nothing
-              is ever published without you choosing to.
-            </p>
+        <div className="space-y-6">
+          <div className="border rounded-lg p-5 bg-card space-y-5">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Connect your Buffer account</p>
+              <p className="text-xs text-muted-foreground max-w-prose">
+                Buffer is where your posts queue up for X, LinkedIn, Threads,
+                Bluesky, Mastodon and more. Link it once and WriteLogs can write
+                posts from your log and hand them to Buffer.
+              </p>
+            </div>
+            <ol className="space-y-3 text-sm">
+              <Step n={1} title="Approve WriteLogs in Buffer">
+                Press the button below. Buffer asks you to allow WriteLogs to
+                read your channels and create posts. Nothing is ever published
+                without you choosing to.
+              </Step>
+              <Step n={2} title="Pick where posts go">
+                You land back here with your channels listed. Every channel you
+                tick gets its own post, written inside that network's limit.
+              </Step>
+              <Step n={3} title="Post any day or week">
+                Open a day or a recap and press Post this day. Read it, fix a
+                word, send it to Buffer as a draft, to the queue, or right now.
+              </Step>
+            </ol>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Button
+                loading={connect.isPending}
+                onClick={() => connect.mutate(returnTo)}
+              >
+                Connect Buffer
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                No Buffer account yet?{" "}
+                <a
+                  href="https://buffer.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline underline-offset-4"
+                >
+                  The free plan
+                </a>{" "}
+                is enough: connect a channel there first, then come back.
+              </p>
+            </div>
           </div>
-          <Button
-            loading={connect.isPending}
-            onClick={() => connect.mutate(undefined)}
-          >
-            Connect Buffer
-          </Button>
         </div>
       )}
 
@@ -256,7 +306,7 @@ export function BufferView() {
               </div>
               <Button
                 loading={connect.isPending}
-                onClick={() => connect.mutate(undefined)}
+                onClick={() => connect.mutate(returnTo)}
               >
                 Reconnect
               </Button>
@@ -329,16 +379,14 @@ export function BufferView() {
               title="Draft every day on its own"
               description="When a day's summary is written, a draft lands in Buffer for each channel. Drafts only: you still press send."
             >
-              <Button
-                variant={data.auto_draft ? "default" : "outline"}
-                size="sm"
-                role="switch"
-                aria-checked={Boolean(data.auto_draft)}
+              <Switch
+                checked={Boolean(data.auto_draft)}
                 disabled={update.isPending}
-                onClick={() => update.mutate({ auto_draft: !data.auto_draft })}
-              >
-                {data.auto_draft ? "On" : "Off"}
-              </Button>
+                onCheckedChange={(checked) =>
+                  update.mutate({ auto_draft: checked })
+                }
+                aria-label="Draft every day on its own"
+              />
             </Row>
           </Section>
 
