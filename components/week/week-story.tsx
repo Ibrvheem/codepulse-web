@@ -13,7 +13,7 @@ import {
 
 import { EASE_OUT } from "@/components/motion/stagger-reveal";
 import { slidesFor, type Slide } from "@/lib/week-roast";
-import { personaById, personaFor } from "@/lib/week-personas";
+import { personaById, personaOf } from "@/lib/week-personas";
 import type { Week } from "@/lib/types";
 import { RoastStory } from "./roast-story";
 
@@ -228,8 +228,7 @@ function LegacyWeekStory({
   /** Preview a character other than this week's. */
   personaId?: string;
 }) {
-  const persona =
-    (personaId && personaById(personaId)) || personaFor(week.start);
+  const persona = (personaId && personaById(personaId)) || personaOf(week);
   const slides = slidesFor(week, persona);
   const voiced = Boolean(audioBase && persona.voice_id);
   const reduceMotion = useReducedMotion() ?? false;

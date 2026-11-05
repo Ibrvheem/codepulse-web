@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /** "45m", "1h 05m" — for log entry active/idle durations. */
@@ -27,7 +27,10 @@ export async function copyText(text: string): Promise<boolean> {
 }
 
 function legacyCopy(text: string): boolean {
-  if (typeof document === "undefined" || typeof document.execCommand !== "function") {
+  if (
+    typeof document === "undefined" ||
+    typeof document.execCommand !== "function"
+  ) {
     return false;
   }
   const el = document.createElement("textarea");
