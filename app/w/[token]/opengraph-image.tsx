@@ -52,7 +52,10 @@ export default async function OgImage({
   const week = weekResult.value;
   const fonts = fontsResult.status === "fulfilled" ? fontsResult.value : null;
   const final = finalSlide(week);
-  const persona = personaFor(week.start);
+  const persona = week.persona ?? personaFor(week.start);
+  const hook = week.story?.find((b) => b.key === "hook");
+  const verdict = week.story?.find((b) => b.key === "verdict");
+  const scored = Boolean(hook && verdict?.score);
 
   return new ImageResponse(
     (
@@ -73,19 +76,35 @@ export default async function OgImage({
           <span>{(week.author_name || "MY WEEK").toUpperCase()}</span>
           <span>{weekLabel(week).toUpperCase()}</span>
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 168, fontWeight: 600, letterSpacing: -8, lineHeight: 1, color: "#D4FF3A" }}>
-            {week.shipped}
-          </span>
-          <span style={{ fontSize: 44, fontWeight: 600, letterSpacing: -1, marginTop: 8 }}>
-            things shipped this week
-          </span>
-        </div>
+        {scored ? (
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: 64, fontWeight: 700, letterSpacing: -2, lineHeight: 1.05 }}>
+              {hook!.hero}
+            </span>
+            <span style={{ display: "flex", alignItems: "baseline", gap: 24, marginTop: 24 }}>
+              <span style={{ fontSize: 140, fontWeight: 700, letterSpacing: -6, lineHeight: 1, color: "#D4FF3A" }}>
+                {`${verdict!.score}/10`}
+              </span>
+              <span style={{ fontSize: 44, fontWeight: 600 }}>{verdict!.eyebrow}</span>
+            </span>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: 168, fontWeight: 600, letterSpacing: -8, lineHeight: 1, color: "#D4FF3A" }}>
+              {week.shipped}
+            </span>
+            <span style={{ fontSize: 44, fontWeight: 600, letterSpacing: -1, marginTop: 8 }}>
+              things shipped this week
+            </span>
+          </div>
+        )}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 28, color: "#d4d4d4" }}>
-            {final.lines.slice(0, 2).map((line) => (
-              <span key={line}>{line}</span>
-            ))}
+            {(scored ? [`${week.shipped} shipped`] : final.lines.slice(0, 2)).map(
+              (line) => (
+                <span key={line}>{line}</span>
+              ),
+            )}
             <span style={{ color: "#D4FF3A", marginTop: 6 }}>Roasted by {persona.name}</span>
           </div>
           <span style={{ fontSize: 28, fontWeight: 600 }}>WriteLogs</span>

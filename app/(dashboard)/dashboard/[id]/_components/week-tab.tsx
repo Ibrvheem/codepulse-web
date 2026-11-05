@@ -62,7 +62,7 @@ function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
 
 /** Before Friday: who is coming, and when. Nothing to tap. */
 function Waiting({ week }: { week: Week }) {
-  const persona = personaFor(week.start);
+  const persona = week.persona ?? personaFor(week.start);
   return (
     <div className="mx-auto flex w-full max-w-[380px] flex-col items-center rounded-[2rem] border border-dashed px-8 py-16 text-center">
       <Image
@@ -75,7 +75,7 @@ function Waiting({ week }: { week: Week }) {
       <p className="font-medium">{persona.name} is still watching.</p>
       <p className="mt-2 text-sm text-muted-foreground">
         Your roast lands Friday at 5pm, your time. Keep shipping. Or don&apos;t.{" "}
-        {persona.name.replace("The ", "The ")} will have thoughts either way.
+        {persona.name} will have thoughts either way.
       </p>
     </div>
   );

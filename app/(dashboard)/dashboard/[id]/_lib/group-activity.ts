@@ -54,7 +54,6 @@ export type ActivityTimeline = {
   repoCount: number;
 };
 
-
 function rowTime(row: LogEntry): number {
   return new Date(row.ended_at ?? row.started_at).getTime();
 }
@@ -98,7 +97,8 @@ export function groupActivity(
     group.linesAdded += row.lines_added;
     group.linesRemoved += row.lines_removed;
     const files = commitFiles.get(key) ?? new Set<string>();
-    for (const f of row.files?.length ? row.files : [row.file_path]) files.add(f);
+    for (const f of row.files?.length ? row.files : [row.file_path])
+      files.add(f);
     commitFiles.set(key, files);
     group.fileCount = files.size;
     if (rowTime(row) > new Date(group.time).getTime()) {

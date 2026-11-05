@@ -15,6 +15,7 @@ import { EASE_OUT } from "@/components/motion/stagger-reveal";
 import { slidesFor, type Slide } from "@/lib/week-roast";
 import { personaById, personaFor } from "@/lib/week-personas";
 import type { Week } from "@/lib/types";
+import { RoastStory } from "./roast-story";
 
 const AUTO_ADVANCE_MS = 5000;
 
@@ -181,7 +182,36 @@ function useNow(active: boolean) {
  * back; it also advances on its own. The last slide is static and sits
  * still, because that is the one people screenshot.
  */
-export function WeekStory({
+type StoryProps = {
+  week: Week;
+  /** Rendered under the final slide: share buttons, usually. */
+  footer?: React.ReactNode;
+  /** Where the voice lives: `/api/narrate/<token>`. */
+  audioBase?: string;
+  /** Preview a character other than this week's (old-format stories only). */
+  personaId?: string;
+};
+
+/**
+ * A week's roast. Weeks written in the hook-first format play the new story
+ * the API built; older weeks keep the original slides.
+ */
+export function WeekStory(props: StoryProps) {
+  const { week, personaId } = props;
+  if (week.story && week.story.length > 0 && !personaId) {
+    return (
+      <RoastStory
+        week={week}
+        story={week.story}
+        footer={props.footer}
+        audioBase={props.audioBase}
+      />
+    );
+  }
+  return <LegacyWeekStory {...props} />;
+}
+
+function LegacyWeekStory({
   week,
   footer,
   audioBase,

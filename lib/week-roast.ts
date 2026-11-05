@@ -246,7 +246,12 @@ export function finalSlide(
 
 /** Pre-filled text for the post. Short, with the roast line that stings most. */
 export function shareText(week: Week, url: string): string {
-  const persona = personaFor(week.start);
+  const persona = week.persona ?? personaFor(week.start);
+  const hook = week.story?.find((b) => b.key === "hook");
+  const verdict = week.story?.find((b) => b.key === "verdict");
+  if (hook && verdict?.score) {
+    return `${hook.hero}. ${persona.name} gave my week ${verdict.score}/10: ${verdict.eyebrow}. Roast yours on WriteLogs: ${url}`;
+  }
   const sting =
     week.top_commit_message && week.top_commit_message.count > 2
       ? `My most used commit message was “${week.top_commit_message.message}” (×${week.top_commit_message.count}).`

@@ -60,23 +60,25 @@ export function AreasPanel({
   if (!areas || areas.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        None yet. Areas are named as your summaries are written, so they show
-        up once you have a summary or two.
+        None yet. Areas are named as your summaries are written, so they show up
+        once you have a summary or two.
       </p>
     );
   }
 
   const target = draft.trim();
   const unchanged = target === editing;
-  const merging = Boolean(editing && !unchanged && areas.some((a) => a.name === target));
+  const merging = Boolean(
+    editing && !unchanged && areas.some((a) => a.name === target),
+  );
   const canSave = Boolean(target) && !unchanged;
 
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        How your work gets grouped. Renaming one updates every summary and
-        recap in this project, and future ones use the new name. Renaming onto
-        a name that already exists merges the two.
+        How your work gets grouped. Renaming one updates every summary and recap
+        in this project, and future ones use the new name. Renaming onto a name
+        that already exists merges the two.
       </p>
       <ul className="divide-y border rounded-lg overflow-hidden">
         <AnimatePresence initial={false}>
@@ -106,18 +108,18 @@ export function AreasPanel({
                   : ""
               }`}
             >
-                        {editing === area.name ? (
-              // Full width while editing: the old name stays on the left so
-              // you can see what you're changing, and the hint line has room
-              // to explain a merge before you commit to one.
-              <form
-                className="col-start-1 row-start-1 flex w-full items-center gap-2"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  submit();
-                }}
-              >
-                <span className="shrink-0 text-sm text-muted-foreground">
+              {editing === area.name ? (
+                // Full width while editing: the old name stays on the left so
+                // you can see what you're changing, and the hint line has room
+                // to explain a merge before you commit to one.
+                <form
+                  className="col-start-1 row-start-1 flex w-full items-center gap-2"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    submit();
+                  }}
+                >
+                  <span className="shrink-0 text-sm text-muted-foreground">
                     {area.name}
                   </span>
                   <span className="shrink-0 text-muted-foreground">&rarr;</span>
@@ -149,27 +151,25 @@ export function AreasPanel({
                   >
                     Cancel
                   </Button>
-              </form>
-            ) : (
-              <div
-                className="col-start-1 row-start-1 flex w-full items-center justify-between gap-3"
-              >
-                <span className="min-w-0 text-sm truncate">{area.name}</span>
-                <span className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {area.uses} {area.uses === 1 ? "bullet" : "bullets"}
+                </form>
+              ) : (
+                <div className="col-start-1 row-start-1 flex w-full items-center justify-between gap-3">
+                  <span className="min-w-0 text-sm truncate">{area.name}</span>
+                  <span className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {area.uses} {area.uses === 1 ? "bullet" : "bullets"}
+                    </span>
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      disabled={rename.isPending}
+                      onClick={() => start(area.name)}
+                    >
+                      Rename
+                    </Button>
                   </span>
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    disabled={rename.isPending}
-                    onClick={() => start(area.name)}
-                  >
-                    Rename
-                  </Button>
-                </span>
-              </div>
-            )}
+                </div>
+              )}
             </motion.li>
           ))}
         </AnimatePresence>
@@ -189,8 +189,7 @@ export function AreasPanel({
             transition={{ duration: 0.15, ease: EASE_OUT }}
             className="text-xs text-muted-foreground"
           >
-            {target} already exists. Renaming will merge the two areas into
-            one.
+            {target} already exists. Renaming will merge the two areas into one.
           </motion.p>
         )}
       </AnimatePresence>

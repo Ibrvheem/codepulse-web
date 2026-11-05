@@ -14,8 +14,7 @@ export function shiftDay(day: string, days: number): string {
 
 /** Length of an inclusive span in days; 0 if the end precedes the start. */
 export function spanDays({ start, end }: RecapRange): number {
-  const ms =
-    Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`);
+  const ms = Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`);
   if (Number.isNaN(ms) || ms < 0) return 0;
   return Math.round(ms / 86_400_000) + 1;
 }
@@ -34,7 +33,11 @@ export function recapPresets(
   const lastMonday = shiftDay(thisMonday, -7);
 
   return [
-    { key: "this-week", label: "This week", range: { start: thisMonday, end: today } },
+    {
+      key: "this-week",
+      label: "This week",
+      range: { start: thisMonday, end: today },
+    },
     {
       key: "last-week",
       label: "Last week",

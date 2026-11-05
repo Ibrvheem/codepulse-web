@@ -35,9 +35,7 @@ export function useCreateKey(
   return { form, onSubmit, isPending: mutation.isPending };
 }
 
-export function useRegenerateKey(
-  onCreated: (key: CreatedPatKey) => void,
-) {
+export function useRegenerateKey(onCreated: (key: CreatedPatKey) => void) {
   return useMutation({
     mutationFn: pat.regenerate,
     // No list invalidation here — the token dialog owns the one-time secret;

@@ -34,9 +34,15 @@ function WorkRow({ row, showBranch }: { row: LogEntry; showBranch?: boolean }) {
   return (
     <motion.div
       layout={!reduceMotion}
-      initial={{ opacity: 0, transform: reduceMotion ? "none" : "translateY(-4px)" }}
+      initial={{
+        opacity: 0,
+        transform: reduceMotion ? "none" : "translateY(-4px)",
+      }}
       animate={{ opacity: 1, transform: "translateY(0px)" }}
-      exit={{ opacity: 0, transform: reduceMotion ? "none" : "translateY(-4px)" }}
+      exit={{
+        opacity: 0,
+        transform: reduceMotion ? "none" : "translateY(-4px)",
+      }}
       transition={{ duration: 0.2, ease: EASE_OUT }}
       className="flex items-center justify-between gap-3 py-1.5"
     >

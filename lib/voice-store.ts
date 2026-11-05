@@ -71,3 +71,41 @@ export async function writeVoice(
     console.error("voice store write failed", error);
   }
 }
+
+/** When each spoken word starts and ends, in seconds, for a stored line. */
+export type WordTiming = { text: string; start: number; end: number };
+
+export async function readTiming(key: string): Promise<WordTiming[] | null> {
+  if (!configured()) return null;
+  try {
+    const res = await s3().send(
+      new GetObjectCommand({
+        Bucket: process.env.R2_BUCKET,
+        Key: `voice/${key}.json`,
+      }),
+    );
+    const text = await res.Body?.transformToString();
+    return text ? (JSON.parse(text) as WordTiming[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function writeTiming(
+  key: string,
+  words: WordTiming[],
+): Promise<void> {
+  if (!configured()) return;
+  try {
+    await s3().send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET,
+        Key: `voice/${key}.json`,
+        Body: JSON.stringify(words),
+        ContentType: "application/json",
+      }),
+    );
+  } catch (error) {
+    console.error("voice timing write failed", error);
+  }
+}

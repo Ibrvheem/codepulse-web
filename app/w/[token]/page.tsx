@@ -24,10 +24,14 @@ export async function generateMetadata({
   const week = await getShared(token);
   const robots = { index: false, follow: false };
   if (!week) return { title: "A week on WriteLogs", robots };
-  const final = finalSlide(week);
-  const persona = personaFor(week.start);
+  const persona = week.persona ?? personaFor(week.start);
   const title = `${persona.name} roasted ${week.author_name || "someone"}'s week`;
-  const description = `${week.shipped} shipped. ${final.lines.slice(0, 2).join(". ")}. ${weekLabel(week)}.`;
+  const hook = week.story?.find((b) => b.key === "hook");
+  const verdict = week.story?.find((b) => b.key === "verdict");
+  const description =
+    hook && verdict?.score
+      ? `${hook.hero}. ${verdict.score}/10: ${verdict.eyebrow}. ${weekLabel(week)}.`
+      : `${week.shipped} shipped. ${finalSlide(week).lines.slice(0, 2).join(". ")}. ${weekLabel(week)}.`;
   return {
     robots,
     title,
