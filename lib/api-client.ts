@@ -934,6 +934,7 @@ export const buffer = {
     summary_id?: string;
     recap_id?: string;
     tone?: BufferTone;
+    channel_ids?: string[];
   }) =>
     (
       await request<BufferComposeResult>("/buffer/compose", {
