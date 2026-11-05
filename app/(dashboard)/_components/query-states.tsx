@@ -83,7 +83,12 @@ export function ErrorState({
         <SignOutButton />
       ) : (
         onRetry && (
-          <Button variant="outline" size="sm" onClick={onRetry} loading={retrying}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRetry}
+            loading={retrying}
+          >
             Try again
           </Button>
         )
@@ -95,10 +100,13 @@ export function ErrorState({
 export function EmptyState({
   title,
   description,
+  image,
   children,
 }: {
   title: string;
   description: string;
+  /** A Loggy drawn for this moment; defaults to Loggy with a blank page. */
+  image?: { src: string; alt: string; width: number; height: number };
   children?: React.ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
@@ -116,10 +124,13 @@ export function EmptyState({
       className="border border-dashed rounded-lg p-10 text-center space-y-3"
     >
       <Image
-        src="/loggy/loggy-empty.png"
-        alt="Loggy the mascot waiting patiently with a pencil and a blank page"
-        width={105}
-        height={140}
+        src={image?.src ?? "/loggy/loggy-empty.png"}
+        alt={
+          image?.alt ??
+          "Loggy the mascot waiting patiently with a pencil and a blank page"
+        }
+        width={image?.width ?? 105}
+        height={image?.height ?? 140}
         className="mx-auto"
       />
       <p className="text-sm font-medium">{title}</p>

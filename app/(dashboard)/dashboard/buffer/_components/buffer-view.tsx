@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Lock, Unplug } from "lucide-react";
+import { ExternalLink, Lock, RefreshCw, Unplug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { FadeIn } from "@/components/motion/fade-in";
 import type { BufferChannel, BufferTone } from "@/lib/types";
-import { ErrorState } from "../../../_components/query-states";
+import { EmptyState, ErrorState } from "../../../_components/query-states";
 import {
   useBufferStatus,
   useConnectBuffer,
@@ -212,6 +213,7 @@ export function BufferView() {
   }
 
   const data = status.data;
+  const hasChannels = (data.channels ?? []).length > 0;
 
   return (
     <FadeIn className="space-y-6 max-w-2xl">
@@ -226,7 +228,7 @@ export function BufferView() {
         </p>
       </div>
 
-      {justConnected && data.connected && (
+      {justConnected && data.connected && hasChannels && (
         <div className="border rounded-lg p-4 bg-card text-sm">
           Buffer connected. Pick where your posts should go.
         </div>
@@ -246,13 +248,24 @@ export function BufferView() {
       {data.configured && !data.connected && (
         <div className="space-y-6">
           <div className="border rounded-lg p-5 bg-card space-y-5">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Connect your Buffer account</p>
-              <p className="text-xs text-muted-foreground max-w-prose">
-                Buffer is where your posts queue up for X, LinkedIn, Threads,
-                Bluesky, Mastodon and more. Link it once and WriteLogs can write
-                posts from your log and hand them to Buffer.
-              </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <Image
+                src="/loggy/loggy-connect.png"
+                alt="Loggy plugging a cable into a socket"
+                width={132}
+                height={100}
+                className="shrink-0 self-center"
+              />
+              <div className="space-y-1">
+                <p className="text-sm font-medium">
+                  Connect your Buffer account
+                </p>
+                <p className="text-xs text-muted-foreground max-w-prose">
+                  Buffer is where your posts queue up for X, LinkedIn, Threads,
+                  Bluesky, Mastodon and more. Link it once and WriteLogs can
+                  write posts from your log and hand them to Buffer.
+                </p>
+              </div>
             </div>
             <ol className="space-y-3 text-sm">
               <Step n={1} title="Approve WriteLogs in Buffer">
@@ -313,82 +326,128 @@ export function BufferView() {
             </div>
           )}
 
-          <Section title="Channels">
-            <Row
-              stacked
-              title="Where posts go"
-              description="Every post is written separately for each network you pick, inside its character limit."
+          {!hasChannels ? (
+            <EmptyState
+              image={{
+                src: "/loggy/loggy-megaphone.png",
+                alt: "Loggy holding a megaphone, looking for someone to tell",
+                width: 137,
+                height: 140,
+              }}
+              title="Buffer is connected, but it has no channels yet"
+              description="A channel is a social account Buffer posts to, like your X, LinkedIn, Threads or Bluesky. WriteLogs can't write a post until there is at least one to write it for."
             >
-              <div className="space-y-2">
-                {(data.channels ?? []).length === 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    No channels on this Buffer account yet. Add one in Buffer,
-                    then come back.
-                  </p>
-                )}
-                {(data.channels ?? []).map((channel) => {
-                  const picked = (data.channel_ids ?? []).includes(channel.id);
-                  return (
-                    <ChannelToggle
-                      key={channel.id}
-                      channel={channel}
-                      picked={picked}
-                      disabled={update.isPending}
-                      onToggle={() => {
-                        const current = data.channel_ids ?? [];
-                        update.mutate({
-                          channel_ids: picked
-                            ? current.filter((id) => id !== channel.id)
-                            : [...current, channel.id],
-                        });
-                      }}
-                    />
-                  );
-                })}
+              <div className="w-full max-w-md space-y-4 text-left">
+                <ol className="space-y-3 text-sm">
+                  <Step n={1} title="Open Buffer and add a channel">
+                    Connect the account you post from. Buffer's free plan allows
+                    three.
+                  </Step>
+                  <Step n={2} title="Come back and check again">
+                    We fetch your channels fresh and list them here.
+                  </Step>
+                  <Step n={3} title="Tick the ones posts should go to">
+                    Then open any day or recap and press Post this day.
+                  </Step>
+                </ol>
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+                  <Button asChild>
+                    <a
+                      href="https://publish.buffer.com/channels/connect"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink className="size-3.5" />
+                      Add a channel in Buffer
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    loading={status.isRefetching}
+                    onClick={() => status.refetch()}
+                  >
+                    <RefreshCw className="size-3.5" />
+                    Check again
+                  </Button>
+                </div>
               </div>
-            </Row>
-          </Section>
+            </EmptyState>
+          ) : (
+            <Section title="Channels">
+              <Row
+                stacked
+                title="Where posts go"
+                description="Every post is written separately for each network you pick, inside its character limit."
+              >
+                <div className="space-y-2">
+                  {(data.channels ?? []).map((channel) => {
+                    const picked = (data.channel_ids ?? []).includes(
+                      channel.id,
+                    );
+                    return (
+                      <ChannelToggle
+                        key={channel.id}
+                        channel={channel}
+                        picked={picked}
+                        disabled={update.isPending}
+                        onToggle={() => {
+                          const current = data.channel_ids ?? [];
+                          update.mutate({
+                            channel_ids: picked
+                              ? current.filter((id) => id !== channel.id)
+                              : [...current, channel.id],
+                          });
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </Row>
+            </Section>
+          )}
 
-          <Section title="Writing">
-            <Row
-              title="Tone"
-              description={
-                TONE_LABELS[data.tone ?? "dev_log"]?.hint ??
-                "How your posts should read."
-              }
-            >
-              <Select
-                value={data.tone ?? "dev_log"}
-                onValueChange={(value) =>
-                  update.mutate({ tone: value as BufferTone })
+          {hasChannels && (
+            <Section title="Writing">
+              <Row
+                title="Tone"
+                description={
+                  TONE_LABELS[data.tone ?? "dev_log"]?.hint ??
+                  "How your posts should read."
                 }
               >
-                <SelectTrigger className="w-44">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {(Object.keys(TONE_LABELS) as BufferTone[]).map((tone) => (
-                    <SelectItem key={tone} value={tone}>
-                      {TONE_LABELS[tone].label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Row>
-            <Row
-              title="Draft every day on its own"
-              description="When a day's summary is written, a draft lands in Buffer for each channel. Drafts only: you still press send."
-            >
-              <Switch
-                checked={Boolean(data.auto_draft)}
-                disabled={update.isPending}
-                onCheckedChange={(checked) =>
-                  update.mutate({ auto_draft: checked })
-                }
-                aria-label="Draft every day on its own"
-              />
-            </Row>
-          </Section>
+                <Select
+                  value={data.tone ?? "dev_log"}
+                  onValueChange={(value) =>
+                    update.mutate({ tone: value as BufferTone })
+                  }
+                >
+                  <SelectTrigger className="w-44">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(TONE_LABELS) as BufferTone[]).map((tone) => (
+                      <SelectItem key={tone} value={tone}>
+                        {TONE_LABELS[tone].label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Row>
+              <Row
+                title="Draft every day on its own"
+                description="When a day's summary is written, a draft lands in Buffer for each channel. Drafts only: you still press send."
+              >
+                <Switch
+                  checked={Boolean(data.auto_draft)}
+                  disabled={update.isPending}
+                  onCheckedChange={(checked) =>
+                    update.mutate({ auto_draft: checked })
+                  }
+                  aria-label="Draft every day on its own"
+                />
+              </Row>
+            </Section>
+          )}
 
           <Section title="Connection">
             <Row
