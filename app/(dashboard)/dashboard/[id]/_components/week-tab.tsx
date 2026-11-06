@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WeekStory } from "@/components/week/week-story";
@@ -11,12 +10,7 @@ import { personaFor } from "@/lib/week-personas";
 import { shareText, weekLabel } from "@/lib/week-roast";
 import type { Week } from "@/lib/types";
 import { ErrorState } from "../../../_components/query-states";
-import {
-  useShareWeek,
-  useWeek,
-  useWeekToken,
-  useWeekVideo,
-} from "../_hooks/use-week";
+import { useWeek, useWeekToken, useWeekVideo } from "../_hooks/use-week";
 
 const MS_PER_DAY = 86_400_000;
 
@@ -27,36 +21,16 @@ function shiftDay(day: string, days: number): string {
 }
 
 function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
-  const share = useShareWeek(projectId, day);
   const { data: week } = useWeek(projectId, day);
   const { data: video } = useWeekVideo(projectId, day);
-
-  const copy = async () => {
-    const link = await share.mutateAsync();
-    try {
-      await navigator.clipboard.writeText(link.url);
-      toast.success("Link copied");
-    } catch {
-      toast.info(link.url);
-    }
-  };
-
+  // Minted up front so Share can open the share sheet on the click itself.
+  const { data: link } = useWeekToken(projectId, day);
   return (
-    <div className="flex flex-col gap-2 sm:flex-row">
-      <ShareVideoButton
-        video={video}
-        text={week ? shareText(week, "https://writelogs.com") : ""}
-        fileName={`writelogs-week-${week?.start ?? "roast"}.mp4`}
-      />
-      <Button
-        variant="outline"
-        onClick={copy}
-        disabled={share.isPending}
-        className="flex-1"
-      >
-        Copy link
-      </Button>
-    </div>
+    <ShareVideoButton
+      video={video}
+      text={week ? shareText(week, "").trim() : ""}
+      link={link?.url}
+    />
   );
 }
 
@@ -74,7 +48,7 @@ function Waiting({ week }: { week: Week }) {
       />
       <p className="font-medium">{persona.name} is still watching.</p>
       <p className="mt-2 text-sm text-muted-foreground">
-        Your roast lands Friday at 5pm, your time. Keep shipping. Or don&apos;t.{" "}
+        Your roast lands Friday afternoon, your time. Keep shipping. Or don&apos;t.{" "}
         {persona.name} will have thoughts either way.
       </p>
     </div>

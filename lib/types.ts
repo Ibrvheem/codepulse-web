@@ -545,6 +545,8 @@ export type Week = z.infer<typeof weekSchema>;
 export const weekVideoSchema = z.object({
   status: z.enum(["ready", "rendering", "failed", "none"]),
   url: z.string().optional(),
+  /** the same video, served as a file download */
+  download_url: z.string().optional(),
   reason: z.string().optional(),
 });
 export type WeekVideo = z.infer<typeof weekVideoSchema>;
