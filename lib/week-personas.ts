@@ -453,8 +453,94 @@ export function personaFor(weekStart: string): Persona {
   return PERSONAS[index];
 }
 
+/**
+ * One-week personas an admin scheduled in the API (src/weeks/personas.ts).
+ * Kept out of PERSONAS so the rotation for other weeks never shifts. The
+ * API picks the week's persona; these give the web its voice and the stock
+ * lines used if the model ever fails to write the roast.
+ */
+export const SCHEDULED_PERSONAS: Persona[] = [
+  {
+    id: "lagos-aunty",
+    name: "The Lagos Aunty",
+    tagline: "Her friend's son works at Google. What about you?",
+    voice_id: "y47FZICqt6oFf4Z89DXT",
+    delivery: { stability: 0.5, style: 0.7 },
+    lines: {
+      intro: [
+        () =>
+          "[gasps] Ehn! Come here. Come and sit down. So this is what you were doing all week? I'm just saying o.",
+      ],
+      zero: [
+        () =>
+          "Nothing? [gasps] Nothing at all? Ah ah! Mrs Adebayo's son shipped three things before breakfast. God forbid.",
+      ],
+      lots: [
+        (c) =>
+          `${c.n} things! [laughs] Ehen! Now you are talking. Mrs Adebayo will hear this one. I'm just saying o.`,
+      ],
+      mid: [
+        (c) =>
+          `${c.n} things. Hmm. It's not bad, it's not bad. But is it this one we will clap for? Oya, more.`,
+      ],
+      few: [
+        (c) =>
+          `${c.n}? [sighs] Only ${c.n}? Is it this one you call work? Na wa o.`,
+      ],
+      vague: [
+        (c) =>
+          `"${c.word}", ${c.count} times. [sighs] Like that small boy you sent to buy bread who never came back. Abeg.`,
+      ],
+      clear: [
+        () =>
+          "Your commit messages, I can read them. Me! I don't understand them, but I can read them. Well done, my dear.",
+      ],
+      once: [
+        () =>
+          "Every commit message different. Ehen! At least you are not lazy with your words. I'm just saying o.",
+      ],
+      busy: [
+        (c) =>
+          `${c.dayName}! ${c.tasks} things in one day. [gasps] Who was chasing you? Drink water, abeg.`,
+      ],
+      late: [
+        (c) =>
+          `${c.late} commits after ten at night. [gasps] Ah ah! Is it your office that is sleeping in your house? Go and sleep!`,
+      ],
+      weekend: [
+        (c) =>
+          `${c.late} commits on the weekend. Saturday! Sunday! You did not go to church? I will tell your mother.`,
+      ],
+      boundaries: [
+        () =>
+          "Nothing after ten, nothing on the weekend. [laughs] See responsible person! God bless you, my dear.",
+      ],
+      file: [
+        (c) =>
+          `${c.file}, ${c.edits} times. [sighs] This document, what did it do to you? Leave it alone, abeg.`,
+      ],
+      focused: [
+        (c) =>
+          `${c.areas}. You stayed in your lane. Good. Very good. That is how Mrs Adebayo's son started.`,
+      ],
+      many: [
+        (c) =>
+          `${c.areas}, and ${c.extra} more. [gasps] Everywhere! You are like a Lagos bus conductor, jumping from one to the other.`,
+      ],
+      quiet: [
+        (c) =>
+          `${c.quietDays}, nothing. [sarcastic] Were you sick? Did NEPA take light? I'm just asking o.`,
+      ],
+      signoff: [
+        () =>
+          "Next week, do better. Your code will not break in Jesus' name. Roasted by The Lagos Aunty.",
+      ],
+    },
+  },
+];
+
 export function personaById(id: string): Persona | undefined {
-  return PERSONAS.find((p) => p.id === id);
+  return [...SCHEDULED_PERSONAS, ...PERSONAS].find((p) => p.id === id);
 }
 
 /**

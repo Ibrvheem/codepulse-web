@@ -39,6 +39,61 @@ function v3Stability(value: number): 0 | 0.5 | 1 {
   return value < 0.4 ? 0 : value < 0.75 ? 0.5 : 1;
 }
 
+const EXTENSIONS: Record<string, string> = {
+  py: "pie",
+  ts: "T S",
+  tsx: "T S X",
+  js: "J S",
+  jsx: "J S X",
+  mjs: "M J S",
+  json: "jason",
+  md: "M D",
+  css: "C S S",
+  scss: "S C S S",
+  html: "H T M L",
+  sql: "sequel",
+  yml: "yammel",
+  yaml: "yammel",
+  go: "go",
+  rs: "R S",
+  rb: "R B",
+  java: "java",
+  prisma: "prisma",
+  env: "env",
+};
+const WORDS: Record<string, string> = {
+  utils: "you-tils",
+  util: "you-til",
+  api: "A P I",
+  ui: "U I",
+  db: "D B",
+  auth: "auth",
+  config: "config",
+  src: "source",
+  tsx: "T S X",
+};
+
+/**
+ * What the voice should say for a line. File names are written as they are
+ * so the captions show them right; spoken raw, "utils.py" comes out as
+ * "units". Here they become "you-tils dot pie", "pricing view dot T S X".
+ */
+function forVoice(text: string): string {
+  return text.replace(
+    /\b([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)\.([A-Za-z]{1,6})\b/g,
+    (whole, name: string, ext: string) => {
+      const spokenExt = EXTENSIONS[ext.toLowerCase()];
+      if (!spokenExt) return whole;
+      const words = name
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .split(/[\s._-]+/)
+        .filter(Boolean)
+        .map((w) => WORDS[w.toLowerCase()] ?? w);
+      return `${words.join(" ")} dot ${spokenExt}`;
+    },
+  );
+}
+
 /**
  * Spoken words with their times, from ElevenLabs' per-character alignment.
  * Audio tags like [sighs] are performed, not said, so they are skipped.
@@ -99,6 +154,8 @@ async function synthesise(
   stability: number,
   needTiming = false,
 ): Promise<{ audio: ArrayBuffer; words: WordTiming[] | null }> {
+  // The voice reads file names its own way; the key follows what is said.
+  text = forVoice(text);
   const key = createHash("sha1").update(`${voiceId}:${text}`).digest("hex");
   const hit = cache.get(key);
   if (hit && (!needTiming || timings.has(key))) {

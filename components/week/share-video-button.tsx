@@ -1,73 +1,81 @@
 "use client";
 
+import { Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import type { WeekVideo } from "@/lib/types";
 
 /**
- * One tap from the story to the phone's share sheet with the MP4 attached,
- * so it posts as a real playing video on X, Instagram, WhatsApp or TikTok.
- * Desktop browsers can't attach files to a share, so there the video
- * downloads and X's composer opens with the text ready.
+ * Download saves the MP4 straight from storage, ready to post as a video.
+ * Share opens the device's share sheet with the roast's link and text.
+ * Both act on the click itself: nothing is fetched first, so the browser
+ * never decides the click has gone stale and silently blocks it.
  */
 export function ShareVideoButton({
   video,
   text,
-  fileName,
+  link,
 }: {
   video: WeekVideo | undefined;
-  /** the post text, used on desktop where the file can't be attached */
+  /** the post text */
   text: string;
-  fileName: string;
+  /** the public roast page, minted ahead of time */
+  link: string | undefined;
 }) {
+  const ready = video?.status === "ready" && Boolean(video.download_url);
+
   const share = async () => {
-    if (!video?.url) return;
+    if (!link) return;
     track("week_video_share_clicked");
-    let blob: Blob;
-    try {
-      const res = await fetch(video.url);
-      if (!res.ok) throw new Error(`video ${res.status}`);
-      blob = await res.blob();
-    } catch {
-      // The file could not be read in the browser (storage CORS, network):
-      // open it directly so the person still gets their video.
-      track("week_video_fetch_failed");
-      toast.info(
-        "Opening the video in a new tab. Save it from there to post it.",
-      );
-      window.open(video.url, "_blank", "noopener,noreferrer");
+    if (navigator.share) {
+      try {
+        await navigator.share({ text, url: link });
+        track("week_video_shared", { via: "share_sheet" });
+      } catch {
+        // closed the sheet
+      }
       return;
     }
     try {
-      const file = new File([blob], fileName, { type: "video/mp4" });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], text });
-        track("week_video_shared", { via: "share_sheet" });
-        return;
-      }
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(link.href);
-      window.open(
-        `https://x.com/intent/post?text=${encodeURIComponent(text)}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
-      track("week_video_shared", { via: "download" });
+      await navigator.clipboard.writeText(`${text} ${link}`);
+      toast.success("Link copied. Paste it anywhere.");
+      track("week_video_shared", { via: "copy" });
     } catch {
-      // The person closed the share sheet. Nothing to do.
+      toast.info(link);
     }
   };
 
-  const ready = video?.status === "ready";
   return (
-    <div className="flex flex-1 flex-col gap-1">
-      <Button onClick={share} disabled={!ready} className="w-full">
-        Share roast
-      </Button>
+    <div className="flex flex-1 flex-col gap-2">
+      <div className="flex gap-2">
+        {ready ? (
+          <Button asChild className="flex-1">
+            <a
+              href={video!.download_url}
+              download
+              onClick={() => track("week_video_downloaded")}
+            >
+              <Download className="size-4" />
+              Download video
+            </a>
+          </Button>
+        ) : (
+          <Button disabled className="flex-1">
+            <Download className="size-4" />
+            Download video
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          className="flex-1"
+          disabled={!link}
+          onClick={share}
+        >
+          <Share2 className="size-4" />
+          Share
+        </Button>
+      </div>
       {!ready ? (
         <p className="text-center text-xs text-muted-foreground">
           {video?.status === "rendering"
