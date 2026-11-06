@@ -16,7 +16,7 @@ import { KeysTab } from "./keys-tab";
 import { SettingsTab } from "./settings-tab";
 import { formatDayEnd } from "@/lib/project-day";
 
-const TABS = [
+const ALL_TABS = [
   "summaries",
   "recaps",
   "week",
@@ -24,7 +24,14 @@ const TABS = [
   "keys",
   "settings",
 ] as const;
-type Tab = (typeof TABS)[number];
+type Tab = (typeof ALL_TABS)[number];
+
+/**
+ * Weekly roasts are behind a flag while the voices are being perfected.
+ * Set NEXT_PUBLIC_ROASTS_ENABLED=true to show the tab again.
+ */
+const ROASTS_ENABLED = process.env.NEXT_PUBLIC_ROASTS_ENABLED === "true";
+const TABS = ALL_TABS.filter((t) => t !== "week" || ROASTS_ENABLED);
 
 const TAB_LABELS: Record<Tab, string> = {
   summaries: "Summaries",
@@ -128,12 +135,14 @@ export function ProjectDetailView({
         >
           <RecapsTab projectId={projectId} />
         </TabsContent>
-        <TabsContent
-          value="week"
-          className="mt-4 opacity-100 transition-opacity duration-200 ease-out starting:opacity-0"
-        >
-          <WeekTab projectId={projectId} />
-        </TabsContent>
+        {ROASTS_ENABLED ? (
+          <TabsContent
+            value="week"
+            className="mt-4 opacity-100 transition-opacity duration-200 ease-out starting:opacity-0"
+          >
+            <WeekTab projectId={projectId} />
+          </TabsContent>
+        ) : null}
         <TabsContent
           value="activity"
           className="mt-4 opacity-100 transition-opacity duration-200 ease-out starting:opacity-0"
