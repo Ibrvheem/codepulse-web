@@ -55,13 +55,14 @@ export default async function SharedWeekPage({
       <WeekStory week={week} audioBase={`/api/narrate/${token}`} />
       <p className="mt-8 max-w-xs text-center text-sm text-muted-foreground">
         Your week could roast you too.{" "}
-        <Link
-          href="/"
-          className="text-foreground underline underline-offset-4"
-        >
+        <Link href="/" className="text-foreground underline underline-offset-4">
           WriteLogs
         </Link>{" "}
         writes your standup, then this.
+      </p>
+      <p className="mt-3 max-w-xs text-center text-[11px] text-muted-foreground">
+        Voice built from Google&apos;s Yoruba (SLR86) and Nigerian English
+        (SLR70) speech datasets, CC BY-SA 4.0.
       </p>
     </div>
   );

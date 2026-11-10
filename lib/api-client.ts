@@ -933,6 +933,9 @@ export const buffer = {
   compose: async (payload: {
     summary_id?: string;
     recap_id?: string;
+    /** a week's roast video */
+    week_project_id?: string;
+    week_day?: string;
     tone?: BufferTone;
     channel_ids?: string[];
   }) =>
@@ -947,6 +950,9 @@ export const buffer = {
   publish: async (payload: {
     summary_id?: string;
     recap_id?: string;
+    /** a week's roast video */
+    week_project_id?: string;
+    week_day?: string;
     mode: BufferMode;
     items: { channel_id: string; text: string }[];
   }) =>

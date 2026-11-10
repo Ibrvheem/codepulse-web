@@ -148,15 +148,58 @@ function remember(key: string, audio: ArrayBuffer, words?: WordTiming[]) {
  * the exact audio that plays. Lines stored before timings existed are
  * synthesised again the first time their timings are wanted.
  */
+/**
+ * How a persona's voice is made. With `sourceVoiceId`, that voice performs
+ * the line (its accent and delivery) and the voice changer turns the result
+ * into `voiceId`. Without it, `voiceId` reads the line itself.
+ */
+type VoicePlan = { sourceVoiceId?: string | null; model?: string | null };
+
+/** Turn a performed line into the persona's own voice, keeping its delivery. */
+async function convertVoice(
+  audio: ArrayBuffer,
+  voiceId: string,
+  apiKey: string,
+): Promise<ArrayBuffer> {
+  const form = new FormData();
+  form.append("model_id", "eleven_multilingual_sts_v2");
+  form.append(
+    "voice_settings",
+    JSON.stringify({ stability: 0.5, similarity_boost: 1.0 }),
+  );
+  form.append("audio", new Blob([audio], { type: "audio/mpeg" }), "line.mp3");
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/speech-to-speech/${voiceId}?output_format=mp3_44100_192`,
+    {
+      method: "POST",
+      headers: { "xi-api-key": apiKey },
+      body: form,
+      signal: AbortSignal.timeout(40_000),
+    },
+  );
+  if (!res.ok) {
+    throw new Error(
+      `ElevenLabs voice changer ${res.status}: ${(await res.text()).slice(0, 200)}`,
+    );
+  }
+  return res.arrayBuffer();
+}
+
 async function synthesise(
   voiceId: string,
   text: string,
   stability: number,
   needTiming = false,
+  plan: VoicePlan = {},
 ): Promise<{ audio: ArrayBuffer; words: WordTiming[] | null }> {
   // The voice reads file names its own way; the key follows what is said.
   text = forVoice(text);
-  const key = createHash("sha1").update(`${voiceId}:${text}`).digest("hex");
+  const model = plan.model || MODEL;
+  const performer = plan.sourceVoiceId || voiceId;
+  const recipe = plan.sourceVoiceId
+    ? `${performer}>${voiceId}:${model}`
+    : voiceId;
+  const key = createHash("sha1").update(`${recipe}:${text}`).digest("hex");
   const hit = cache.get(key);
   if (hit && (!needTiming || timings.has(key))) {
     return { audio: hit, words: timings.get(key) ?? null };
@@ -174,16 +217,16 @@ async function synthesise(
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) throw new Error("ELEVENLABS_API_KEY is not set");
   const res = await fetch(
-    `${ELEVENLABS}/${voiceId}/with-timestamps?output_format=mp3_44100_192`,
+    `${ELEVENLABS}/${performer}/with-timestamps?output_format=mp3_44100_192`,
     {
       method: "POST",
       headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
         text,
-        model_id: MODEL,
+        model_id: model,
         voice_settings: {
           stability: v3Stability(stability),
-          similarity_boost: 0.85,
+          similarity_boost: plan.sourceVoiceId ? 1.0 : 0.85,
         },
       }),
       signal: AbortSignal.timeout(40_000),
@@ -199,8 +242,11 @@ async function synthesise(
     alignment?: Parameters<typeof wordsFrom>[0];
   };
   const bytes = Buffer.from(body.audio_base64, "base64");
-  const audio = new ArrayBuffer(bytes.byteLength);
+  let audio: ArrayBuffer = new ArrayBuffer(bytes.byteLength);
   new Uint8Array(audio).set(bytes);
+  // The voice changer keeps the timing, so the performer's word times still
+  // match the converted line.
+  if (plan.sourceVoiceId) audio = await convertVoice(audio, voiceId, apiKey);
   const words = body.alignment ? wordsFrom(body.alignment) : [];
   await Promise.all([writeVoice(key, audio), writeTiming(key, words)]);
   remember(key, audio, words);
@@ -232,15 +278,28 @@ export async function GET(
   let voiceId: string | undefined;
   let stability: number;
   let speech: string | undefined;
+  let plan: VoicePlan = {};
   if (week.story && week.persona && !override) {
     voiceId = week.persona.voice_id ?? undefined;
     stability = week.persona.stability;
     speech = week.story[index]?.speech;
+    plan = {
+      sourceVoiceId: week.persona.source_voice_id,
+      model: week.persona.tts_model,
+    };
   } else {
     const persona = (override && personaById(override)) || personaOf(week);
     voiceId = persona.voice_id;
     stability = persona.delivery.stability;
     speech = slidesFor(week, persona)[index]?.speech;
+    // The API owns how this week's persona is voiced.
+    if (week.persona?.id === persona.id) {
+      voiceId = week.persona.voice_id ?? voiceId;
+      plan = {
+        sourceVoiceId: week.persona.source_voice_id,
+        model: week.persona.tts_model,
+      };
+    }
   }
   if (!voiceId) {
     return NextResponse.json({ error: "No voice yet" }, { status: 404 });
@@ -257,6 +316,7 @@ export async function GET(
       speech,
       stability,
       wantTiming,
+      plan,
     );
     if (wantTiming) {
       return NextResponse.json(

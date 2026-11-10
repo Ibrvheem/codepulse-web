@@ -158,7 +158,7 @@ export const PERSONAS: Persona[] = [
       ],
       signoff: [
         () =>
-          "[sighs] Va bene, va bene. Next week: more salt, eh? More salt! Ciao, ciao. Roasted by The Italian Chef.",
+          "[sighs] Va bene, va bene. Next week: more salt, eh? More salt! Ciao, ciao.",
       ],
     },
   },
@@ -464,7 +464,9 @@ export const SCHEDULED_PERSONAS: Persona[] = [
     id: "lagos-aunty",
     name: "The Lagos Aunty",
     tagline: "Her friend's son works at Google. What about you?",
-    voice_id: "y47FZICqt6oFf4Z89DXT",
+    // Her voice (Google Yoruba corpus, SLR86). How it is performed lives in
+    // the API persona; the narration route follows that.
+    voice_id: "4uqzZdDrxmWPQCbK6ei3",
     delivery: { stability: 0.5, style: 0.7 },
     lines: {
       intro: [
@@ -533,7 +535,7 @@ export const SCHEDULED_PERSONAS: Persona[] = [
       ],
       signoff: [
         () =>
-          "Next week, do better. Your code will not break in Jesus' name. Roasted by The Lagos Aunty.",
+          "Next week, do better. Your code will not break in Jesus' name.",
       ],
     },
   },

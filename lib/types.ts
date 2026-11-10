@@ -534,6 +534,9 @@ export const weekSchema = z.object({
       tagline: z.string(),
       voice_id: z.string().nullable(),
       stability: z.number(),
+      /** performs the line before the voice changer makes it the persona */
+      source_voice_id: z.string().nullable().optional(),
+      tts_model: z.string().nullable().optional(),
     })
     .optional(),
   /** The roast as hook, beats and verdict. Null for older weeks. */

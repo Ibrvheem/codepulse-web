@@ -67,8 +67,39 @@ export function weekLabel(week: Week): string {
   return `${fmt(week.start)} to ${fmt(week.end)}`;
 }
 
+/** How many fact slides a roast gets between "things shipped" and the end. */
+const MAX_FACT_SLIDES = 3;
+
+/**
+ * The facts worth a slide this week, most roastable first. Mirrors
+ * `chosenFacts` in the API's src/weeks/slides.ts: the video and the voice
+ * count slides the same way, so both must agree.
+ */
+export function chosenFacts(week: Week): Set<string> {
+  if (week.shipped === 0) return new Set();
+  const busiest = [...week.days].sort((a, b) => b.tasks - a.tasks)[0];
+  const quiet = week.days.filter((d) => d.tasks === 0 && !isWeekendDay(d.day));
+  const present: [string, boolean][] = [
+    ["commit", Boolean(week.top_commit_message)],
+    ["late", week.late_commits > 0],
+    ["weekend", week.late_commits === 0 && week.weekend_commits > 0],
+    ["file", Boolean(week.top_file && week.top_file.edits >= 3)],
+    ["busiest", Boolean(busiest && busiest.tasks > 0)],
+    ["quiet", quiet.length > 0 && week.days_active > 0],
+    ["areas", week.areas.length > 0],
+    ["boundaries", week.late_commits === 0 && week.weekend_commits === 0],
+  ];
+  return new Set(
+    present
+      .filter(([, ok]) => ok)
+      .slice(0, MAX_FACT_SLIDES)
+      .map(([key]) => key),
+  );
+}
+
 export function slidesFor(week: Week, persona = personaOf(week)): Slide[] {
   const seed = `${week.start}:${week.project_name}:${persona.id}`;
+  const chosen = chosenFacts(week);
   const busiest = [...week.days].sort((a, b) => b.tasks - a.tasks)[0];
   const quiet = week.days.filter((d) => d.tasks === 0 && !isWeekendDay(d.day));
   const daysWord = week.days_active === 1 ? "day" : "days";
@@ -150,7 +181,7 @@ export function slidesFor(week: Week, persona = personaOf(week)): Slide[] {
     ),
   );
 
-  if (week.top_commit_message) {
+  if (chosen.has("commit") && week.top_commit_message) {
     const { message, count } = week.top_commit_message;
     slides.push(
       slide(
@@ -164,15 +195,15 @@ export function slidesFor(week: Week, persona = personaOf(week)): Slide[] {
     );
   }
 
-  if (busiest && busiest.tasks > 0) {
+  if (chosen.has("busiest") && busiest && busiest.tasks > 0) {
     slides.push(slide("busiest", "Your big day", dayName(busiest.day), "busy"));
   }
 
-  if (week.late_commits > 0) {
+  if (chosen.has("late")) {
     slides.push(
       slide("late", "Commits after 10pm", String(week.late_commits), "late"),
     );
-  } else if (week.weekend_commits > 0) {
+  } else if (chosen.has("weekend")) {
     slides.push(
       slide(
         "weekend",
@@ -181,7 +212,7 @@ export function slidesFor(week: Week, persona = personaOf(week)): Slide[] {
         "weekend",
       ),
     );
-  } else {
+  } else if (chosen.has("boundaries")) {
     slides.push(
       slide(
         "boundaries",
@@ -194,13 +225,13 @@ export function slidesFor(week: Week, persona = personaOf(week)): Slide[] {
     );
   }
 
-  if (week.top_file && week.top_file.edits >= 3) {
+  if (chosen.has("file") && week.top_file) {
     slides.push(
       slide("file", "Favourite file", basename(week.top_file.path), "file"),
     );
   }
 
-  if (week.areas.length > 0) {
+  if (chosen.has("areas")) {
     slides.push(
       slide(
         "areas",
@@ -216,7 +247,7 @@ export function slidesFor(week: Week, persona = personaOf(week)): Slide[] {
     );
   }
 
-  if (quiet.length > 0 && week.days_active > 0) {
+  if (chosen.has("quiet")) {
     slides.push(slide("quiet", "Nothing shipped on", ctx.quietDays, "quiet"));
   }
 

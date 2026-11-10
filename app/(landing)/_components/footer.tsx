@@ -121,7 +121,23 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
-          <p>© {new Date().getFullYear()} WriteLogs</p>
+          <div className="space-y-1">
+            <p>© {new Date().getFullYear()} WriteLogs</p>
+            {/* Required by CC BY-SA 4.0 for the roast narrator's voice. */}
+            <p className="max-w-md text-[11px] leading-snug">
+              Roast voices built from Google&apos;s Crowdsourced Yoruba (SLR86)
+              and Nigerian English (SLR70) speech datasets,{" "}
+              <a
+                href="https://creativecommons.org/licenses/by-sa/4.0/"
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-2 hover:text-neutral-600"
+              >
+                CC BY-SA 4.0
+              </a>
+              .
+            </p>
+          </div>
           <div className="flex items-center gap-6">
             <Link
               href="/support"

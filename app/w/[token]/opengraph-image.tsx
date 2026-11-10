@@ -105,7 +105,7 @@ export default async function OgImage({
                 <span key={line}>{line}</span>
               ),
             )}
-            <span style={{ color: "#D4FF3A", marginTop: 6 }}>Roasted by {persona.name}</span>
+            <span style={{ color: "#D4FF3A", marginTop: 6 }}>{persona.name}</span>
           </div>
           <span style={{ fontSize: 28, fontWeight: 600 }}>WriteLogs</span>
         </div>

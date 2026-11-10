@@ -39,7 +39,13 @@ import {
 } from "../../buffer/_hooks/use-buffer";
 import { TONE_LABELS } from "../../buffer/_components/buffer-view";
 
-type SourceRef = { summary_id?: string; recap_id?: string };
+type SourceRef = {
+  summary_id?: string;
+  recap_id?: string;
+  /** a week's roast: the post carries the rendered video */
+  week_project_id?: string;
+  week_day?: string;
+};
 
 const MODE_LABELS: Record<BufferMode, { label: string; hint: string }> = {
   draft: {
@@ -57,7 +63,13 @@ const MODE_LABELS: Record<BufferMode, { label: string; hint: string }> = {
 };
 
 function postsKey(source: SourceRef) {
-  return ["buffer-posts", source.summary_id ?? "", source.recap_id ?? ""];
+  return [
+    "buffer-posts",
+    source.summary_id ?? "",
+    source.recap_id ?? "",
+    source.week_project_id ?? "",
+    source.week_day ?? "",
+  ];
 }
 
 function composeKey(source: SourceRef) {
@@ -150,7 +162,8 @@ export function PostToBuffer({
   const existing = useQuery({
     queryKey: postsKey(source),
     queryFn: () => buffer.posts(source),
-    enabled: connected,
+    // Roast posts aren't listed per week; days and recaps are.
+    enabled: connected && !source.week_project_id,
     staleTime: 30_000,
   });
 

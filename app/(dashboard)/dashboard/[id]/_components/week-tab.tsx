@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WeekStory } from "@/components/week/week-story";
 import { ShareVideoButton } from "@/components/week/share-video-button";
+import { PostToBuffer } from "./post-to-buffer";
 import { personaFor } from "@/lib/week-personas";
 import { shareText, weekLabel } from "@/lib/week-roast";
 import type { Week } from "@/lib/types";
@@ -26,11 +27,19 @@ function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
   // Minted up front so Share can open the share sheet on the click itself.
   const { data: link } = useWeekToken(projectId, day);
   return (
-    <ShareVideoButton
-      video={video}
-      text={week ? shareText(week, "").trim() : ""}
-      link={link?.url}
-    />
+    <div className="space-y-2">
+      <ShareVideoButton
+        video={video}
+        text={week ? shareText(week, "").trim() : ""}
+        link={link?.url}
+      />
+      {video?.status === "ready" && week ? (
+        <PostToBuffer
+          source={{ week_project_id: projectId, week_day: week.start }}
+          label="Post roast to Buffer"
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -48,8 +57,8 @@ function Waiting({ week }: { week: Week }) {
       />
       <p className="font-medium">{persona.name} is still watching.</p>
       <p className="mt-2 text-sm text-muted-foreground">
-        Your roast lands Friday afternoon, your time. Keep shipping. Or don&apos;t.{" "}
-        {persona.name} will have thoughts either way.
+        Your roast lands Friday afternoon, your time. Keep shipping. Or
+        don&apos;t. {persona.name} will have thoughts either way.
       </p>
     </div>
   );
