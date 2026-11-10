@@ -31,6 +31,62 @@ import {
 import { useBilling } from "../_hooks/use-billing";
 import { BILLING_PATH } from "../_hooks/use-upgrade-toast";
 import { useFeedbackMe } from "../dashboard/feedback/_hooks/use-feedback-me";
+import { useBufferStatus } from "../dashboard/buffer/_hooks/use-buffer";
+import { BufferMark } from "@/components/brand/buffer-mark";
+import { ChannelStack } from "@/components/brand/channel-stack";
+
+/**
+ * Buffer's place in the header: the mark and the faces of the channels posts
+ * go to once connected, a nudge to reconnect when the link has lapsed, and a
+ * quiet way in when it was never set up.
+ */
+function BufferBadge() {
+  const { data: status } = useBufferStatus();
+  if (!status) return null;
+  const channels = (status.channels ?? []).filter(
+    (c) => !c.is_locked && !c.is_disconnected,
+  );
+  const picked = channels.filter((c) => status.channel_ids?.includes(c.id));
+  const live = status.connected && !status.needs_reauth;
+  const hint = !status.connected
+    ? "Post your days to X, LinkedIn and more"
+    : status.needs_reauth
+      ? "Buffer needs you to sign in again"
+      : `Buffer connected · posting to ${picked.length || channels.length} channel${(picked.length || channels.length) === 1 ? "" : "s"}`;
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button asChild variant="ghost" size="sm" className="rounded-full">
+            <Link href="/dashboard/buffer">
+              <span className="relative">
+                <BufferMark className="size-4" />
+                {live && (
+                  <span className="absolute -right-0.5 -bottom-0.5 size-1.5 rounded-full bg-foreground ring-2 ring-background" />
+                )}
+              </span>
+              {live ? (
+                <>
+                  <span className="hidden sm:inline">Buffer</span>
+                  <ChannelStack
+                    channels={picked.length ? picked : channels}
+                    size="size-5"
+                    ring="ring-background"
+                  />
+                </>
+              ) : status.connected ? (
+                "Reconnect Buffer"
+              ) : (
+                <span className="hidden sm:inline">Connect Buffer</span>
+              )}
+            </Link>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{hint}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 export function Topbar() {
   const router = useRouter();
@@ -69,6 +125,7 @@ export function Topbar() {
           {APP_NAME}
         </Link>
         <div className="flex items-center gap-1.5">
+          <BufferBadge />
           {billing?.founding_member && (
             <TooltipProvider>
               <Tooltip>

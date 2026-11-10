@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Send } from "lucide-react";
 import {
   useMutation,
   useQueries,
@@ -11,6 +10,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { BufferMark } from "@/components/brand/buffer-mark";
+import { ChannelStack } from "@/components/brand/channel-stack";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -135,9 +136,12 @@ function ChannelChip({
 export function PostToBuffer({
   source,
   label = "Post to Buffer",
+  block = false,
 }: {
   source: SourceRef;
   label?: string;
+  /** The main action: solid, full width, normal size. */
+  block?: boolean;
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -264,8 +268,9 @@ export function PostToBuffer({
   return (
     <>
       <Button
-        variant="outline"
-        size="sm"
+        variant={block ? "default" : "outline"}
+        size={block ? "default" : "sm"}
+        className={block ? "flex-1" : undefined}
         onClick={() => {
           // Nothing to post to yet: the connect page explains what to do.
           if (status.data && (!ready || usable.length === 0)) {
@@ -275,8 +280,13 @@ export function PostToBuffer({
           }
         }}
       >
-        <Send className="size-3.5" />
+        <BufferMark className={block ? "size-4" : "size-3.5"} />
         {label}
+        <ChannelStack
+          channels={usable.filter((c) => chosen.includes(c.id))}
+          size={block ? "size-5" : "size-4"}
+          ring={block ? "ring-primary" : "ring-background"}
+        />
         {already.length > 0 && (
           <span className="ml-1 rounded-full bg-muted px-1.5 text-[10px] tabular-nums text-muted-foreground">
             {already.length}

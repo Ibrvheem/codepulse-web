@@ -27,19 +27,20 @@ function ShareRow({ projectId, day }: { projectId: string; day?: string }) {
   // Minted up front so Share can open the share sheet on the click itself.
   const { data: link } = useWeekToken(projectId, day);
   return (
-    <div className="space-y-2">
-      <ShareVideoButton
-        video={video}
-        text={week ? shareText(week, "").trim() : ""}
-        link={link?.url}
-      />
-      {video?.status === "ready" && week ? (
-        <PostToBuffer
-          source={{ week_project_id: projectId, week_day: week.start }}
-          label="Post roast to Buffer"
-        />
-      ) : null}
-    </div>
+    <ShareVideoButton
+      video={video}
+      text={week ? shareText(week, "").trim() : ""}
+      link={link?.url}
+      lead={
+        week ? (
+          <PostToBuffer
+            source={{ week_project_id: projectId, week_day: week.start }}
+            label="Post roast to Buffer"
+            block
+          />
+        ) : undefined
+      }
+    />
   );
 }
 

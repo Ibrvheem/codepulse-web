@@ -1,8 +1,15 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { track } from "@/lib/analytics";
 import type { WeekVideo } from "@/lib/types";
 
@@ -16,12 +23,15 @@ export function ShareVideoButton({
   video,
   text,
   link,
+  lead,
 }: {
   video: WeekVideo | undefined;
   /** the post text */
   text: string;
   /** the public roast page, minted ahead of time */
   link: string | undefined;
+  /** The main action. When set, Download and Share shrink to icons beside it. */
+  lead?: ReactNode;
 }) {
   const ready = video?.status === "ready" && Boolean(video.download_url);
 
@@ -45,6 +55,45 @@ export function ShareVideoButton({
       toast.info(link);
     }
   };
+
+  if (lead && ready) {
+    return (
+      <TooltipProvider>
+        <div className="flex gap-2">
+          {lead}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button asChild variant="outline" size="icon">
+                <a
+                  href={video!.download_url}
+                  download
+                  aria-label="Download video"
+                  onClick={() => track("week_video_downloaded")}
+                >
+                  <Download className="size-4" />
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Download video</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Share"
+                disabled={!link}
+                onClick={share}
+              >
+                <Share2 className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Share</TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-2">
